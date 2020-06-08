@@ -10,16 +10,18 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:rime-assistant.helloWorld"
+		"onView:rimeExplorer"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
-		"commands": [
-			{
-				"command": "rime-assistant.helloWorld",
-				"title": "Hello World"
-			}
-		]
+		"views": {
+			"explorer": [
+				{
+					"id": "rimeExplorer",
+					"name": "Rime Explorer"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
