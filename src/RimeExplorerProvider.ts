@@ -4,7 +4,14 @@ import * as path from 'path';
 import { TreeItem } from 'vscode';
 
 export class RimeExplorerProvider implements vscode.TreeDataProvider<TreeItem> {
+     private _onDidChangeTreeData: vscode.EventEmitter<TreeItem | undefined> = new vscode.EventEmitter<TreeItem | undefined>();
+    readonly onDidChangeTreeData: vscode.Event<TreeItem | undefined> = this._onDidChangeTreeData.event;
+
     constructor() {}
+
+    refresh(): void {
+        this._onDidChangeTreeData.fire(undefined);
+    }
 
     getTreeItem(element: TreeItem): TreeItem {
         return element;

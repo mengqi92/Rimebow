@@ -14,6 +14,25 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"menus": {
+			"view/title": [
+				{
+					"command": "rimeExplorer.refreshEntry",
+					"group": "navigation",
+					"when": "view == rimeExplorer"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "rimeExplorer.refreshEntry",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			}
+		],
 		"views": {
 			"explorer": [
 				{
