@@ -20,7 +20,7 @@ export class RimeExplorerProvider implements vscode.TreeDataProvider<TreeItem> {
             if (element.label === 'Default Configurations') {
                 // this.readRimeDefaultConfigurations();
                 // 'C:\Program Files (x86)\Rime\weasel-0.14.3'
-                let defaultConfigPath: string = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3');
+                let defaultConfigPath: string = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
                 return this._getConfigFiles(defaultConfigPath);
             } else if (element.label === 'User Configurations') {
                 // this.readRimeUserConfigurations();
