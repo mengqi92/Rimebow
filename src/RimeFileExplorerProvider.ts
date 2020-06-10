@@ -44,6 +44,16 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
                 resolve(files);
             });
         });
-        return files.filter((file: string) => file.endsWith('.yaml')).map((file: string): TreeItem => new TreeItem(file));
+        return files
+            .filter((file: string) => file.endsWith('.yaml'))
+            .map((file: string): TreeItem => {
+                let fileItem: TreeItem = new TreeItem(file);
+                fileItem.command = {
+                    command: 'vscode.open',
+                    title: 'open',
+                    arguments: [vscode.Uri.file(path.join(configPath, file))],
+                };
+                return fileItem;
+            });
     }
 }
