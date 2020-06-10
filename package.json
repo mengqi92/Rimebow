@@ -10,22 +10,22 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onView:rimeExplorer"
+		"onView:rimeFileExplorer"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"menus": {
 			"view/title": [
 				{
-					"command": "rimeExplorer.refreshEntry",
+					"command": "rimeFileExplorer.refreshEntry",
 					"group": "navigation",
-					"when": "view == rimeExplorer"
+					"when": "view == rimeFileExplorer"
 				}
 			]
 		},
 		"commands": [
 			{
-				"command": "rimeExplorer.refreshEntry",
+				"command": "rimeFileExplorer.refreshEntry",
 				"title": "Refresh",
 				"icon": {
 					"light": "resources/light/refresh.svg",
@@ -36,7 +36,7 @@
 		"views": {
 			"explorer": [
 				{
-					"id": "rimeExplorer",
+					"id": "rimeFileExplorer",
 					"name": "Rime Explorer"
 				}
 			]
