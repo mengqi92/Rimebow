@@ -34,10 +34,19 @@
 			}
 		],
 		"views": {
-			"explorer": [
+			"rime-assistant": [
 				{
 					"id": "rimeFileExplorer",
 					"name": "Rime Explorer"
+				}
+			]
+		}, 
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "rime-assistant",
+					"title": "Rime Assistant",
+					"icon": "media/dep.svg"
 				}
 			]
 		}
