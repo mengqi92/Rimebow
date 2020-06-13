@@ -81,7 +81,7 @@ export class RimeConfigurationTree {
                 // TODO use object instead of array
                 return this.tree.folders[0].files
                     .map((configFile: ConfigFile): vscode.TreeItem => {
-                        let fileItem: TreeItem = new TreeItem(configFile.name);
+                        let fileItem: TreeItem = new TreeItem(configFile.name, vscode.TreeItemCollapsibleState.Collapsed);
                         fileItem.contextValue = 'file';
                         fileItem.command = {
                             command: 'vscode.open',
@@ -93,7 +93,7 @@ export class RimeConfigurationTree {
             case ConfigFolderType.USER:
                 return this.tree.folders[1].files
                     .map((configFile: ConfigFile): vscode.TreeItem => {
-                        let fileItem: TreeItem = new TreeItem(configFile.name);
+                        let fileItem: TreeItem = new TreeItem(configFile.name, vscode.TreeItemCollapsibleState.Collapsed);
                         fileItem.contextValue = 'file';
                         fileItem.command = {
                             command: 'vscode.open',
