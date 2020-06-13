@@ -4,7 +4,7 @@ import * as path from 'path';
 import { TreeItem } from 'vscode';
 
 export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeItem> {
-     private _onDidChangeTreeData: vscode.EventEmitter<TreeItem | undefined> = new vscode.EventEmitter<TreeItem | undefined>();
+    private _onDidChangeTreeData: vscode.EventEmitter<TreeItem | undefined> = new vscode.EventEmitter<TreeItem | undefined>();
     readonly onDidChangeTreeData: vscode.Event<TreeItem | undefined> = this._onDidChangeTreeData.event;
 
     constructor() {}
@@ -20,9 +20,11 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
     getChildren(element?: TreeItem): vscode.ProviderResult<TreeItem[]> {
         // Root node.
         if (!element) {
-            return [
-                new TreeItem("Default Configurations", vscode.TreeItemCollapsibleState.Collapsed), 
-                new TreeItem("User Configurations", vscode.TreeItemCollapsibleState.Collapsed)];
+            const defaultFolder: TreeItem = new TreeItem("Default Configurations", vscode.TreeItemCollapsibleState.Collapsed); 
+            defaultFolder.contextValue = 'folder';
+            const userFolder: TreeItem = new TreeItem("User Configurations", vscode.TreeItemCollapsibleState.Collapsed);
+            userFolder.contextValue = 'folder';
+            return [defaultFolder, userFolder];
         } else {
             if (element.label === 'Default Configurations') {
                 // this.readRimeDefaultConfigurations();
@@ -49,6 +51,7 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
                 .filter((fileName: string) => fileName.endsWith('.yaml'))
                 .map((fileName: string): TreeItem => {
                     let fileItem: TreeItem = new TreeItem(fileName);
+                    fileItem.contextValue = 'file';
                     fileItem.command = {
                         command: 'vscode.open',
                         title: 'open',
