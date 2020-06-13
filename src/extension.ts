@@ -4,6 +4,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { RimeFileExplorerProvider } from './RimeFileExplorerProvider';
+import { RimeNodeExplorerProvider } from './RimeNodeExplorerProvider';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -16,6 +17,9 @@ export function activate(context: vscode.ExtensionContext) {
 	const rimeFileExplorerProvider: RimeFileExplorerProvider = new RimeFileExplorerProvider();
 	vscode.commands.registerCommand('rimeFileExplorer.refreshEntry', () => { rimeFileExplorerProvider.refresh(); });
 	vscode.window.createTreeView('rimeFileExplorer', { treeDataProvider: rimeFileExplorerProvider });
+
+	const rimeNodeExplorerProvider: RimeNodeExplorerProvider = new RimeNodeExplorerProvider();
+	vscode.window.createTreeView('rimeNodeExplorer', { treeDataProvider: rimeNodeExplorerProvider });
 }
 
 // this method is called when your extension is deactivated
