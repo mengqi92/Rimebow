@@ -5,6 +5,7 @@
 import * as vscode from 'vscode';
 import { RimeFileExplorerProvider } from './RimeFileExplorerProvider';
 import { RimeNodeExplorerProvider } from './RimeNodeExplorerProvider';
+import { RimeConfigurationTree } from './RimeConfigurationTree';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -14,11 +15,14 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "rime-assistant" is now active!');
 
-	const rimeFileExplorerProvider: RimeFileExplorerProvider = new RimeFileExplorerProvider();
+	const rimeConfigurationTree: RimeConfigurationTree = new RimeConfigurationTree();
+	rimeConfigurationTree.build();
+
+	const rimeFileExplorerProvider: RimeFileExplorerProvider = new RimeFileExplorerProvider(rimeConfigurationTree);
 	vscode.commands.registerCommand('rimeFileExplorer.refreshEntry', () => { rimeFileExplorerProvider.refresh(); });
 	vscode.window.createTreeView('rimeFileExplorer', { treeDataProvider: rimeFileExplorerProvider });
 
-	const rimeNodeExplorerProvider: RimeNodeExplorerProvider = new RimeNodeExplorerProvider();
+	const rimeNodeExplorerProvider: RimeNodeExplorerProvider = new RimeNodeExplorerProvider(rimeConfigurationTree);
 	vscode.window.createTreeView('rimeNodeExplorer', { treeDataProvider: rimeNodeExplorerProvider });
 }
 

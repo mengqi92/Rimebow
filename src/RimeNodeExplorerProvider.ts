@@ -1,16 +1,16 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import * as path from 'path';
 import { TreeItem } from 'vscode';
-import YAML = require('yaml');
+import { RimeConfigurationTree, ConfigFolderType } from './RimeConfigurationTree';
 
 export class RimeNodeExplorerProvider implements vscode.TreeDataProvider<TreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<TreeItem | undefined> = new vscode.EventEmitter<TreeItem | undefined>();
     readonly onDidChangeTreeData: vscode.Event<TreeItem | undefined> = this._onDidChangeTreeData.event;
-    private static readonly DEFAULT_CONFIG_PATH: string = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
-    // TODO: private defaultNodeTree
+    private readonly configurationTree: RimeConfigurationTree;
 
-    constructor() {}
+    constructor(configurationTree: RimeConfigurationTree) {
+        this.configurationTree = configurationTree;
+    }
 
     refresh(): void {
         this._onDidChangeTreeData.fire(undefined);
@@ -30,42 +30,12 @@ export class RimeNodeExplorerProvider implements vscode.TreeDataProvider<TreeIte
             return [defaultFolder, userFolder];
         } else {
             if (element.label === 'Default Configurations') {
-                return this._getConfigFiles(RimeNodeExplorerProvider.DEFAULT_CONFIG_PATH);
+                return this.configurationTree.getFolderFiles(ConfigFolderType.DEFAULT);
+            } else if (element.label === 'User Configurations') {
+                return this.configurationTree.getFolderFiles(ConfigFolderType.USER);
             } else if (element.contextValue === 'file' && element.label !== undefined) {
-                return this._getYamlNodeTree(path.join(RimeNodeExplorerProvider.DEFAULT_CONFIG_PATH, element.label));
+                return this.configurationTree.getYamlTree(element.label);
             }
         }
-    }
-
-    private async _getYamlNodeTree(fileName: string): Promise<vscode.TreeItem[]> {
-        const fileResult: Promise<Buffer> = new Promise((resolve, reject) => {
-            fs.readFile(fileName + '.yaml', {}, (err: NodeJS.ErrnoException | null, data: Buffer) => {
-                return resolve(data);
-            });
-        });
-        return fileResult.then((data: Buffer): TreeItem[] => {
-            const nodeTree: any = YAML.parse(data.toString());
-            return Object.keys(nodeTree).map((key: string) => {
-                console.log("key: " + key);
-                return new TreeItem(key);
-            });
-        });
-    }
-
-    private async _getConfigFiles(configPath: string): Promise<TreeItem[]> {
-        const filesResult: Promise<string[]> = new Promise((resolve, reject) => {
-            fs.readdir(configPath, (err: NodeJS.ErrnoException | null, files: string[]) => {
-                resolve(files);
-            });
-        });
-        return filesResult.then((fileNames: string[]): TreeItem[] => {
-            return fileNames
-                .filter((fileName: string) => fileName.endsWith('.yaml'))
-                .map((fileName: string): TreeItem => {
-                    let fileItem: TreeItem = new TreeItem(fileName.replace('.yaml', ''), vscode.TreeItemCollapsibleState.Collapsed);
-                    fileItem.contextValue = 'file';
-                    return fileItem;
-                });
-        });
     }
 }
