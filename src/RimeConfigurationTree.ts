@@ -78,7 +78,7 @@ export class RimeConfigurationTree {
     public getFolderFiles(folderType: ConfigFolderType): vscode.TreeItem[] {
         switch (folderType) {
             case ConfigFolderType.DEFAULT:
-                // use object instead of array
+                // TODO use object instead of array
                 return this.tree.folders[0].files
                     .map((configFile: ConfigFile): vscode.TreeItem => {
                         let fileItem: TreeItem = new TreeItem(configFile.name);
@@ -129,13 +129,12 @@ export class RimeConfigurationTree {
     private async _getConfigFiles(configPath: string): Promise<ConfigFile[]> {
         const filesResult: Promise<string[]> = readDirAsync(configPath);
         const fileNames = await filesResult;
-        return Promise.all(fileNames
-            .filter((fileName: string) => fileName.endsWith('.yaml'))
-            .map((fileName: string): Promise<ConfigFile> => {
-                return this._getYamlNodeTree(configPath, fileName);
-            })).catch((error: YAMLSemanticError) => {
-                return [];
+        const promises: Promise<ConfigFile>[] = fileNames
+            .filter((fileName: string) => fileName.endsWith('.yaml') && !fileName.endsWith('.dict.yaml'))
+            .map(async (fileName: string): Promise<ConfigFile> => {
+                return await this._getYamlNodeTree(configPath, fileName);
             });
+        return await Promise.all(promises).catch((error: YAMLSemanticError) => []);
     }
 
     private async _getYamlNodeTree(filePath: string, fileName: string): Promise<ConfigFile> {
