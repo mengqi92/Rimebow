@@ -38,22 +38,24 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
         }
     }
 
-    private async _getConfigFiles(configPath: string) {
-        const files: string[] = await new Promise((resolve, reject) => {
+    private async _getConfigFiles(configPath: string): Promise<TreeItem[]> {
+        const filesResult: Promise<string[]> = new Promise((resolve, reject) => {
             fs.readdir(configPath, (err: NodeJS.ErrnoException | null, files: string[]) => {
                 resolve(files);
             });
         });
-        return files
-            .filter((file: string) => file.endsWith('.yaml'))
-            .map((file: string): TreeItem => {
-                let fileItem: TreeItem = new TreeItem(file);
-                fileItem.command = {
-                    command: 'vscode.open',
-                    title: 'open',
-                    arguments: [vscode.Uri.file(path.join(configPath, file))],
-                };
-                return fileItem;
-            });
+        return filesResult.then((fileNames: string[]): TreeItem[] => {
+            return fileNames
+                .filter((fileName: string) => fileName.endsWith('.yaml'))
+                .map((fileName: string): TreeItem => {
+                    let fileItem: TreeItem = new TreeItem(fileName);
+                    fileItem.command = {
+                        command: 'vscode.open',
+                        title: 'open',
+                        arguments: [vscode.Uri.file(path.join(configPath, fileName))],
+                    };
+                    return fileItem;
+                });
+        });
     }
 }
