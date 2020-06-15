@@ -3,26 +3,83 @@ import * as fs from 'fs';
 import * as path from 'path';
 import YAML = require('yaml');
 import util = require('util');
-import { TreeItem } from 'vscode';
+import { TreeItem, TreeItemCollapsibleState } from 'vscode';
 import { YAMLSemanticError } from 'yaml/util';
 
 export enum ConfigFolderType {
     DEFAULT,
     USER
 };
-interface ConfigFile {
-    readonly name: string,
-    readonly nameWithoutExtension: string,
-    readonly fullName: string,
-    readonly nodeTree: object;
-}
-interface ConfigFolder {
-    readonly path: string,
-    readonly type: ConfigFolderType,
-    readonly files: ConfigFile[]
-}
+/**
+ * @deprecated
+ */
 interface ConfigTree {
     folders: ConfigFolder[];
+}
+export interface ConfigFolder {
+    readonly path: string,
+    readonly type: ConfigFolderType,
+    readonly files: ConfigTreeItem[]
+}
+
+export class ConfigTreeItem extends TreeItem {
+    constructor(
+        /**
+         * The label of the node.
+         */
+        public readonly label: string, 
+        /**
+         * A list of children nodes of current node.
+         */
+        public readonly children: ConfigTreeItem[],
+        /**
+         * The path to current node represented as a list of nodes.
+         */
+        public readonly path: ConfigTreeItem[],
+        /**
+         * Full path of the config file containing current node, used for navigation.
+         */
+        public readonly configFilePath: string,
+        /**
+         * The line number of current node defined in the config file, used for navigation.
+         */
+        public readonly configLine: number,
+        private isFile: boolean = false,
+        /**
+         * The value of the leaf node.
+         */
+        public value?: any) {
+        super(
+            label, 
+            children.length > 0 ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
+        this.contextValue = isFile ? 'file' : 'item';
+        this.description = path.map((node: ConfigTreeItem) => node.label).join('->');
+        this.tooltip = `value: ${value}`;
+        // this.iconPath = isPatch ? '' : '';
+        // this.command = {
+        //     command: 'vscode.open',
+        //     title: 'open',
+        //     arguments: [vscode.Uri.file(fullPath)],
+        // };
+    }
+
+    /**
+     * Is current node a patch defined by user.
+     */
+    get isPatch(): boolean {
+        if (this.configFilePath) {
+            return this.configFilePath.endsWith('.custom.yaml');
+        }
+        return false;
+    }
+
+    get hasChildren(): boolean {
+        return this.children.length > 0;
+    }
+}
+
+interface NodeTreeByFile {
+    [fileName: string]: ConfigTreeItem
 }
 
 const readDirAsync = util.promisify(fs.readdir);
@@ -30,116 +87,78 @@ const readFileAsync = util.promisify(fs.readFile);
 export class RimeConfigurationTree {
     private static readonly DEFAULT_CONFIG_PATH: string = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
     private static readonly USER_CONFIG_PATH: string = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime');
-    private tree: ConfigTree = { folders: [] };
-    // Data structure:
-    /* 
-    [
-        [ConfigFolder] DefaultConfigurations: {
-            [ConfigFile] default: {
-                ascii_composer: {}
-                key_binder: {}
-            }, bopomofo: {
-                switches: {
-                }, engine: {
-                }
-            }, cangjie: {
-                switches: {
-                }, engine: {
-                }
-            }
-        }, [ConfigFolder] UserConfigurations: {
-            [ConfigFile] default: {
-                [ConfigNode(object)] ascii_composer: {}
-                [ConfigNode] key_binder: {}
-            }, [ConfigFile] bopomofo: {
-                switches: {
-                }, engine: {
-                }
-            }, cangjie: {
-                switches: {
-                }, engine: {
-                }
-            }
-        }
-    ]
-    */
+    public tree: ConfigTree = { folders: [] };
+    // {file: nodeTree, file: nodeTree}
+    private nodeTreeByFile: NodeTreeByFile = {};
 
     constructor() {}
 
     public async build() {
-        this.tree.folders.push(await this._getConfigFolder(RimeConfigurationTree.DEFAULT_CONFIG_PATH, ConfigFolderType.DEFAULT));
-        this.tree.folders.push(await this._getConfigFolder(RimeConfigurationTree.USER_CONFIG_PATH, ConfigFolderType.USER));
+        this.tree.folders.push(await this._parseConfigFolder(RimeConfigurationTree.DEFAULT_CONFIG_PATH, ConfigFolderType.DEFAULT));
+        this.tree.folders.push(await this._parseConfigFolder(RimeConfigurationTree.USER_CONFIG_PATH, ConfigFolderType.USER));
     }
 
-    /**
-     * TODO
-     * @param folderType 
-     */
-    public getFolderFiles(folderType: ConfigFolderType): vscode.TreeItem[] {
-        switch (folderType) {
-            case ConfigFolderType.DEFAULT:
-                // TODO use object instead of array
-                return this.tree.folders[0].files
-                    .map((configFile: ConfigFile): vscode.TreeItem => {
-                        let fileItem: TreeItem = new TreeItem(configFile.name, vscode.TreeItemCollapsibleState.Collapsed);
-                        fileItem.contextValue = 'file';
-                        fileItem.command = {
-                            command: 'vscode.open',
-                            title: 'open',
-                            arguments: [vscode.Uri.file(configFile.fullName)],
-                        };
-                        return fileItem;
-                    });
-            case ConfigFolderType.USER:
-                return this.tree.folders[1].files
-                    .map((configFile: ConfigFile): vscode.TreeItem => {
-                        let fileItem: TreeItem = new TreeItem(configFile.name, vscode.TreeItemCollapsibleState.Collapsed);
-                        fileItem.contextValue = 'file';
-                        fileItem.command = {
-                            command: 'vscode.open',
-                            title: 'open',
-                            arguments: [vscode.Uri.file(configFile.fullName)],
-                        };
-                        return fileItem;
-                    });
-            default:
-                throw Error('illegal folder type');
+    getConfigChildrenTreeItem(node: ConfigTreeItem): vscode.ProviderResult<ConfigTreeItem[]> {
+        if (node.hasChildren) {
+            return node.children;
+        } else {
+            return null;
         }
     }
 
-    /**
-     * getYamlTree
-     */
-    public getYamlTree(fileName: string): TreeItem[] | undefined {
-        const configFileFound: ConfigFile | undefined = this.tree.folders[0].files.find((configFile: ConfigFile): boolean => {
-            return configFile.name === fileName;
-        });
-        if (configFileFound) {
-            return Object.keys(configFileFound.nodeTree).map((nodeName: string): TreeItem => {
-                return new TreeItem(nodeName);
+    private _parseNodeTree(objectTreeRoot: any, rootNode: ConfigTreeItem, fullPath: string, isPatch: boolean) {
+        if (typeof(objectTreeRoot) === 'object') {
+            Object.keys(objectTreeRoot).forEach((objectKey: string) => {
+                const value: any = objectTreeRoot[objectKey];
+                let extendedPath: ConfigTreeItem[] = rootNode.path.slice(0);
+                extendedPath.push(rootNode);
+                if (typeof(value) === 'object') {
+                    // Object tree has children.
+                    let childNode: ConfigTreeItem = new ConfigTreeItem(objectKey, [], extendedPath, fullPath, 0);
+                    rootNode.children.push(childNode);
+                    this._parseNodeTree(value, childNode, fullPath, isPatch);
+                } else {
+                    // FIXME fill configLine with correct value.
+                    rootNode.children.push(new ConfigTreeItem(objectKey, [], extendedPath, fullPath, 0, value));
+                    rootNode.collapsibleState = TreeItemCollapsibleState.Collapsed;
+                }
             });
+        } else if (objectTreeRoot) {
+            rootNode.value = objectTreeRoot;
         }
     }
 
-    private async _getConfigFolder(path: string, type: ConfigFolderType): Promise<ConfigFolder> {
-        const configFiles: ConfigFile[] = await this._getConfigFiles(RimeConfigurationTree.USER_CONFIG_PATH);
+    private async _parseConfigFolder(path: string, type: ConfigFolderType): Promise<ConfigFolder> {
+        const configPath: string = type === ConfigFolderType.DEFAULT ? RimeConfigurationTree.DEFAULT_CONFIG_PATH : RimeConfigurationTree.USER_CONFIG_PATH;
+        const configFiles: ConfigTreeItem[] = await this._parseConfigFiles(configPath);
         return { path: path, type: type, files: configFiles };
     }
 
-    private async _getConfigFiles(configPath: string): Promise<ConfigFile[]> {
+    private async _parseConfigFiles(configPath: string): Promise<ConfigTreeItem[]> {
         const filesResult: Promise<string[]> = readDirAsync(configPath);
         const fileNames = await filesResult;
-        const promises: Promise<ConfigFile>[] = fileNames
+        const promises: Promise<ConfigTreeItem>[] = fileNames
             .filter((fileName: string) => fileName.endsWith('.yaml') && !fileName.endsWith('.dict.yaml'))
-            .map(async (fileName: string): Promise<ConfigFile> => {
+            .map(async (fileName: string): Promise<ConfigTreeItem> => {
                 return await this._getYamlNodeTree(configPath, fileName);
             });
         return await Promise.all(promises).catch((error: YAMLSemanticError) => []);
     }
 
-    private async _getYamlNodeTree(filePath: string, fileName: string): Promise<ConfigFile> {
+    private async _getYamlNodeTree(filePath: string, fileName: string): Promise<ConfigTreeItem> {
         const fullName: string = path.join(filePath, fileName);
         const data = await readFileAsync(fullName);
-        return { name: fileName, nameWithoutExtension: fileName.replace('yaml', ''), fullName: fullName, nodeTree: YAML.parse(data.toString()) };
+
+        const objectTree: object = YAML.parse(data.toString());
+
+        const fileLabel: string = fileName.replace('.yaml', '');
+        const isPatch: boolean = fileName.endsWith('.custom.yaml');
+        let rootNode: ConfigTreeItem = new ConfigTreeItem(fileLabel, [], [], fullName, 0);
+        // Build ConfigNode tree by traversing the nodeTree object.
+        this._parseNodeTree(objectTree, rootNode, fileLabel, isPatch);
+        // this.nodeTreeByFile[file.nameWithoutExtension] = rootNode;
+        // file
+        // FIXME: line number should be -1 or something for file.
+        return new ConfigTreeItem(fileLabel, [rootNode], [], fullName, 0, true,);
     }
 }

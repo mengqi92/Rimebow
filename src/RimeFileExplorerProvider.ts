@@ -31,9 +31,9 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
             return [defaultFolder, userFolder];
         } else {
             if (element.label === 'Default Configurations') {
-                return this.configurationTree.getFolderFiles(ConfigFolderType.DEFAULT);
+                return this.configurationTree.tree.folders[0].files;
             } else if (element.label === 'User Configurations') {
-                return this.configurationTree.getFolderFiles(ConfigFolderType.USER);
+                return this.configurationTree.tree.folders[1].files;
             }
         }
     }
