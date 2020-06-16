@@ -1,8 +1,6 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
 import { TreeItem } from 'vscode';
-import { RimeConfigurationTree, ConfigFolderType } from './RimeConfigurationTree';
+import { RimeConfigurationTree } from './RimeConfigurationTree';
 
 export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<TreeItem | undefined> = new vscode.EventEmitter<TreeItem | undefined>();
@@ -31,9 +29,9 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
             return [defaultFolder, userFolder];
         } else {
             if (element.label === 'Default Configurations') {
-                return this.configurationTree.tree.folders[0].files;
+                return this.configurationTree.defaultConfigFiles;
             } else if (element.label === 'User Configurations') {
-                return this.configurationTree.tree.folders[1].files;
+                return this.configurationTree.userConfigFiles;
             }
         }
     }

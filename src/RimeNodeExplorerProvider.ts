@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-import { RimeConfigurationTree, ConfigFolderType, ConfigTreeItem } from './RimeConfigurationTree';
-import { TreeItem } from 'vscode';
+import { RimeConfigurationTree, ConfigTreeItem } from './RimeConfigurationTree';
 
 export class RimeNodeExplorerProvider implements vscode.TreeDataProvider<ConfigTreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<ConfigTreeItem | undefined> = new vscode.EventEmitter<ConfigTreeItem | undefined>();
@@ -19,7 +18,7 @@ export class RimeNodeExplorerProvider implements vscode.TreeDataProvider<ConfigT
         return element;
     }
 
-    getChildren(element?: ConfigTreeItem): vscode.ProviderResult<ConfigTreeItem[]> {
+    getChildren(element?: ConfigTreeItem | undefined): vscode.ProviderResult<ConfigTreeItem[]> {
         // Root node.
         if (!element) {
             // const defaultFolder: TreeItem = new TreeItem("Default Configurations", vscode.TreeItemCollapsibleState.Collapsed); 
@@ -27,15 +26,17 @@ export class RimeNodeExplorerProvider implements vscode.TreeDataProvider<ConfigT
             // const userFolder: TreeItem = new TreeItem("User Configurations", vscode.TreeItemCollapsibleState.Collapsed);
             // userFolder.contextValue = 'folder';
             // return [defaultFolder, userFolder];
-            return this.configurationTree.tree.folders[0].files;
+            return this.configurationTree.userConfigFiles;
         } else {
             // if (element.label === 'Default Configurations') {
-            //     return this.configurationTree.tree.folders[0].files;
+            //     return this.configurationTree.defaultConfigFiles;
             // } else if (element.label === 'User Configurations') {
-            //     return this.configurationTree.tree.folders[1].files;
-            // if (element.contextValue === 'file' || element.contextValue === 'item') {
-            return this.configurationTree.getConfigChildrenTreeItem(element);
-            // }
+            //     return this.configurationTree.userConfigFiles;
+            if (element.hasChildren) {
+                return element.children;
+            } else {
+                return null;
+            }
         }
     }
 }
