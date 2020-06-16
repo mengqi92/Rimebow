@@ -74,6 +74,7 @@ export class ConfigTreeItem extends TreeItem {
 export class RimeConfigurationTree {
     private static readonly DEFAULT_CONFIG_PATH: string = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
     private static readonly USER_CONFIG_PATH: string = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime');
+    private static readonly BUILD_CONFIG_PATH: string = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime', 'build');
 
     /**
      * Configuration tree, including config files, in the default config folder.
@@ -86,7 +87,6 @@ export class RimeConfigurationTree {
     /**
      * Configuration tree, including config files, in the build folder.
      */
-    // TODO Add build config files parsing.
     public buildConfigFiles: ConfigTreeItem[] = [];
 
     constructor() {}
@@ -94,6 +94,7 @@ export class RimeConfigurationTree {
     public async build() {
         this.defaultConfigFiles = await this._buildConfigTreeFromFiles(RimeConfigurationTree.DEFAULT_CONFIG_PATH);
         this.userConfigFiles = await this._buildConfigTreeFromFiles(RimeConfigurationTree.USER_CONFIG_PATH);
+        this.buildConfigFiles = await this._buildConfigTreeFromFiles(RimeConfigurationTree.BUILD_CONFIG_PATH);
     }
 
     private async _buildConfigTreeFromFiles(configPath: string): Promise<ConfigTreeItem[]> {

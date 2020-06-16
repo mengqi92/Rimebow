@@ -26,12 +26,16 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
             defaultFolder.contextValue = 'folder';
             const userFolder: TreeItem = new TreeItem("User Configurations", vscode.TreeItemCollapsibleState.Collapsed);
             userFolder.contextValue = 'folder';
-            return [defaultFolder, userFolder];
+            const buildFolder: TreeItem = new TreeItem("Build Folder", vscode.TreeItemCollapsibleState.Collapsed);
+            userFolder.contextValue = 'folder';
+            return [defaultFolder, userFolder, buildFolder];
         } else {
             if (element.label === 'Default Configurations') {
                 return this.configurationTree.defaultConfigFiles;
             } else if (element.label === 'User Configurations') {
                 return this.configurationTree.userConfigFiles;
+            } else if (element.label === 'Build Folder') {
+                return this.configurationTree.buildConfigFiles;
             }
         }
     }
