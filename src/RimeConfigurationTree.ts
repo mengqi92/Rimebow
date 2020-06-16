@@ -115,13 +115,11 @@ export class RimeConfigurationTree {
 
         const fileLabel: string = fileName.replace('.yaml', '');
         const isCustomConfig: boolean = fileName.endsWith('.custom.yaml');
-        let rootNode: ConfigTreeItem = new ConfigTreeItem(fileLabel, [], [], fullName, 0);
+        // FIXME: line number should be -1 or something for file.
+        let rootNode: ConfigTreeItem = new ConfigTreeItem(fileLabel, [], [], fullName, 0, true);
         // Build ConfigNode tree by traversing the nodeTree object.
         this._buildConfigTree(objectTree, rootNode, fileLabel, isCustomConfig);
-        // this.nodeTreeByFile[file.nameWithoutExtension] = rootNode;
-        // file
-        // FIXME: line number should be -1 or something for file.
-        return new ConfigTreeItem(fileLabel, [rootNode], [], fullName, 0, true);
+        return rootNode;
     }
 
     /**
@@ -138,14 +136,15 @@ export class RimeConfigurationTree {
                 let extendedPath: ConfigTreeItem[] = rootNode.path.slice(0);
                 extendedPath.push(rootNode);
                 if (typeof(value) === 'object') {
-                    // Object tree has children.
+                    // Current node in the object tree has children.
                     let childNode: ConfigTreeItem = new ConfigTreeItem(objectKey, [], extendedPath, fullPath, 0);
                     rootNode.children.push(childNode);
+                    rootNode.collapsibleState = TreeItemCollapsibleState.Collapsed;
                     this._buildConfigTree(value, childNode, fullPath, isCustomConfig);
                 } else {
+                    // Current node is a leaf node in the object tree.
                     // FIXME fill configLine with correct value.
-                    rootNode.children.push(new ConfigTreeItem(objectKey, [], extendedPath, fullPath, 0, value));
-                    rootNode.collapsibleState = TreeItemCollapsibleState.Collapsed;
+                    rootNode.children.push(new ConfigTreeItem(objectKey, [], extendedPath, fullPath, 0, false, value));
                 }
             });
         } else if (objectTreeRoot) {
