@@ -116,7 +116,7 @@ export class RimeConfigurationTree {
         return await Promise.all(promises).catch((error: YAMLSemanticError) => []);
     }
 
-    private async _buildConfigTreeFromFile(filePath: string, fileName: string): Promise<ConfigTreeItem> {
+    protected async _buildConfigTreeFromFile(filePath: string, fileName: string): Promise<ConfigTreeItem> {
         const fullName: string = path.join(filePath, fileName);
         const data = await readFileAsync(fullName);
 
@@ -151,7 +151,7 @@ export class RimeConfigurationTree {
                 } else {
                     // Current node is a leaf node in the object tree.
                     // FIXME fill configLine with correct value.
-                    rootNode.children.push(new ConfigTreeItem(objectKey, [], fullPath, 0, false, value));
+                    rootNode.addChildNode(new ConfigTreeItem(objectKey, [], fullPath, 0, false, value));
                 }
             });
         } else if (objectTreeRoot) {
