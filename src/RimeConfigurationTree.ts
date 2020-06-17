@@ -20,10 +20,6 @@ export class ConfigTreeItem extends TreeItem {
          */
         public readonly children: ConfigTreeItem[],
         /**
-         * The path to current node represented as a list of nodes.
-         */
-        public readonly path: ConfigTreeItem[],
-        /**
          * Full path of the config file containing current node, used for navigation.
          */
         public readonly configFilePath: string,
@@ -43,7 +39,6 @@ export class ConfigTreeItem extends TreeItem {
             label, 
             children.length > 0 ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
         this.contextValue = isFile ? 'file' : 'item';
-        this.description = path.map((node: ConfigTreeItem) => node.label).join('->');
         this.tooltip = `value: ${value}`;
         // this.iconPath = isPatch ? '' : '';
         // this.command = {
@@ -55,6 +50,7 @@ export class ConfigTreeItem extends TreeItem {
 
     /**
      * Is current node a patch defined by user.
+     * @returns {boolean} Whether if current node has any child node.
      */
     get isPatch(): boolean {
         if (this.configFilePath) {
@@ -65,9 +61,21 @@ export class ConfigTreeItem extends TreeItem {
 
     /**
      * Does current node has any child nodes.
+     * @returns {boolean} Whether if current node has any child node.
      */
     get hasChildren(): boolean {
         return this.children.length > 0;
+    }
+
+    /**
+     * Add a child node to current node.
+     * @param childNode {ConfigTreeItem} The child node to add.
+     */
+    public addChildNode(childNode: ConfigTreeItem) {
+        this.children.push(childNode);
+        if (!this.collapsibleState) {
+            this.collapsibleState = TreeItemCollapsibleState.Collapsed;
+        }
     }
 }
 
@@ -116,8 +124,9 @@ export class RimeConfigurationTree {
 
         const fileLabel: string = fileName.replace('.yaml', '');
         const isCustomConfig: boolean = fileName.endsWith('.custom.yaml');
+		// The root node is representing the configuration file.
         // FIXME: line number should be -1 or something for file.
-        let rootNode: ConfigTreeItem = new ConfigTreeItem(fileLabel, [], [], fullName, 0, true);
+        let rootNode: ConfigTreeItem = new ConfigTreeItem(fileLabel, [], fullName, 0, true);
         // Build ConfigNode tree by traversing the nodeTree object.
         this._buildConfigTree(objectTree, rootNode, fileLabel, isCustomConfig);
         return rootNode;
@@ -130,22 +139,19 @@ export class RimeConfigurationTree {
      * @param fullPath {string} The full path of the configuration file.
      * @param isCustomConfig {boolean} Whether current configuration node is a patch.
      */
-    private _buildConfigTree(objectTreeRoot: any, rootNode: ConfigTreeItem, fullPath: string, isCustomConfig: boolean) {
+    protected _buildConfigTree(objectTreeRoot: any, rootNode: ConfigTreeItem, fullPath: string, isCustomConfig: boolean) {
         if (typeof(objectTreeRoot) === 'object') {
             Object.keys(objectTreeRoot).forEach((objectKey: string) => {
                 const value: any = objectTreeRoot[objectKey];
-                let extendedPath: ConfigTreeItem[] = rootNode.path.slice(0);
-                extendedPath.push(rootNode);
                 if (typeof(value) === 'object') {
                     // Current node in the object tree has children.
-                    let childNode: ConfigTreeItem = new ConfigTreeItem(objectKey, [], extendedPath, fullPath, 0);
-                    rootNode.children.push(childNode);
-                    rootNode.collapsibleState = TreeItemCollapsibleState.Collapsed;
+                    let childNode: ConfigTreeItem = new ConfigTreeItem(objectKey, [], fullPath, 0);
+                    rootNode.addChildNode(childNode);
                     this._buildConfigTree(value, childNode, fullPath, isCustomConfig);
                 } else {
                     // Current node is a leaf node in the object tree.
                     // FIXME fill configLine with correct value.
-                    rootNode.children.push(new ConfigTreeItem(objectKey, [], extendedPath, fullPath, 0, false, value));
+                    rootNode.children.push(new ConfigTreeItem(objectKey, [], fullPath, 0, false, value));
                 }
             });
         } else if (objectTreeRoot) {
