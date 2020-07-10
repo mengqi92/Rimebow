@@ -45,9 +45,9 @@ export interface ConfigTreeItemOptions {
 }
 
 export class ConfigTreeItem extends TreeItem {
-    private configFilePath?: string;
     public children: ConfigTreeItem[];
-    public value: any;
+    public readonly value: any;
+    private configFilePath?: string;
     constructor(options: ConfigTreeItemOptions) {
         super(options.label, options.children.length > 0 ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
         this.configFilePath = options.configFilePath;
@@ -176,9 +176,14 @@ export class RimeConfigurationTree {
                     let childNode: ConfigTreeItem = new ConfigTreeItem({label: key, children: [], configFilePath: fullPath, configLine: 0});
                     rootNode.addChildNode(childNode);
                     value.items.forEach((valueItem: Node, itemIndex: number) => {
-                        let grandChildNode: ConfigTreeItem = new ConfigTreeItem({label: itemIndex.toString(), children: [], configFilePath: fullPath, configLine: 0, isSequential: true});
-                        childNode.addChildNode(grandChildNode);
-                        this._buildConfigTree(valueItem, grandChildNode, fullPath, isCustomConfig);
+                        if (valueItem instanceof Scalar) {
+                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({label: itemIndex.toString(), children: [], configFilePath: fullPath, configLine: 0, isSequential: true, value: valueItem.value});
+                            childNode.addChildNode(grandChildNode);
+                        } else {
+                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({label: itemIndex.toString(), children: [], configFilePath: fullPath, configLine: 0, isSequential: true});
+                            childNode.addChildNode(grandChildNode);
+                            this._buildConfigTree(valueItem, grandChildNode, fullPath, isCustomConfig);
+                        }
                     });
                 }
             });

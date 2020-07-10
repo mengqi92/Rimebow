@@ -98,7 +98,6 @@ suite('Extension Test Suite', () => {
 		}
 	});
 
-	// TODO: when Array element is leaf
 	test('buildConfigTree_whenObjectTreeHasArray_expectNodeTreeBuilt', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
@@ -117,6 +116,36 @@ suite('Extension Test Suite', () => {
 		const expectedChildNodeCA0: ConfigTreeItem = new ConfigTreeItem({label: '0', children: [expectedChildNodeC1, expectedChildNodeC2], configFilePath: FILE_FULL_PATH, configLine: 0});
 		const expectedChildNodeCA1: ConfigTreeItem = new ConfigTreeItem({label: '1', children: [expectedChildNodeC3], configFilePath: FILE_FULL_PATH, configLine: 0});
 		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({label: 'c', children: [expectedChildNodeCA0, expectedChildNodeCA1], configFilePath: FILE_FULL_PATH, configLine: 0, isSequential: true});
+		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: [expectedChildNodeA, expectedChildNodeB, expectedChildNodeC] , configFilePath: FILE_FULL_PATH, configLine: 0});
+		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+
+		// Act.
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		
+		// Assert.
+		try {
+			assert.deepStrictEqual(rootNode, expectedNodeBuilt);
+		} catch (error) {
+			assert.fail(`Error occurred during assertion: ${error.message}`);
+		}
+	});
+
+	test('buildConfigTree_whenObjectTreeHasArrayOfLeaves_expectNodeTreeBuilt', () => {
+		// Arrange.
+		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
+		const FILE_NAME: string = "baz";
+		const IS_CUSTOM_CONFIG: boolean = false;
+		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: [], configFilePath: FILE_FULL_PATH, configLine: 0});
+		const oneLayerObject: object = { a: '1', b: 2, c: [3, 4, '5'] };
+        const doc: Node = YAML.createNode(oneLayerObject);
+
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({label: 'a', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: '1'});
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({label: 'b', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: 2});
+		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({label: '0', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: 3});
+		const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({label: '1', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: 4});
+		const expectedChildNodeC3: ConfigTreeItem = new ConfigTreeItem({label: '2', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: '5'});
+		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({label: 'c', children: [expectedChildNodeC1, expectedChildNodeC2, expectedChildNodeC3], configFilePath: FILE_FULL_PATH, configLine: 0, isSequential: true});
 		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: [expectedChildNodeA, expectedChildNodeB, expectedChildNodeC] , configFilePath: FILE_FULL_PATH, configLine: 0});
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
