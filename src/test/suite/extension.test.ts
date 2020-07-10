@@ -1,17 +1,19 @@
 import * as assert from 'assert';
+import YAML = require('yaml');
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 import * as vscode from 'vscode';
 import { RimeConfigurationTree, ConfigTreeItem } from '../../RimeConfigurationTree';
+import { Node } from 'yaml/types';
 
 class RimeConfigurationTreeForTest extends RimeConfigurationTree {
     public async _buildConfigTreeFromFile(filePath: string, fileName: string): Promise<ConfigTreeItem> {
 		return super._buildConfigTreeFromFile(filePath, fileName);
 	}
 
-    public _buildConfigTree(objectTreeRoot: any, rootNode: ConfigTreeItem, fullPath: string, isCustomConfig: boolean) {
-		return super._buildConfigTree(objectTreeRoot, rootNode, fullPath, isCustomConfig);
+    public _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string, isCustomConfig: boolean) {
+		return super._buildConfigTree(doc, rootNode, fullPath, isCustomConfig);
 	}
 }
 
@@ -26,11 +28,12 @@ suite('Extension Test Suite', () => {
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 		const rootNode: ConfigTreeItem = new ConfigTreeItem(FILE_NAME, [], FILE_FULL_PATH, 0, IS_CUSTOM_CONFIG);
 		const emptyObject: object = {};
+		const doc: Node = YAML.createNode(emptyObject);
 		let expectedRootNodeBuilt: ConfigTreeItem = new ConfigTreeItem(FILE_NAME, [], FILE_FULL_PATH, 0, IS_CUSTOM_CONFIG);
 		expectedRootNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.None;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(emptyObject, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
 
 		// Assert.
 		try {
@@ -48,6 +51,7 @@ suite('Extension Test Suite', () => {
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 		const rootNode: ConfigTreeItem = new ConfigTreeItem(FILE_NAME, [], FILE_FULL_PATH, 0, IS_CUSTOM_CONFIG);
 		const oneLayerObject: object = { a: '1', b: 2 };
+        const doc: Node = YAML.createNode(oneLayerObject);
 
 		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem('a', [], FILE_FULL_PATH, 0, false, '1');
 		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem('b', [], FILE_FULL_PATH, 0, false, 2);
@@ -55,7 +59,7 @@ suite('Extension Test Suite', () => {
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(oneLayerObject, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
 		
 		// Assert.
 		try {
@@ -73,6 +77,7 @@ suite('Extension Test Suite', () => {
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 		const rootNode: ConfigTreeItem = new ConfigTreeItem(FILE_NAME, [], FILE_FULL_PATH, 0, IS_CUSTOM_CONFIG);
 		const twoLayerObject: object = { a: '1', b: 2, c: {c1: 31, c2: '32'} };
+        const doc: Node = YAML.createNode(twoLayerObject);
 
 		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem('a', [], FILE_FULL_PATH, 0, false, '1');
 		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem('b', [], FILE_FULL_PATH, 0, false, 2);
@@ -83,7 +88,7 @@ suite('Extension Test Suite', () => {
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(twoLayerObject, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
 		
 		// Assert.
 		try {
@@ -101,6 +106,8 @@ suite('Extension Test Suite', () => {
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 		const rootNode: ConfigTreeItem = new ConfigTreeItem(FILE_NAME, [], FILE_FULL_PATH, 0, IS_CUSTOM_CONFIG);
 		const twoLayerObject: object = { a: '1', b: 2, c: [{c1: 31, c2: '32'}, {c3: 33}] };
+        const doc: YAML.Document.Parsed = YAML.parseDocument(twoLayerObject.toString());
+		assert(doc.contents !== null);
 
 		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem('a', [], FILE_FULL_PATH, 0, false, '1');
 		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem('b', [], FILE_FULL_PATH, 0, false, 2);
@@ -113,7 +120,7 @@ suite('Extension Test Suite', () => {
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(twoLayerObject, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc.contents, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
 		
 		// Assert.
 		try {

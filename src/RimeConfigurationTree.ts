@@ -4,7 +4,8 @@ import * as path from 'path';
 import YAML = require('yaml');
 import util = require('util');
 import { TreeItem, TreeItemCollapsibleState } from 'vscode';
-import { YAMLSemanticError } from 'yaml/util';
+import { YAMLSemanticError, Type } from 'yaml/util';
+import { Node, YAMLMap, Pair, Scalar, YAMLSeq } from 'yaml/types';
 
 const readDirAsync = util.promisify(fs.readdir);
 const readFileAsync = util.promisify(fs.readFile);
@@ -120,42 +121,49 @@ export class RimeConfigurationTree {
         const fullName: string = path.join(filePath, fileName);
         const data = await readFileAsync(fullName);
 
-        const objectTree: object = YAML.parse(data.toString());
+        const doc: YAML.Document.Parsed = YAML.parseDocument(data.toString());
 
         const fileLabel: string = fileName.replace('.yaml', '');
         const isCustomConfig: boolean = fileName.endsWith('.custom.yaml');
 		// The root node is representing the configuration file.
         // FIXME: line number should be -1 or something for file.
         let rootNode: ConfigTreeItem = new ConfigTreeItem(fileLabel, [], fullName, 0, true);
+        if (doc.contents === null) {
+            return rootNode;
+        }
         // Build ConfigNode tree by traversing the nodeTree object.
-        this._buildConfigTree(objectTree, rootNode, fileLabel, isCustomConfig);
+        this._buildConfigTree(doc.contents, rootNode, fileLabel, isCustomConfig);
         return rootNode;
     }
 
     /**
      * Build up a configuration tree based on the object tree parsed.
-     * @param objectTreeRoot {any} The root node of the object tree parsed from yaml file.
+     * @param doc {Node} The root node of the object tree parsed from yaml file.
      * @param rootNode {ConfigTreeItem} The current traversed node in the configuration tree we are building.
      * @param fullPath {string} The full path of the configuration file.
      * @param isCustomConfig {boolean} Whether current configuration node is a patch.
      */
-    protected _buildConfigTree(objectTreeRoot: any, rootNode: ConfigTreeItem, fullPath: string, isCustomConfig: boolean) {
-        if (typeof(objectTreeRoot) === 'object') {
-            Object.keys(objectTreeRoot).forEach((objectKey: string) => {
-                const value: any = objectTreeRoot[objectKey];
-                if (typeof(value) === 'object') {
+    protected _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string, isCustomConfig: boolean) {
+        if (doc instanceof YAMLMap) {
+            doc.items.forEach((pair: Pair) => {
+                const key: string = (pair.key as Scalar).value;
+                const value: any = pair.value;
+                if (value instanceof YAMLMap) {
                     // Current node in the object tree has children.
-                    let childNode: ConfigTreeItem = new ConfigTreeItem(objectKey, [], fullPath, 0);
+                    let childNode: ConfigTreeItem = new ConfigTreeItem(key, [], fullPath, 0);
                     rootNode.addChildNode(childNode);
                     this._buildConfigTree(value, childNode, fullPath, isCustomConfig);
-                } else {
+                } else if (value instanceof YAMLSeq) {
+                    // TODO: Current node in the object tree has children as an array.
+                    // Mark each element of the array as the children of the current node.
+                } else if (value instanceof Scalar) {
                     // Current node is a leaf node in the object tree.
-                    // FIXME fill configLine with correct value.
-                    rootNode.addChildNode(new ConfigTreeItem(objectKey, [], fullPath, 0, false, value));
+                    // FIXME: fill configLine with correct value.
+                    rootNode.addChildNode(new ConfigTreeItem(key, [], fullPath, 0, false, value.value));
                 }
             });
-        } else if (objectTreeRoot) {
-            rootNode.value = objectTreeRoot;
+        } else if (doc instanceof Scalar) {
+            rootNode.value = doc.value;
         }
     }
 }
