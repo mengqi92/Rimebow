@@ -10,37 +10,51 @@ import { Node, YAMLMap, Pair, Scalar, YAMLSeq } from 'yaml/types';
 const readDirAsync = util.promisify(fs.readdir);
 const readFileAsync = util.promisify(fs.readFile);
 
+export interface ConfigTreeItemOptions {
+    /**
+     * The label of the node.
+     */
+    readonly label: string;
+    /**
+     * A list of children nodes of current node.
+     */
+    readonly children: ConfigTreeItem[];
+    /**
+     * Full path of the config file containing current node, used for navigation.
+     */
+    readonly configFilePath: string;
+    /**
+     * The line number of current node defined in the config file, used for navigation.
+     */
+    readonly configLine: number;
+    /**
+     * Whether current node is representing a sequential yaml node (just like a map with only values).
+     * Consider as false if no value provided.
+     */
+    readonly isSequential?: boolean;
+    /**
+     * Wether current node is representing a configuration file.
+     * Consider as false if no value provided.
+     */
+    readonly isFile?: boolean;
+    /**
+     * The value of the leaf node.
+     * Consider the node as not a leaf node if no value provided.
+     */
+    readonly value?: any;
+}
+
 export class ConfigTreeItem extends TreeItem {
-    constructor(
-        /**
-         * The label of the node.
-         */
-        public readonly label: string, 
-        /**
-         * A list of children nodes of current node.
-         */
-        public readonly children: ConfigTreeItem[],
-        /**
-         * Full path of the config file containing current node, used for navigation.
-         */
-        public readonly configFilePath: string,
-        /**
-         * The line number of current node defined in the config file, used for navigation.
-         */
-        public readonly configLine: number,
-        /**
-         * Wether current node is representing a configuration file.
-         */
-        private isFile: boolean = false,
-        /**
-         * The value of the leaf node.
-         */
-        public value?: any) {
-        super(
-            label, 
-            children.length > 0 ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
-        this.contextValue = isFile ? 'file' : 'item';
-        this.tooltip = `value: ${value}`;
+    private configFilePath?: string;
+    public children: ConfigTreeItem[];
+    public value: any;
+    constructor(options: ConfigTreeItemOptions) {
+        super(options.label, options.children.length > 0 ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
+        this.configFilePath = options.configFilePath;
+        this.children = options.children;
+        this.contextValue = options.isFile ? 'file' : 'item';
+        this.value = options.value;
+        this.tooltip = `value: ${options.value}`;
         // this.iconPath = isPatch ? '' : '';
         // this.command = {
         //     command: 'vscode.open',
@@ -127,7 +141,7 @@ export class RimeConfigurationTree {
         const isCustomConfig: boolean = fileName.endsWith('.custom.yaml');
 		// The root node is representing the configuration file.
         // FIXME: line number should be -1 or something for file.
-        let rootNode: ConfigTreeItem = new ConfigTreeItem(fileLabel, [], fullName, 0, true);
+        let rootNode: ConfigTreeItem = new ConfigTreeItem({label: fileLabel, children: [], configFilePath: fullName, configLine: 0, isFile: true});
         if (doc.contents === null) {
             return rootNode;
         }
@@ -144,22 +158,28 @@ export class RimeConfigurationTree {
      * @param isCustomConfig {boolean} Whether current configuration node is a patch.
      */
     protected _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string, isCustomConfig: boolean) {
-        if (doc instanceof YAMLMap) {
+        if (doc instanceof YAMLMap || doc instanceof YAMLSeq) {
             doc.items.forEach((pair: Pair) => {
                 const key: string = (pair.key as Scalar).value;
                 const value: any = pair.value;
-                if (value instanceof YAMLMap) {
+                if (value instanceof Scalar) {
+                    // Current node is a leaf node in the object tree.
+                    // FIXME: fill configLine with correct value.
+                    rootNode.addChildNode(new ConfigTreeItem({label: key, children: [], configFilePath: fullPath, configLine: 0, value: value.value}));
+                } else if (value instanceof YAMLMap) {
                     // Current node in the object tree has children.
-                    let childNode: ConfigTreeItem = new ConfigTreeItem(key, [], fullPath, 0);
+                    let childNode: ConfigTreeItem = new ConfigTreeItem({label: key, children: [], configFilePath: fullPath, configLine: 0});
                     rootNode.addChildNode(childNode);
                     this._buildConfigTree(value, childNode, fullPath, isCustomConfig);
                 } else if (value instanceof YAMLSeq) {
-                    // TODO: Current node in the object tree has children as an array.
-                    // Mark each element of the array as the children of the current node.
-                } else if (value instanceof Scalar) {
-                    // Current node is a leaf node in the object tree.
-                    // FIXME: fill configLine with correct value.
-                    rootNode.addChildNode(new ConfigTreeItem(key, [], fullPath, 0, false, value.value));
+                    // Current node in the object tree has children and it's an array.
+                    let childNode: ConfigTreeItem = new ConfigTreeItem({label: key, children: [], configFilePath: fullPath, configLine: 0});
+                    rootNode.addChildNode(childNode);
+                    value.items.forEach((valueItem: Node, itemIndex: number) => {
+                        let grandChildNode: ConfigTreeItem = new ConfigTreeItem({label: itemIndex.toString(), children: [], configFilePath: fullPath, configLine: 0, isSequential: true});
+                        childNode.addChildNode(grandChildNode);
+                        this._buildConfigTree(valueItem, grandChildNode, fullPath, isCustomConfig);
+                    });
                 }
             });
         } else if (doc instanceof Scalar) {
