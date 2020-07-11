@@ -22,6 +22,7 @@
 			"name": "Extension Tests",
 			"type": "extensionHost",
 			"request": "launch",
+			"sourceMaps": true,
 			"runtimeExecutable": "${execPath}",
 			"args": [
 				"--disable-extensions",
@@ -29,6 +30,7 @@
 				"--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
 			],
 			"outFiles": [
+				"${workspaceFolder}/out/**/*.js",
 				"${workspaceFolder}/out/test/**/*.js"
 			],
 			// "preLaunchTask": "${defaultBuildTask}"
