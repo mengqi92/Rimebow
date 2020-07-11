@@ -113,9 +113,9 @@ suite('Extension Test Suite', () => {
 		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({label: 'c1', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: 31});
 		const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({label: 'c2', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: '32'});
 		const expectedChildNodeC3: ConfigTreeItem = new ConfigTreeItem({label: 'c3', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: 33});
-		const expectedChildNodeCA0: ConfigTreeItem = new ConfigTreeItem({label: '0', children: [expectedChildNodeC1, expectedChildNodeC2], configFilePath: FILE_FULL_PATH, configLine: 0});
-		const expectedChildNodeCA1: ConfigTreeItem = new ConfigTreeItem({label: '1', children: [expectedChildNodeC3], configFilePath: FILE_FULL_PATH, configLine: 0});
-		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({label: 'c', children: [expectedChildNodeCA0, expectedChildNodeCA1], configFilePath: FILE_FULL_PATH, configLine: 0, isSequential: true});
+		const expectedChildNodeCA0: ConfigTreeItem = new ConfigTreeItem({label: '0', children: [expectedChildNodeC1, expectedChildNodeC2], configFilePath: FILE_FULL_PATH, configLine: 0, isSequenceElement: true});
+		const expectedChildNodeCA1: ConfigTreeItem = new ConfigTreeItem({label: '1', children: [expectedChildNodeC3], configFilePath: FILE_FULL_PATH, configLine: 0, isSequenceElement: true});
+		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({label: 'c', children: [expectedChildNodeCA0, expectedChildNodeCA1], configFilePath: FILE_FULL_PATH, configLine: 0});
 		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: [expectedChildNodeA, expectedChildNodeB, expectedChildNodeC] , configFilePath: FILE_FULL_PATH, configLine: 0});
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
@@ -142,10 +142,10 @@ suite('Extension Test Suite', () => {
 
 		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({label: 'a', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: '1'});
 		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({label: 'b', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: 2});
-		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({label: '0', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: 3});
-		const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({label: '1', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: 4});
-		const expectedChildNodeC3: ConfigTreeItem = new ConfigTreeItem({label: '2', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: '5'});
-		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({label: 'c', children: [expectedChildNodeC1, expectedChildNodeC2, expectedChildNodeC3], configFilePath: FILE_FULL_PATH, configLine: 0, isSequential: true});
+		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({label: '0', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: 3, isSequenceElement: true});
+		const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({label: '1', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: 4, isSequenceElement: true});
+		const expectedChildNodeC3: ConfigTreeItem = new ConfigTreeItem({label: '2', children: [], configFilePath: FILE_FULL_PATH, configLine: 0, value: '5', isSequenceElement: true});
+		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({label: 'c', children: [expectedChildNodeC1, expectedChildNodeC2, expectedChildNodeC3], configFilePath: FILE_FULL_PATH, configLine: 0});
 		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: [expectedChildNodeA, expectedChildNodeB, expectedChildNodeC] , configFilePath: FILE_FULL_PATH, configLine: 0});
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 

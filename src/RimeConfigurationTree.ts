@@ -31,7 +31,7 @@ export interface ConfigTreeItemOptions {
      * Whether current node is representing a sequential yaml node (just like a map with only values).
      * Consider as false if no value provided.
      */
-    readonly isSequential?: boolean;
+    readonly isSequenceElement?: boolean;
     /**
      * Wether current node is representing a configuration file.
      * Consider as false if no value provided.
@@ -46,15 +46,22 @@ export interface ConfigTreeItemOptions {
 
 export class ConfigTreeItem extends TreeItem {
     public children: ConfigTreeItem[];
-    public readonly value: any;
+    public value: any;
+    public isSequenceElement: boolean;
     private configFilePath?: string;
     constructor(options: ConfigTreeItemOptions) {
-        super(options.label, options.children.length > 0 ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
+        super(
+            options.value 
+                ? (options.isSequenceElement ? options.value : `${options.label}: ${options.value}`)
+                : options.label, 
+            options.children.length > 0 ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
         this.configFilePath = options.configFilePath;
         this.children = options.children;
-        this.contextValue = options.isFile ? 'file' : 'item';
         this.value = options.value;
-        this.tooltip = `value: ${options.value}`;
+        this.isSequenceElement = options.isSequenceElement || false;
+
+        this.contextValue = options.isFile ? 'file' : 'item';
+        this.tooltip = options.value ? `value: ${options.value}` : undefined;
         // this.iconPath = isPatch ? '' : '';
         // this.command = {
         //     command: 'vscode.open',
@@ -177,10 +184,10 @@ export class RimeConfigurationTree {
                     rootNode.addChildNode(childNode);
                     value.items.forEach((valueItem: Node, itemIndex: number) => {
                         if (valueItem instanceof Scalar) {
-                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({label: itemIndex.toString(), children: [], configFilePath: fullPath, configLine: 0, isSequential: true, value: valueItem.value});
+                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({label: itemIndex.toString(), children: [], configFilePath: fullPath, configLine: 0, value: valueItem.value, isSequenceElement: true});
                             childNode.addChildNode(grandChildNode);
                         } else {
-                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({label: itemIndex.toString(), children: [], configFilePath: fullPath, configLine: 0, isSequential: true});
+                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({label: itemIndex.toString(), children: [], configFilePath: fullPath, configLine: 0, isSequenceElement: true});
                             childNode.addChildNode(grandChildNode);
                             this._buildConfigTree(valueItem, grandChildNode, fullPath, isCustomConfig);
                         }
