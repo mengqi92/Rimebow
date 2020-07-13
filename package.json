@@ -22,6 +22,12 @@
 					"group": "navigation",
 					"when": "view == rimeFileExplorer"
 				}
+			], "view/item/context": [
+				{
+					"command": "rimeAssistant.openConfigFile",
+					"group": "inline",
+					"when": "viewItem == file"
+				}
 			]
 		},
 		"commands": [
@@ -31,6 +37,13 @@
 				"icon": {
 					"light": "resources/light/refresh.svg",
 					"dark": "resources/dark/refresh.svg"
+				}
+			}, {
+				"command": "rimeAssistant.openConfigFile",
+				"title": "Open",
+				"icon": {
+					"light": "resources/light/document.svg",
+					"dark": "resources/dark/document.svg"
 				}
 			}
 		],

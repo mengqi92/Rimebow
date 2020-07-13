@@ -48,7 +48,7 @@ export class ConfigTreeItem extends TreeItem {
     public children: ConfigTreeItem[];
     public value: any;
     public isSequenceElement: boolean;
-    private configFilePath?: string;
+    public configFilePath: string;
     constructor(options: ConfigTreeItemOptions) {
         super(
             options.value 
@@ -63,11 +63,6 @@ export class ConfigTreeItem extends TreeItem {
         this.contextValue = options.isFile ? 'file' : 'item';
         this.tooltip = options.value ? `value: ${options.value}` : undefined;
         // this.iconPath = isPatch ? '' : '';
-        // this.command = {
-        //     command: 'vscode.open',
-        //     title: 'open',
-        //     arguments: [vscode.Uri.file(fullPath)],
-        // };
     }
 
     /**
