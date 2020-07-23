@@ -149,10 +149,10 @@ export class RimeConfigurationTree {
 
     /**
      * Build up a configuration tree based on the object tree parsed.
-     * @param doc {Node} The root node of the object tree parsed from yaml file.
-     * @param rootNode {ConfigTreeItem} The current traversed node in the configuration tree we are building.
-     * @param fullPath {string} The full path of the configuration file.
-     * @param isCustomConfig {boolean} Whether current configuration node is a patch.
+     * @param {Node} doc The root node of the object tree parsed from yaml file.
+     * @param {ConfigTreeItem} rootNode The current traversed node in the configuration tree we are building.
+     * @param {string} fullPath The full path of the configuration file.
+     * @param {boolean} isCustomConfig Whether current configuration node is a patch.
      */
     protected _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string, isCustomConfig: boolean) {
         if (doc instanceof YAMLMap || doc instanceof YAMLSeq) {
@@ -201,9 +201,9 @@ export class RimeConfigurationTree {
     /**
      * Recursively build multi-layer nodes according to the keys separated by slash.
      * For instance, given the key "foo/bar/baz", there would be 3 layers of nodes: foo -> bar -> baz.
-     * @param key {string} The original key composing multi-layer keys by slashes, such as foo/bar/baz.
-     * @param rootNode {ConfigTreeItem} The root node to build from.
-     * @param filePath {string} Path to the config file.
+     * @param {string} key The original key composing multi-layer keys by slashes, such as foo/bar/baz.
+     * @param {ConfigTreeItem} rootNode The root node to build from.
+     * @param {string} filePath Path to the config file.
      * @returns {ConfigTreeItem} The leaf node built.
      */
     protected _buildSlashSeparatedNodes(key: string, rootNode: ConfigTreeItem, filePath: string): ConfigTreeItem | undefined {
