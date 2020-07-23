@@ -157,20 +157,30 @@ export class RimeConfigurationTree {
     protected _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string, isCustomConfig: boolean) {
         if (doc instanceof YAMLMap || doc instanceof YAMLSeq) {
             doc.items.forEach((pair: Pair) => {
-                const key: string = (pair.key as Scalar).value;
-                const value: any = pair.value;
+                let current: ConfigTreeItem = rootNode;
+                let key: string = (pair.key as Scalar).value;
+                let value: any = pair.value;
+                // If the key has slash, create separate nodes for each part.
+                // For instance, "foo/bar/baz: 1" should be created as a four-layer tree.
+                if (key.indexOf("/") !== -1) {
+                    let leafNode: ConfigTreeItem | undefined = this._buildSlashSeparatedNodes(key, current, fullPath);
+                    if (leafNode) {
+                        current = leafNode;
+                        key = key.substring(key.lastIndexOf("/") + 1);
+                    }
+                }
                 if (value instanceof Scalar) {
                     // Current node is a leaf node in the object tree.
-                    rootNode.addChildNode(new ConfigTreeItem({label: key, children: [], configFilePath: fullPath, value: value.value}));
+                    current.addChildNode(new ConfigTreeItem({label: key, children: [], configFilePath: fullPath, value: value.value}));
                 } else if (value instanceof YAMLMap) {
                     // Current node in the object tree has children.
                     let childNode: ConfigTreeItem = new ConfigTreeItem({label: key, children: [], configFilePath: fullPath});
-                    rootNode.addChildNode(childNode);
+                    current.addChildNode(childNode);
                     this._buildConfigTree(value, childNode, fullPath, isCustomConfig);
                 } else if (value instanceof YAMLSeq) {
                     // Current node in the object tree has children and it's an array.
                     let childNode: ConfigTreeItem = new ConfigTreeItem({label: key, children: [], configFilePath: fullPath});
-                    rootNode.addChildNode(childNode);
+                    current.addChildNode(childNode);
                     value.items.forEach((valueItem: Node, itemIndex: number) => {
                         if (valueItem instanceof Scalar) {
                             let grandChildNode: ConfigTreeItem = new ConfigTreeItem({label: itemIndex.toString(), children: [], configFilePath: fullPath, value: valueItem.value, isSequenceElement: true});
@@ -187,4 +197,32 @@ export class RimeConfigurationTree {
             rootNode.value = doc.value;
         }
     }
+
+    /**
+     * Recursively build multi-layer nodes according to the keys separated by slash.
+     * For instance, given the key "foo/bar/baz", there would be 3 layers of nodes: foo -> bar -> baz.
+     * @param key {string} The original key composing multi-layer keys by slashes, such as foo/bar/baz.
+     * @param rootNode {ConfigTreeItem} The root node to build from.
+     * @param filePath {string} Path to the config file.
+     * @returns {ConfigTreeItem} The leaf node built.
+     */
+    protected _buildSlashSeparatedNodes(key: string, rootNode: ConfigTreeItem, filePath: string): ConfigTreeItem | undefined {
+        if (key === undefined || key === null) { 
+            return;
+        }
+        // Reached leaf.
+        if (key.indexOf("/") === -1) {
+            return rootNode;
+        }
+
+        const childNode: ConfigTreeItem = new ConfigTreeItem({
+                label: key.substring(0, key.indexOf("/")),
+                children: [],
+                configFilePath: filePath
+        });
+        rootNode.addChildNode(childNode);
+        rootNode = childNode;
+        return this._buildSlashSeparatedNodes(key.substring(key.indexOf("/") + 1), rootNode, filePath);
+    }
+
 }

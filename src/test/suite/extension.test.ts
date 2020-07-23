@@ -159,4 +159,125 @@ suite('Extension Test Suite', () => {
 			assert.fail(`Error occurred during assertion: ${error.message}`);
 		}
 	});
+
+	test('buildConfigTree_whenSlashInKeyWithScalarValue_expectNodeSeparatedBySlash', () => {
+		// Arrange.
+		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
+		const FILE_NAME: string = "baz";
+		const IS_CUSTOM_CONFIG: boolean = false;
+		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: [], configFilePath: FILE_FULL_PATH});
+		const twoLayerObject: object = { a: '1', b: 2, 'c/c1': 3 };
+        const doc: Node = YAML.createNode(twoLayerObject);
+
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({label: 'a', children: [], configFilePath: FILE_FULL_PATH, value: '1'});
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({label: 'b', children: [], configFilePath: FILE_FULL_PATH, value: 2});
+		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({label: 'c1', children: [], configFilePath: FILE_FULL_PATH, value: 3});
+		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({label: 'c', children: [expectedChildNodeC1], configFilePath: FILE_FULL_PATH});
+		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: [expectedChildNodeA, expectedChildNodeB, expectedChildNodeC], configFilePath: FILE_FULL_PATH});
+		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+
+		// Act.
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		
+		// Assert.
+		try {
+			assert.deepStrictEqual(rootNode, expectedNodeBuilt);
+		} catch (error) {
+			assert.fail(`Error occurred during assertion: ${error.message}`);
+		}
+	});
+
+	test('buildConfigTree_whenSlashInKey_expectNodeSeparatedBySlash', () => {
+		// Arrange.
+		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
+		const FILE_NAME: string = "baz";
+		const IS_CUSTOM_CONFIG: boolean = false;
+		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: [], configFilePath: FILE_FULL_PATH});
+		const twoLayerObject: object = { a: '1', b: 2, 'c/c1': {c11: 31, c12: '32'} };
+        const doc: Node = YAML.createNode(twoLayerObject);
+
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({label: 'a', children: [], configFilePath: FILE_FULL_PATH, value: '1'});
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({label: 'b', children: [], configFilePath: FILE_FULL_PATH, value: 2});
+		const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({label: 'c11', children: [], configFilePath: FILE_FULL_PATH, value: 31});
+		const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({label: 'c12', children: [], configFilePath: FILE_FULL_PATH, value: '32'});
+		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({label: 'c1', children: [expectedChildNodeC11, expectedChildNodeC12], configFilePath: FILE_FULL_PATH});
+		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({label: 'c', children: [expectedChildNodeC1], configFilePath: FILE_FULL_PATH});
+		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: [expectedChildNodeA, expectedChildNodeB, expectedChildNodeC], configFilePath: FILE_FULL_PATH});
+		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+
+		// Act.
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		
+		// Assert.
+		try {
+			assert.deepStrictEqual(rootNode, expectedNodeBuilt);
+		} catch (error) {
+			assert.fail(`Error occurred during assertion: ${error.message}`);
+		}
+	});
+
+	test('buildConfigTree_whenSlashInTwoKeys_expectNodeSeparatedBySlash', () => {
+		// Arrange.
+		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
+		const FILE_NAME: string = "baz";
+		const IS_CUSTOM_CONFIG: boolean = false;
+		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: [], configFilePath: FILE_FULL_PATH});
+		const twoLayerObject: object = { a: '1', b: 2, 'c/c1': {c11: 31, c12: '32'}, 'd/d1': 4 };
+        const doc: Node = YAML.createNode(twoLayerObject);
+
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({label: 'a', children: [], configFilePath: FILE_FULL_PATH, value: '1'});
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({label: 'b', children: [], configFilePath: FILE_FULL_PATH, value: 2});
+		const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({label: 'c11', children: [], configFilePath: FILE_FULL_PATH, value: 31});
+		const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({label: 'c12', children: [], configFilePath: FILE_FULL_PATH, value: '32'});
+		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({label: 'c1', children: [expectedChildNodeC11, expectedChildNodeC12], configFilePath: FILE_FULL_PATH});
+		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({label: 'c', children: [expectedChildNodeC1], configFilePath: FILE_FULL_PATH});
+		const expectedChildNodeD1: ConfigTreeItem = new ConfigTreeItem({label: 'd1', children: [], configFilePath: FILE_FULL_PATH, value: 4});
+		const expectedChildNodeD: ConfigTreeItem = new ConfigTreeItem({label: 'd', children: [expectedChildNodeD1], configFilePath: FILE_FULL_PATH});
+		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: [expectedChildNodeA, expectedChildNodeB, expectedChildNodeC, expectedChildNodeD], configFilePath: FILE_FULL_PATH});
+		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+
+		// Act.
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		
+		// Assert.
+		try {
+			assert.deepStrictEqual(rootNode, expectedNodeBuilt);
+		} catch (error) {
+			assert.fail(`Error occurred during assertion: ${error.message}`);
+		}
+	});
+
+	test('buildConfigTree_whenTwoSlashesInOneKey_expectNodeSeparatedBySlash', () => {
+		// Arrange.
+		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
+		const FILE_NAME: string = "baz";
+		const IS_CUSTOM_CONFIG: boolean = false;
+		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: [], configFilePath: FILE_FULL_PATH});
+		const twoLayerObject: object = { a: '1', b: 2, 'c/c1/c11': {c111: 31, c112: '32'} };
+        const doc: Node = YAML.createNode(twoLayerObject);
+
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({label: 'a', children: [], configFilePath: FILE_FULL_PATH, value: '1'});
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({label: 'b', children: [], configFilePath: FILE_FULL_PATH, value: 2});
+		const expectedChildNodeC111: ConfigTreeItem = new ConfigTreeItem({label: 'c111', children: [], configFilePath: FILE_FULL_PATH, value: 31});
+		const expectedChildNodeC112: ConfigTreeItem = new ConfigTreeItem({label: 'c112', children: [], configFilePath: FILE_FULL_PATH, value: '32'});
+		const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({label: 'c11', children: [expectedChildNodeC111, expectedChildNodeC112], configFilePath: FILE_FULL_PATH});
+		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({label: 'c1', children: [expectedChildNodeC11], configFilePath: FILE_FULL_PATH});
+		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({label: 'c', children: [expectedChildNodeC1], configFilePath: FILE_FULL_PATH});
+		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: [expectedChildNodeA, expectedChildNodeB, expectedChildNodeC], configFilePath: FILE_FULL_PATH});
+		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+
+		// Act.
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		
+		// Assert.
+		try {
+			assert.deepStrictEqual(rootNode, expectedNodeBuilt);
+		} catch (error) {
+			assert.fail(`Error occurred during assertion: ${error.message}`);
+		}
+	});
 });
