@@ -31,11 +31,11 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
             return [defaultFolder, userFolder, buildFolder];
         } else {
             if (element.label === 'Default Configurations') {
-                return this.configurationTree.defaultConfigFiles;
+                return Array.from(this.configurationTree.defaultConfigFiles.values());
             } else if (element.label === 'User Configurations') {
-                return this.configurationTree.userConfigFiles;
+                return Array.from(this.configurationTree.userConfigFiles.values());
             } else if (element.label === 'Build Folder') {
-                return this.configurationTree.buildConfigFiles;
+                return Array.from(this.configurationTree.buildConfigFiles.values());
             }
         }
     }

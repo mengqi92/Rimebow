@@ -100,15 +100,15 @@ export class RimeConfigurationTree {
     /**
      * Configuration tree, including config files, in the default config folder.
      */
-    public defaultConfigFiles: ConfigTreeItem[] = [];
+    public defaultConfigFiles: Map<string, ConfigTreeItem> = new Map();
     /**
      * Configuration tree, including config files, in the user config folder.
      */
-    public userConfigFiles: ConfigTreeItem[] = [];
+    public userConfigFiles: Map<string, ConfigTreeItem> = new Map();
     /**
      * Configuration tree, including config files, in the build folder.
      */
-    public buildConfigFiles: ConfigTreeItem[] = [];
+    public buildConfigFiles: Map<string, ConfigTreeItem> = new Map();
 
     constructor() {}
 
@@ -118,7 +118,12 @@ export class RimeConfigurationTree {
         this.buildConfigFiles = await this._buildConfigTreeFromFiles(RimeConfigurationTree.BUILD_CONFIG_PATH);
     }
 
-    private async _buildConfigTreeFromFiles(configPath: string): Promise<ConfigTreeItem[]> {
+    /**
+     * Build config tree for all the files in the given directory.
+     * @param {string} configPath  The directory path containing config files.
+     * @returns {Promise<Map<string, ConfigTreeItem>>} A promise result containing a map of config trees indexed by file name.
+     */
+    private async _buildConfigTreeFromFiles(configPath: string): Promise<Map<string, ConfigTreeItem>> {
         const filesResult: Promise<string[]> = readDirAsync(configPath);
         const fileNames = await filesResult;
         const promises: Promise<ConfigTreeItem>[] = fileNames
@@ -126,7 +131,8 @@ export class RimeConfigurationTree {
             .map(async (fileName: string): Promise<ConfigTreeItem> => {
                 return await this._buildConfigTreeFromFile(configPath, fileName);
             });
-        return await Promise.all(promises).catch((error: YAMLSemanticError) => []);
+        const fileItems: ConfigTreeItem[] = await Promise.all(promises).catch((error: YAMLSemanticError) => []);
+        return this._itemsIndexedByLabel(fileItems);
     }
 
     protected async _buildConfigTreeFromFile(filePath: string, fileName: string): Promise<ConfigTreeItem> {
@@ -225,4 +231,18 @@ export class RimeConfigurationTree {
         return this._buildSlashSeparatedNodes(key.substring(key.indexOf("/") + 1), rootNode, filePath);
     }
 
+    private _itemsIndexedByLabel(fileItems: ConfigTreeItem[]) {
+        let fileItemMap: Map<string, ConfigTreeItem> = new Map();
+        fileItems.forEach((item: ConfigTreeItem) => {
+            if (item.label) {
+                if (fileItemMap.has(item.label)) {
+                    throw new Error('Duplicate item label found.');
+                }
+                else {
+                    fileItemMap.set(item.label, item);
+                }
+            }
+        });
+        return fileItemMap;
+    }
 }

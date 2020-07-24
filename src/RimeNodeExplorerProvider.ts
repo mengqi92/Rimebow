@@ -26,7 +26,7 @@ export class RimeNodeExplorerProvider implements vscode.TreeDataProvider<ConfigT
             // const userFolder: TreeItem = new TreeItem("User Configurations", vscode.TreeItemCollapsibleState.Collapsed);
             // userFolder.contextValue = 'folder';
             // return [defaultFolder, userFolder];
-            return this.configurationTree.userConfigFiles;
+            return Array.from(this.configurationTree.userConfigFiles.values());
         } else {
             // if (element.label === 'Default Configurations') {
             //     return this.configurationTree.defaultConfigFiles;
