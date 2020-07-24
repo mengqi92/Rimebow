@@ -29,6 +29,7 @@
 				"--extensionDevelopmentPath=${workspaceFolder}",
 				"--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
 			],
+			"internalConsoleOptions": "openOnFirstSessionStart",
 			"outFiles": [
 				"${workspaceFolder}/out/**/*.js",
 				"${workspaceFolder}/out/test/**/*.js"
