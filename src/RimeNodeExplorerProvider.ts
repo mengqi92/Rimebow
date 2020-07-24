@@ -33,7 +33,7 @@ export class RimeNodeExplorerProvider implements vscode.TreeDataProvider<ConfigT
             // } else if (element.label === 'User Configurations') {
             //     return this.configurationTree.userConfigFiles;
             if (element.hasChildren) {
-                return element.children;
+                return Array.from(element.children);
             } else {
                 return null;
             }

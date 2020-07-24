@@ -18,7 +18,7 @@ export interface ConfigTreeItemOptions {
     /**
      * A list of children nodes of current node.
      */
-    readonly children: ConfigTreeItem[];
+    readonly children: Set<ConfigTreeItem>;
     /**
      * Full path of the config file containing current node, used for navigation.
      */
@@ -41,7 +41,7 @@ export interface ConfigTreeItemOptions {
 }
 
 export class ConfigTreeItem extends TreeItem {
-    public children: ConfigTreeItem[];
+    public children: Set<ConfigTreeItem>;
     public value: any;
     public isSequenceElement: boolean;
     public configFilePath: string;
@@ -50,7 +50,7 @@ export class ConfigTreeItem extends TreeItem {
             options.value 
                 ? (options.isSequenceElement ? options.value : `${options.label}: ${options.value}`)
                 : options.label, 
-            options.children.length > 0 ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
+            options.children.size > 0 ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
         this.configFilePath = options.configFilePath;
         this.children = options.children;
         this.value = options.value;
@@ -77,7 +77,7 @@ export class ConfigTreeItem extends TreeItem {
      * @returns {boolean} Whether if current node has any child node.
      */
     get hasChildren(): boolean {
-        return this.children.length > 0;
+        return this.children.size > 0;
     }
 
     /**
@@ -85,7 +85,7 @@ export class ConfigTreeItem extends TreeItem {
      * @param childNode {ConfigTreeItem} The child node to add.
      */
     public addChildNode(childNode: ConfigTreeItem) {
-        this.children.push(childNode);
+        this.children.add(childNode);
         if (!this.collapsibleState) {
             this.collapsibleState = TreeItemCollapsibleState.Collapsed;
         }
@@ -144,7 +144,7 @@ export class RimeConfigurationTree {
         const fileLabel: string = fileName.replace('.yaml', '');
         const isCustomConfig: boolean = fileName.endsWith('.custom.yaml');
 		// The root node is representing the configuration file.
-        let rootNode: ConfigTreeItem = new ConfigTreeItem({label: fileLabel, children: [], configFilePath: fullName, isFile: true});
+        let rootNode: ConfigTreeItem = new ConfigTreeItem({label: fileLabel, children: new Set(), configFilePath: fullName, isFile: true});
         if (doc.contents === null) {
             return rootNode;
         }
@@ -177,22 +177,22 @@ export class RimeConfigurationTree {
                 }
                 if (value instanceof Scalar) {
                     // Current node is a leaf node in the object tree.
-                    current.addChildNode(new ConfigTreeItem({label: key, children: [], configFilePath: fullPath, value: value.value}));
+                    current.addChildNode(new ConfigTreeItem({label: key, children: new Set(), configFilePath: fullPath, value: value.value}));
                 } else if (value instanceof YAMLMap) {
                     // Current node in the object tree has children.
-                    let childNode: ConfigTreeItem = new ConfigTreeItem({label: key, children: [], configFilePath: fullPath});
+                    let childNode: ConfigTreeItem = new ConfigTreeItem({label: key, children: new Set(), configFilePath: fullPath});
                     current.addChildNode(childNode);
                     this._buildConfigTree(value, childNode, fullPath, isCustomConfig);
                 } else if (value instanceof YAMLSeq) {
                     // Current node in the object tree has children and it's an array.
-                    let childNode: ConfigTreeItem = new ConfigTreeItem({label: key, children: [], configFilePath: fullPath});
+                    let childNode: ConfigTreeItem = new ConfigTreeItem({label: key, children: new Set(), configFilePath: fullPath});
                     current.addChildNode(childNode);
                     value.items.forEach((valueItem: Node, itemIndex: number) => {
                         if (valueItem instanceof Scalar) {
-                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({label: itemIndex.toString(), children: [], configFilePath: fullPath, value: valueItem.value, isSequenceElement: true});
+                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({label: itemIndex.toString(), children: new Set(), configFilePath: fullPath, value: valueItem.value, isSequenceElement: true});
                             childNode.addChildNode(grandChildNode);
                         } else {
-                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({label: itemIndex.toString(), children: [], configFilePath: fullPath, isSequenceElement: true});
+                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({label: itemIndex.toString(), children: new Set(), configFilePath: fullPath, isSequenceElement: true});
                             childNode.addChildNode(grandChildNode);
                             this._buildConfigTree(valueItem, grandChildNode, fullPath, isCustomConfig);
                         }
@@ -223,7 +223,7 @@ export class RimeConfigurationTree {
 
         const childNode: ConfigTreeItem = new ConfigTreeItem({
                 label: key.substring(0, key.indexOf("/")),
-                children: [],
+                children: new Set(),
                 configFilePath: filePath
         });
         rootNode.addChildNode(childNode);
