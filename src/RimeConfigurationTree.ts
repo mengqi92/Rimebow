@@ -85,16 +85,20 @@ export class ConfigTreeItem extends TreeItem {
     /**
      * Add a child node to current node.
      * @param childNode {ConfigTreeItem} The child node to add.
+     * @returns {ConfigTreeItem} The child node added. Could be the existing node if there is a same child.
      */
-    public addChildNode(childNode: ConfigTreeItem) {
-        if (childNode.key === undefined || this.children.has(childNode.key)) {
-            return;
+    public addChildNode(childNode: ConfigTreeItem): ConfigTreeItem {
+        if (childNode.key === undefined) {
+            throw new Error('No key found for given child node.');
+        } else if (this.children.has(childNode.key)) {
+            return this.children.get(childNode.key)!;
         }
 
         this.children.set(childNode.key, childNode);
         if (!this.collapsibleState) {
             this.collapsibleState = TreeItemCollapsibleState.Collapsed;
         }
+        return childNode;
     }
 }
 
@@ -232,8 +236,8 @@ export class RimeConfigurationTree {
             children: new Map(),
             configFilePath: filePath
         });
-        rootNode.addChildNode(childNode);
-        rootNode = childNode;
+        // add childNode as a child of rootNode, and then point to the childNode as current.
+        rootNode = rootNode.addChildNode(childNode);
         return this._buildSlashSeparatedNodes(key.substring(key.indexOf("/") + 1), rootNode, filePath);
     }
 
