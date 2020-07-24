@@ -16,6 +16,10 @@ class RimeConfigurationTreeForTest extends RimeConfigurationTree {
 		return super._buildConfigTree(doc, rootNode, fullPath, isCustomConfig);
 	}
 
+    public _applyPatch(defaultTree: ConfigTreeItem, userTree: ConfigTreeItem) {
+		return super._applyPatch(defaultTree, userTree);
+	}
+
 	public _mergeTree(treeA: ConfigTreeItem, treeB: ConfigTreeItem) {
 		return super._mergeTree(treeA, treeB);
 	}
@@ -448,5 +452,29 @@ suite('Extension Test Suite', () => {
 		assert.ok(treeA.children.has('2'));
 		assert.equal(treeA.children.get('2')!.value, 'b');
 		assert.equal(treeA.children.get('2')!.label, '2: b');
+	});
+
+	test('applyPatch_whenUserConfigHasPatch_expectNodeUpdatedInDefaultConfig', () => {
+		// Arrange.
+		// defaultTree: { FileA: { 1: 'a' } }
+		// userTree: { FileA.custom: { 'patch': { 1: 'b' } } }
+		const nodeDefault1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), configFilePath: 'DEFAULT_CONFIG_FILEPATH', value: 'a'});
+		const nodeFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['1', nodeDefault1]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH'});
+		const defaultTree: ConfigTreeItem = new ConfigTreeItem({key: 'DEFAULT', children: new Map([['FileA', nodeFileA]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH'});
+		const nodeUser1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), configFilePath: 'USER_CONFIG_FILEPATH', value: 'b'});
+		const nodeUserPatch: ConfigTreeItem = new ConfigTreeItem({key: 'patch', children: new Map([['1', nodeUser1]]), configFilePath: 'USER_CONFIG_FILEPATH'});
+		const nodeFileACustom: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['patch', nodeUserPatch]]), configFilePath: 'USER_CONFIG_FILEPATH'});
+		const userTree: ConfigTreeItem = new ConfigTreeItem({key: 'USER', children: new Map([['FileA', nodeFileACustom]]), configFilePath: 'USER_CONFIG_FILEPATH'});
+		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+
+		const expectedNodeDefault1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), configFilePath: 'DEFAULT_CONFIG_FILEPATH', value: 'b'});
+		const expectedNodeFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['2', nodeDefault1]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH'});
+		const expectedDefaultTree: ConfigTreeItem = new ConfigTreeItem({key: 'DEFAULT', children: new Map([['FileA', nodeFileA]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH'});
+
+		// Act.
+		rimeConfigurationTree._applyPatch(defaultTree, userTree);
+
+		// Assert.
+		assert.deepStrictEqual(defaultTree, expectedDefaultTree);
 	});
 });

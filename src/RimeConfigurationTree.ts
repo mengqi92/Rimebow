@@ -137,10 +137,10 @@ export class RimeConfigurationTree {
     public async build() {
         this.defaultConfigTree = await this._buildConfigTreeFromFiles(
             RimeConfigurationTree.DEFAULT_CONFIG_PATH, RimeConfigurationTree.DEFAULT_CONFIG_LABEL);
-        this.configTree.addChildNode(this.defaultConfigTree);
         this.userConfigTree = await this._buildConfigTreeFromFiles(
             RimeConfigurationTree.USER_CONFIG_PATH, RimeConfigurationTree.USER_CONFIG_LABEL);
         this._applyPatch(this.defaultConfigTree, this.userConfigTree);
+        this.configTree.addChildNode(this.defaultConfigTree);
     }
 
     /**
@@ -175,8 +175,8 @@ export class RimeConfigurationTree {
 
         const doc: YAML.Document.Parsed = YAML.parseDocument(data.toString());
 
-        const fileLabel: string = fileName.replace('.yaml', '');
         const isCustomConfig: boolean = fileName.endsWith('.custom.yaml');
+        const fileLabel: string = fileName.replace('.yaml', '').replace('.custom', '');
         // The root node is representing the configuration file.
         let rootNode: ConfigTreeItem = new ConfigTreeItem({ key: fileLabel, children: new Map(), configFilePath: fullName, isFile: true });
         if (doc.contents === null) {
@@ -266,26 +266,30 @@ export class RimeConfigurationTree {
     }
 
     /**
-     * TODO
+     * Apply patches from user config tree to the default config tree.
+     * After applied, the default tree will have updated nodes.
+     * @param {ConfigTreeItem} defaultTree The default config tree.
+     * @param {ConfigTreeItem} userTree The user config tree.
      */
     protected _applyPatch(defaultTree: ConfigTreeItem, userTree: ConfigTreeItem) {
         defaultTree.children.forEach((defaultFileNode: ConfigTreeItem, key: string) => {
-            if (!userTree.children.has(key)) {
+            const customFileName: string = key;
+            if (!userTree.children.has(customFileName)) {
                 // Didn't find the corresponding custom config file.
                 return;
             }
             // Found the custom config file.
-            const userConfigTree: ConfigTreeItem = userTree.children.get(key)!;
+            const userConfigTree: ConfigTreeItem = userTree.children.get(customFileName)!;
 
             if(userConfigTree.children.has('patch')) {
-                const PatchNode: ConfigTreeItem = userTree.children.get('patch')!;
+                const PatchNode: ConfigTreeItem = userConfigTree.children.get('patch')!;
                 this._mergeTree(defaultFileNode, PatchNode);
             }
         });
     }
 
     protected _mergeTree(treeA: ConfigTreeItem, treeB: ConfigTreeItem) {
-        if (treeA.key !== treeB.key) {
+        if (treeB.key !== 'patch' && treeA.key !== treeB.key) {
             throw new Error('The trees to be merged have no common ancestor.');
         }
         if (treeA.value && treeB.value && treeA.value !== treeB.value) {
