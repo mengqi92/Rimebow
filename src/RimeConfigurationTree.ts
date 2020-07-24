@@ -48,9 +48,9 @@ export class ConfigTreeItem extends TreeItem {
     public configFilePath: string;
     constructor(options: ConfigTreeItemOptions) {
         super(
-            options.value 
+            options.value
                 ? (options.isSequenceElement ? options.value : `${options.key}: ${options.value}`)
-                : options.key, 
+                : options.key,
             options.children.size > 0 ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
         this.key = options.key;
         this.configFilePath = options.configFilePath;
@@ -116,7 +116,7 @@ export class RimeConfigurationTree {
      */
     public buildConfigFiles: Map<string, ConfigTreeItem> = new Map();
 
-    constructor() {}
+    constructor() { }
 
     public async build() {
         this.defaultConfigFiles = await this._buildConfigTreeFromFiles(RimeConfigurationTree.DEFAULT_CONFIG_PATH);
@@ -149,8 +149,8 @@ export class RimeConfigurationTree {
 
         const fileLabel: string = fileName.replace('.yaml', '');
         const isCustomConfig: boolean = fileName.endsWith('.custom.yaml');
-		// The root node is representing the configuration file.
-        let rootNode: ConfigTreeItem = new ConfigTreeItem({key: fileLabel, children: new Map(), configFilePath: fullName, isFile: true});
+        // The root node is representing the configuration file.
+        let rootNode: ConfigTreeItem = new ConfigTreeItem({ key: fileLabel, children: new Map(), configFilePath: fullName, isFile: true });
         if (doc.contents === null) {
             return rootNode;
         }
@@ -183,22 +183,22 @@ export class RimeConfigurationTree {
                 }
                 if (value instanceof Scalar) {
                     // Current node is a leaf node in the object tree.
-                    current.addChildNode(new ConfigTreeItem({key: key, children: new Map(), configFilePath: fullPath, value: value.value}));
+                    current.addChildNode(new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, value: value.value }));
                 } else if (value instanceof YAMLMap) {
                     // Current node in the object tree has children.
-                    let childNode: ConfigTreeItem = new ConfigTreeItem({key: key, children: new Map(), configFilePath: fullPath});
+                    let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath });
                     current.addChildNode(childNode);
                     this._buildConfigTree(value, childNode, fullPath, isCustomConfig);
                 } else if (value instanceof YAMLSeq) {
                     // Current node in the object tree has children and it's an array.
-                    let childNode: ConfigTreeItem = new ConfigTreeItem({key: key, children: new Map(), configFilePath: fullPath});
+                    let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath });
                     current.addChildNode(childNode);
                     value.items.forEach((valueItem: Node, itemIndex: number) => {
                         if (valueItem instanceof Scalar) {
-                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, value: valueItem.value, isSequenceElement: true});
+                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, value: valueItem.value, isSequenceElement: true });
                             childNode.addChildNode(grandChildNode);
                         } else {
-                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, isSequenceElement: true});
+                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, isSequenceElement: true });
                             childNode.addChildNode(grandChildNode);
                             this._buildConfigTree(valueItem, grandChildNode, fullPath, isCustomConfig);
                         }
@@ -219,7 +219,7 @@ export class RimeConfigurationTree {
      * @returns {ConfigTreeItem} The leaf node built.
      */
     protected _buildSlashSeparatedNodes(key: string, rootNode: ConfigTreeItem, filePath: string): ConfigTreeItem | undefined {
-        if (key === undefined || key === null) { 
+        if (key === undefined || key === null) {
             return;
         }
         // Reached leaf.
@@ -228,9 +228,9 @@ export class RimeConfigurationTree {
         }
 
         const childNode: ConfigTreeItem = new ConfigTreeItem({
-                key: key.substring(0, key.indexOf("/")),
-                children: new Map(),
-                configFilePath: filePath
+            key: key.substring(0, key.indexOf("/")),
+            children: new Map(),
+            configFilePath: filePath
         });
         rootNode.addChildNode(childNode);
         rootNode = childNode;
