@@ -113,6 +113,8 @@ export class ConfigTreeItem extends TreeItem {
 export class RimeConfigurationTree {
     private static readonly DEFAULT_CONFIG_PATH: string = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
     private static readonly USER_CONFIG_PATH: string = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime');
+    private static readonly DEFAULT_CONFIG_LABEL: string = 'Default Config';
+    private static readonly USER_CONFIG_LABEL: string = 'User Config';
 
     public configTree: ConfigTreeItem = new ConfigTreeItem({ key: 'ROOT', children: new Map(), configFilePath: '' });
     /**
@@ -133,18 +135,21 @@ export class RimeConfigurationTree {
     constructor() { }
 
     public async build() {
-        this.defaultConfigTree = await this._buildConfigTreeFromFiles(RimeConfigurationTree.DEFAULT_CONFIG_PATH);
+        this.defaultConfigTree = await this._buildConfigTreeFromFiles(
+            RimeConfigurationTree.DEFAULT_CONFIG_PATH, RimeConfigurationTree.DEFAULT_CONFIG_LABEL);
         this.configTree.addChildNode(this.defaultConfigTree);
-        this.userConfigTree = await this._buildConfigTreeFromFiles(RimeConfigurationTree.USER_CONFIG_PATH);
+        this.userConfigTree = await this._buildConfigTreeFromFiles(
+            RimeConfigurationTree.USER_CONFIG_PATH, RimeConfigurationTree.USER_CONFIG_LABEL);
         this._applyPatch(this.defaultConfigTree, this.userConfigTree);
     }
 
     /**
      * Build config tree for all the files in the given directory.
      * @param {string} configDir  The directory path containing config files.
+     * @param {string} label The label of the config directory.
      * @returns {Promise<Map<string, ConfigTreeItem>>} A promise result containing a map of config trees indexed by file name.
      */
-    private async _buildConfigTreeFromFiles(configDir: string): Promise<ConfigTreeItem> {
+    private async _buildConfigTreeFromFiles(configDir: string, label: string): Promise<ConfigTreeItem> {
         const filesResult: Promise<string[]> = readDirAsync(configDir);
         const fileNames = await filesResult;
         const promises: Promise<ConfigTreeItem>[] = fileNames
@@ -158,8 +163,7 @@ export class RimeConfigurationTree {
             fileMap.set(fileItem.key, fileItem);
         });
         return new ConfigTreeItem({
-            // TODO: change to folder label;
-            key: configDir,
+            key: label,
             children: fileMap,
             configFilePath: configDir
         });
