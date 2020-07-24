@@ -183,7 +183,7 @@ export class RimeConfigurationTree {
             return rootNode;
         }
         // Build ConfigNode tree by traversing the nodeTree object.
-        this._buildConfigTree(doc.contents, rootNode, fileLabel, isCustomConfig);
+        this._buildConfigTree(doc.contents, rootNode, fileLabel);
         return rootNode;
     }
 
@@ -192,9 +192,8 @@ export class RimeConfigurationTree {
      * @param {Node} doc The root node of the object tree parsed from yaml file.
      * @param {ConfigTreeItem} rootNode The current traversed node in the configuration tree we are building.
      * @param {string} fullPath The full path of the configuration file.
-     * @param {boolean} isCustomConfig Whether current configuration node is a patch.
      */
-    protected _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string, isCustomConfig: boolean) {
+    protected _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string) {
         if (doc instanceof YAMLMap || doc instanceof YAMLSeq) {
             doc.items.forEach((pair: Pair) => {
                 let current: ConfigTreeItem = rootNode;
@@ -216,7 +215,7 @@ export class RimeConfigurationTree {
                     // Current node in the object tree has children.
                     let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath });
                     current.addChildNode(childNode);
-                    this._buildConfigTree(value, childNode, fullPath, isCustomConfig);
+                    this._buildConfigTree(value, childNode, fullPath);
                 } else if (value instanceof YAMLSeq) {
                     // Current node in the object tree has children and it's an array.
                     let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath });
@@ -228,7 +227,7 @@ export class RimeConfigurationTree {
                         } else {
                             let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, isSequenceElement: true });
                             childNode.addChildNode(grandChildNode);
-                            this._buildConfigTree(valueItem, grandChildNode, fullPath, isCustomConfig);
+                            this._buildConfigTree(valueItem, grandChildNode, fullPath);
                         }
                     });
                 }
