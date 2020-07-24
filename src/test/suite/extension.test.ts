@@ -250,6 +250,37 @@ suite('Extension Test Suite', () => {
 		}
 	});
 
+	test('buildConfigTree_whenSlashInTwoKeysWithDuplicatePart_expectNodeSeparatedBySlash', () => {
+		// Arrange.
+		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
+		const FILE_NAME: string = "baz";
+		const IS_CUSTOM_CONFIG: boolean = false;
+		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: new Set(), configFilePath: FILE_FULL_PATH});
+		const twoLayerObject: object = { a: '1', b: 2, 'c/c1': {c11: 31, c12: '32'}, 'c/c2': 4 };
+        const doc: Node = YAML.createNode(twoLayerObject);
+
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({label: 'a', children: new Set(), configFilePath: FILE_FULL_PATH, value: '1'});
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({label: 'b', children: new Set(), configFilePath: FILE_FULL_PATH, value: 2});
+		const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({label: 'c11', children: new Set(), configFilePath: FILE_FULL_PATH, value: 31});
+		const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({label: 'c12', children: new Set(), configFilePath: FILE_FULL_PATH, value: '32'});
+		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({label: 'c1', children: new Set([expectedChildNodeC11, expectedChildNodeC12]), configFilePath: FILE_FULL_PATH});
+		const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({label: 'c2', children: new Set(), configFilePath: FILE_FULL_PATH, value: 4});
+		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({label: 'c', children: new Set([expectedChildNodeC1, expectedChildNodeC2]), configFilePath: FILE_FULL_PATH});
+		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({label: FILE_NAME, children: new Set([expectedChildNodeA, expectedChildNodeB, expectedChildNodeC]), configFilePath: FILE_FULL_PATH});
+		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+
+		// Act.
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		
+		// Assert.
+		try {
+			assert.deepStrictEqual(rootNode, expectedNodeBuilt);
+		} catch (error) {
+			assert.fail(`Error occurred during assertion: ${error.message}`);
+		}
+	});
+
 	test('buildConfigTree_whenTwoSlashesInOneKey_expectNodeSeparatedBySlash', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
