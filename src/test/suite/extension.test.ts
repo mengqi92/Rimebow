@@ -15,6 +15,10 @@ class RimeConfigurationTreeForTest extends RimeConfigurationTree {
 	public _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string, isCustomConfig: boolean) {
 		return super._buildConfigTree(doc, rootNode, fullPath, isCustomConfig);
 	}
+
+	public _mergeTree(treeA: ConfigTreeItem, treeB: ConfigTreeItem) {
+		return super._mergeTree(treeA, treeB);
+	}
 }
 
 suite('Extension Test Suite', () => {
@@ -405,5 +409,44 @@ suite('Extension Test Suite', () => {
 		} catch (error) {
 			assert.fail(`Error occurred during assertion: ${error.message}`);
 		}
+	});
+
+
+	test('mergeTree_whenNewNodeInB_expectNewNodeAddedToA', () => {
+		// Arrange.
+		const treeA: ConfigTreeItem = new ConfigTreeItem({key: 'a', children: new Map(), configFilePath: 'A_FILEPATH'});
+		const nodeB1: ConfigTreeItem = new ConfigTreeItem({key: 'b1', children: new Map(), configFilePath: 'B_FILEPATH'});
+		const treeB: ConfigTreeItem = new ConfigTreeItem({key: 'a', children: new Map([['b1', nodeB1]]), configFilePath: ''});
+		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+
+		// Act.
+		rimeConfigurationTree._mergeTree(treeA, treeB);
+
+		// Assert.
+		assert.equal(treeA.key, 'a');
+		assert.equal(treeA.children.size, 1);
+		assert.ok(treeA.children.has('b1'));
+		assert.equal(treeA.children.get('b1')!.key, 'b1');
+	});
+
+	test('mergeTree_whenUpdatedNodeInB_expectNodeOverrideInA', () => {
+		// Arrange.
+		// treeA: { 1: { 2: 'a' } }
+		// treeB: { 1: { 2: 'b' } }
+		const nodeA2: ConfigTreeItem = new ConfigTreeItem({key: '2', children: new Map(), configFilePath: 'A_FILEPATH', value: 'a'});
+		const treeA: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map([['2', nodeA2]]), configFilePath: 'A_FILEPATH'});
+		const nodeB2: ConfigTreeItem = new ConfigTreeItem({key: '2', children: new Map(), configFilePath: 'B_FILEPATH', value: 'b'});
+		const treeB: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map([['2', nodeB2]]), configFilePath: 'B_FILEPATH'});
+		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+
+		// Act.
+		rimeConfigurationTree._mergeTree(treeA, treeB);
+
+		// Assert.
+		assert.equal(treeA.key, '1');
+		assert.equal(treeA.children.size, 1);
+		assert.ok(treeA.children.has('2'));
+		assert.equal(treeA.children.get('2')!.value, 'b');
+		assert.equal(treeA.children.get('2')!.label, '2: b');
 	});
 });

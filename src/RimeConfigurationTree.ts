@@ -6,6 +6,7 @@ import util = require('util');
 import { TreeItem, TreeItemCollapsibleState } from 'vscode';
 import { YAMLSemanticError, Type } from 'yaml/util';
 import { Node, YAMLMap, Pair, Scalar, YAMLSeq } from 'yaml/types';
+import { stringify } from 'querystring';
 
 const readDirAsync = util.promisify(fs.readdir);
 const readFileAsync = util.promisify(fs.readFile);
@@ -82,6 +83,13 @@ export class ConfigTreeItem extends TreeItem {
         return this.children.size > 0;
     }
 
+    public updateValue(newValue: any) {
+        this.value = newValue;
+        if (this.value) {
+            this.label = this.isSequenceElement ? this.value : `${this.key}: ${this.value}`;
+        }
+    }
+
     /**
      * Add a child node to current node.
      * @param childNode {ConfigTreeItem} The child node to add.
@@ -105,44 +113,56 @@ export class ConfigTreeItem extends TreeItem {
 export class RimeConfigurationTree {
     private static readonly DEFAULT_CONFIG_PATH: string = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
     private static readonly USER_CONFIG_PATH: string = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime');
-    private static readonly BUILD_CONFIG_PATH: string = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime', 'build');
 
+    public configTree: ConfigTreeItem = new ConfigTreeItem({ key: 'ROOT', children: new Map(), configFilePath: '' });
     /**
      * Configuration tree, including config files, in the default config folder.
      */
-    public defaultConfigFiles: Map<string, ConfigTreeItem> = new Map();
+    public defaultConfigTree: ConfigTreeItem = new ConfigTreeItem({
+        key: 'DEFAULT', 
+        children: new Map(), 
+        configFilePath: RimeConfigurationTree.DEFAULT_CONFIG_PATH });
     /**
      * Configuration tree, including config files, in the user config folder.
      */
-    public userConfigFiles: Map<string, ConfigTreeItem> = new Map();
-    /**
-     * Configuration tree, including config files, in the build folder.
-     */
-    public buildConfigFiles: Map<string, ConfigTreeItem> = new Map();
+    public userConfigTree: ConfigTreeItem = new ConfigTreeItem({ 
+        key: 'USER', 
+        children: new Map(), 
+        configFilePath: RimeConfigurationTree.USER_CONFIG_PATH });
 
     constructor() { }
 
     public async build() {
-        this.defaultConfigFiles = await this._buildConfigTreeFromFiles(RimeConfigurationTree.DEFAULT_CONFIG_PATH);
-        this.userConfigFiles = await this._buildConfigTreeFromFiles(RimeConfigurationTree.USER_CONFIG_PATH);
-        this.buildConfigFiles = await this._buildConfigTreeFromFiles(RimeConfigurationTree.BUILD_CONFIG_PATH);
+        this.defaultConfigTree = await this._buildConfigTreeFromFiles(RimeConfigurationTree.DEFAULT_CONFIG_PATH);
+        this.configTree.addChildNode(this.defaultConfigTree);
+        this.userConfigTree = await this._buildConfigTreeFromFiles(RimeConfigurationTree.USER_CONFIG_PATH);
+        this._applyPatch(this.defaultConfigTree, this.userConfigTree);
     }
 
     /**
      * Build config tree for all the files in the given directory.
-     * @param {string} configPath  The directory path containing config files.
+     * @param {string} configDir  The directory path containing config files.
      * @returns {Promise<Map<string, ConfigTreeItem>>} A promise result containing a map of config trees indexed by file name.
      */
-    private async _buildConfigTreeFromFiles(configPath: string): Promise<Map<string, ConfigTreeItem>> {
-        const filesResult: Promise<string[]> = readDirAsync(configPath);
+    private async _buildConfigTreeFromFiles(configDir: string): Promise<ConfigTreeItem> {
+        const filesResult: Promise<string[]> = readDirAsync(configDir);
         const fileNames = await filesResult;
         const promises: Promise<ConfigTreeItem>[] = fileNames
             .filter((fileName: string) => fileName.endsWith('.yaml') && !fileName.endsWith('.dict.yaml'))
             .map(async (fileName: string): Promise<ConfigTreeItem> => {
-                return await this._buildConfigTreeFromFile(configPath, fileName);
+                return await this._buildConfigTreeFromFile(configDir, fileName);
             });
         const fileItems: ConfigTreeItem[] = await Promise.all(promises).catch((error: YAMLSemanticError) => []);
-        return this._itemsIndexedByLabel(fileItems);
+        let fileMap: Map<string, ConfigTreeItem> = new Map();
+        fileItems.forEach((fileItem: ConfigTreeItem) => {
+            fileMap.set(fileItem.key, fileItem);
+        });
+        return new ConfigTreeItem({
+            // TODO: change to folder label;
+            key: configDir,
+            children: fileMap,
+            configFilePath: configDir
+        });
     }
 
     protected async _buildConfigTreeFromFile(filePath: string, fileName: string): Promise<ConfigTreeItem> {
@@ -241,18 +261,41 @@ export class RimeConfigurationTree {
         return this._buildSlashSeparatedNodes(key.substring(key.indexOf("/") + 1), rootNode, filePath);
     }
 
-    private _itemsIndexedByLabel(fileItems: ConfigTreeItem[]) {
-        let fileItemMap: Map<string, ConfigTreeItem> = new Map();
-        fileItems.forEach((item: ConfigTreeItem) => {
-            if (item.label) {
-                if (fileItemMap.has(item.label)) {
-                    throw new Error('Duplicate item label found.');
-                }
-                else {
-                    fileItemMap.set(item.label, item);
-                }
+    /**
+     * TODO
+     */
+    protected _applyPatch(defaultTree: ConfigTreeItem, userTree: ConfigTreeItem) {
+        defaultTree.children.forEach((defaultFileNode: ConfigTreeItem, key: string) => {
+            if (!userTree.children.has(key)) {
+                // Didn't find the corresponding custom config file.
+                return;
+            }
+            // Found the custom config file.
+            const userConfigTree: ConfigTreeItem = userTree.children.get(key)!;
+
+            if(userConfigTree.children.has('patch')) {
+                const PatchNode: ConfigTreeItem = userTree.children.get('patch')!;
+                this._mergeTree(defaultFileNode, PatchNode);
             }
         });
-        return fileItemMap;
+    }
+
+    protected _mergeTree(treeA: ConfigTreeItem, treeB: ConfigTreeItem) {
+        if (treeA.key !== treeB.key) {
+            throw new Error('The trees to be merged have no common ancestor.');
+        }
+        if (treeA.value && treeB.value && treeA.value !== treeB.value) {
+            treeA.updateValue(treeB.value);
+            return;
+        }
+        treeB.children.forEach((childB: ConfigTreeItem, childBKey: string) => {
+            if (treeA.children.has(childBKey)) {
+                // The childB is also in tree A.
+                this._mergeTree(treeA.children.get(childBKey)!, childB);
+            } else {
+                // The childB is a new node to tree A.
+                treeA.addChildNode(childB);
+            }
+        });
     }
 }
