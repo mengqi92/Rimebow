@@ -12,8 +12,8 @@ class RimeConfigurationTreeForTest extends RimeConfigurationTree {
 		return super._buildConfigTreeFromFile(filePath, fileName);
 	}
 
-	public _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string, isCustomConfig: boolean) {
-		return super._buildConfigTree(doc, rootNode, fullPath, isCustomConfig);
+	public _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string) {
+		return super._buildConfigTree(doc, rootNode, fullPath);
 	}
 
     public _applyPatch(defaultTree: ConfigTreeItem, userTree: ConfigTreeItem) {
@@ -32,7 +32,6 @@ suite('Extension Test Suite', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
 		const FILE_NAME: string = "baz";
-		const IS_CUSTOM_CONFIG: boolean = false;
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), configFilePath: FILE_FULL_PATH });
 		const emptyObject: object = {};
@@ -41,7 +40,7 @@ suite('Extension Test Suite', () => {
 		expectedRootNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.None;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
 
 		// Assert.
 		try {
@@ -55,7 +54,6 @@ suite('Extension Test Suite', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
 		const FILE_NAME: string = "baz";
-		const IS_CUSTOM_CONFIG: boolean = false;
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), configFilePath: FILE_FULL_PATH });
 		const oneLayerObject: object = { a: '1', b: 2 };
@@ -71,7 +69,7 @@ suite('Extension Test Suite', () => {
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
 
 		// Assert.
 		try {
@@ -108,7 +106,7 @@ suite('Extension Test Suite', () => {
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
 
 		// Assert.
 		try {
@@ -156,7 +154,7 @@ suite('Extension Test Suite', () => {
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
 
 		// Assert.
 		try {
@@ -194,7 +192,7 @@ suite('Extension Test Suite', () => {
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
 
 		// Assert.
 		try {
@@ -226,7 +224,7 @@ suite('Extension Test Suite', () => {
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
 
 		// Assert.
 		try {
@@ -268,7 +266,7 @@ suite('Extension Test Suite', () => {
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
 
 		// Assert.
 		try {
@@ -315,7 +313,7 @@ suite('Extension Test Suite', () => {
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
 
 		// Assert.
 		try {
@@ -358,7 +356,7 @@ suite('Extension Test Suite', () => {
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
 
 		// Assert.
 		try {
@@ -405,7 +403,7 @@ suite('Extension Test Suite', () => {
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, IS_CUSTOM_CONFIG);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
 
 		// Assert.
 		try {
