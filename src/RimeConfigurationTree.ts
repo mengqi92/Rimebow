@@ -175,7 +175,7 @@ export class RimeConfigurationTree {
         kind: ItemKind.Folder
     });
 
-    private static readonly DEFAULT_CONFIG_LABEL: string = 'Default Config';
+    private static readonly DEFAULT_CONFIG_LABEL: string = 'Rime Config';
     private static readonly USER_CONFIG_LABEL: string = 'User Config';
     private userConfigDir: string = "";
     private defaultConfigDir: string = "";
