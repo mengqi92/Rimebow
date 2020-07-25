@@ -4,9 +4,8 @@ import * as path from 'path';
 import YAML = require('yaml');
 import util = require('util');
 import { TreeItem, TreeItemCollapsibleState } from 'vscode';
-import { YAMLSemanticError, Type } from 'yaml/util';
+import { YAMLSemanticError } from 'yaml/util';
 import { Node, YAMLMap, Pair, Scalar, YAMLSeq } from 'yaml/types';
-import { stringify } from 'querystring';
 
 const readDirAsync = util.promisify(fs.readdir);
 const readFileAsync = util.promisify(fs.readFile);
@@ -121,6 +120,9 @@ export class ConfigTreeItem extends TreeItem {
     private _getIconPath(configFileKind: ItemKind): string | vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri; } | vscode.ThemeIcon | undefined {
         let iconFullName: string = '';
         switch (configFileKind) {
+            case ItemKind.Folder:
+                iconFullName = 'folder.png';
+                break;
             case ItemKind.Program:
                 iconFullName = 'program.png';
                 break; 
