@@ -17,6 +17,7 @@ export enum ItemKind {
     Program,
     Default,
     Schema,
+    Patch,
     Other
 }
 
@@ -95,10 +96,7 @@ export class ConfigTreeItem extends TreeItem {
         this.defaultValue = this.value;
         this.value = newValue;
         this.isPatched = true;
-        this.iconPath = {
-            'light': path.join(__filename, '..', '..', 'resources', 'light', 'patch.png'),
-            'dark': path.join(__filename, '..', '..', 'resources', 'dark', 'patch.png'),
-        };
+        this.iconPath = this._getIconPath(ItemKind.Patch);
         if (this.value) {
             this.label = this.isSequenceElement ? this.value : `${this.key}: ${this.value}`;
         }
@@ -140,6 +138,9 @@ export class ConfigTreeItem extends TreeItem {
                 break;
             case ItemKind.Schema:
                 iconFullName = 'schema.png';
+                break;
+            case ItemKind.Patch:
+                iconFullName = 'patch.png';
                 break;
             case ItemKind.Other:
                 iconFullName = 'other.png';
@@ -191,15 +192,19 @@ export class RimeConfigurationTree {
             && await existsAsync(rimeAssistantConfiguration.get(defaultConfigDirConfigKey) as string)) {
             this.defaultConfigDir = rimeAssistantConfiguration.get(defaultConfigDirConfigKey) as string;
         } else {
+            // Squirrel: /Library/Input\ Methods/Squirrel.app/Contents/SharedSupport/
+            this.defaultConfigDir = path.join('Library', 'Input Methods', 'Squirrel.app', 'Contents', 'SharedSupport');
             // 'C:\\Program Files (x86)\\Rime\\weasel-0.14.3\\data'
-            this.defaultConfigDir = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
+            // this.defaultConfigDir = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
         }
         if (rimeAssistantConfiguration.has(userConfigDirConfigKey)
             && await existsAsync(rimeAssistantConfiguration.get(userConfigDirConfigKey) as string)) {
             this.userConfigDir = rimeAssistantConfiguration.get(userConfigDirConfigKey) as string;
         } else {
+            // Squirrel: /Users/Mengqi/Library/Rime
+            this.userConfigDir = path.join('Users', 'Mengqi', 'Library', 'Rime');
             // 'C:\\Users\\mengq\\AppData\\Roaming\\Rime'
-            this.userConfigDir = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime');
+            // this.userConfigDir = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime');
         }
         this.defaultConfigTree = await this._buildConfigTreeFromFiles(
             this.defaultConfigDir, RimeConfigurationTree.DEFAULT_CONFIG_LABEL);
@@ -423,6 +428,8 @@ export class RimeConfigurationTree {
             return ItemKind.Default;
         } else if (fileName.endsWith('schema')) {
             return ItemKind.Schema;
+        } else if (fileName.endsWith('custom')) {
+            return ItemKind.Patch;
         } else if (['weasel', 'squirrel', 'ibus_rime', 'installation', 'user'].indexOf(fileName) !== -1) {
             return ItemKind.Program;
         } else {
