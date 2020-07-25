@@ -1,127 +1,128 @@
 {
-	"name": "rime-assistant",
-	"displayName": "Rime Assistant",
-	"description": "An assistant along with your Rime configuration journey.",
-	"version": "0.0.1",
-	"engines": {
-		"vscode": "^1.45.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onView:rimeFileExplorer",
-		"onView:rimeNodeExplorer"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"menus": {
-			"view/title": [
-				{
-					"command": "rimeFileExplorer.refreshEntry",
-					"group": "navigation",
-					"when": "view == rimeFileExplorer"
-				}, {
-					"command": "rimeNodeExplorer.refreshEntry",
-					"group": "navigation",
-					"when": "view == rimeNodeExplorer"
-				}
-			],
-			"view/item/context": [
-				{
-					"command": "rimeAssistant.openConfigFile",
-					"group": "inline",
-					"when": "viewItem == file"
-				}
-			]
-		},
-		"commands": [
-			{
-				"command": "rimeFileExplorer.refreshEntry",
-				"title": "Refresh",
-				"icon": {
-					"light": "resources/light/refresh.png",
-					"dark": "resources/dark/refresh.png"
-				}
-			},
-			{
-				"command": "rimeNodeExplorer.refreshEntry",
-				"title": "Refresh",
-				"icon": {
-					"light": "resources/light/refresh.png",
-					"dark": "resources/dark/refresh.png"
-				}
-			},
-			{
-				"command": "rimeAssistant.openConfigFile",
-				"title": "Open",
-				"icon": {
-					"light": "resources/light/actions/open.png",
-					"dark": "resources/dark/actions/open.png"
-				}
-			}
-		],
-		"views": {
-			"rime-assistant": [
-				{
-					"id": "rimeFileExplorer",
-					"name": "File Explorer"
-				},
-				{
-					"id": "rimeNodeExplorer",
-					"name": "Node Explorer"
-				}
-			]
-		},
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "rime-assistant",
-					"title": "Rime Assistant",
-					"icon": "media/rime.png"
-				}
-			]
-		},
-		"configuration": {
-			"type": "object",
-			"title": "Rime assistant configuration",
-			"properties": {
+    "name": "rime-assistant",
+    "displayName": "Rime Assistant",
+    "description": "An assistant along with your Rime configuration journey.",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.45.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onView:rimeFileExplorer",
+        "onView:rimeNodeExplorer"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "menus": {
+            "view/title": [
+                {
+                    "command": "rimeFileExplorer.refreshEntry",
+                    "group": "navigation",
+                    "when": "view == rimeFileExplorer"
+                },
+                {
+                    "command": "rimeNodeExplorer.refreshEntry",
+                    "group": "navigation",
+                    "when": "view == rimeNodeExplorer"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "rimeAssistant.openConfigFile",
+                    "group": "inline",
+                    "when": "viewItem == file"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "rimeFileExplorer.refreshEntry",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/light/refresh.png",
+                    "dark": "resources/dark/refresh.png"
+                }
+            },
+            {
+                "command": "rimeNodeExplorer.refreshEntry",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/light/refresh.png",
+                    "dark": "resources/dark/refresh.png"
+                }
+            },
+            {
+                "command": "rimeAssistant.openConfigFile",
+                "title": "Open",
+                "icon": {
+                    "light": "resources/light/actions/open.png",
+                    "dark": "resources/dark/actions/open.png"
+                }
+            }
+        ],
+        "views": {
+            "rime-assistant": [
+                {
+                    "id": "rimeFileExplorer",
+                    "name": "File Explorer"
+                },
+                {
+                    "id": "rimeNodeExplorer",
+                    "name": "Node Explorer"
+                }
+            ]
+        },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "rime-assistant",
+                    "title": "Rime Assistant",
+                    "icon": "media/rime.png"
+                }
+            ]
+        },
+        "configuration": {
+            "type": "object",
+            "title": "Rime assistant configuration",
+            "properties": {
                 "rimeAssistant.userConfigDir": {
                     "type": "string",
                     "default": false,
                     "description": "The directory containing user defined config files."
-				},
-				"rimeAssistant.defaultConfigDir": {
+                },
+                "rimeAssistant.defaultConfigDir": {
                     "type": "string",
-					"default": false,
-					"description": "The directory containing default RIME config files."
-				}
-			}
-		}
-	},
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"lint": "eslint src --ext ts",
-		"watch": "tsc -watch -p ./",
-		"pretest": "npm run compile && npm run lint",
-		"test": "node ./out/test/runTest.js"
-	},
-	"devDependencies": {
-		"@types/glob": "^7.1.1",
-		"@types/mocha": "^7.0.2",
-		"@types/node": "^13.11.0",
-		"@types/vscode": "^1.45.0",
-		"@typescript-eslint/eslint-plugin": "^2.30.0",
-		"@typescript-eslint/parser": "^2.30.0",
-		"eslint": "^6.8.0",
-		"glob": "^7.1.6",
-		"mocha": "^7.1.2",
-		"mocha-explorer-launcher-scripts": "^0.3.0",
-		"typescript": "^3.8.3",
-		"vscode-test": "^1.3.0"
-	},
-	"dependencies": {
-		"yaml": "^1.10.0"
-	}
+                    "default": false,
+                    "description": "The directory containing default RIME config files."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "lint": "eslint src --ext ts",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.1.1",
+        "@types/mocha": "^7.0.2",
+        "@types/node": "^13.11.0",
+        "@types/vscode": "^1.45.0",
+        "@typescript-eslint/eslint-plugin": "^2.30.0",
+        "@typescript-eslint/parser": "^2.30.0",
+        "eslint": "^6.8.0",
+        "glob": "^7.1.6",
+        "mocha": "^7.1.2",
+        "mocha-explorer-launcher-scripts": "^0.3.0",
+        "typescript": "^3.8.3",
+        "vscode-test": "^1.3.0"
+    },
+    "dependencies": {
+        "yaml": "^1.10.0"
+    }
 }
