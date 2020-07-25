@@ -58,6 +58,11 @@ export class ConfigTreeItem extends TreeItem {
     public key: string;
     public children: Map<string, ConfigTreeItem>;
     public value: any;
+    /**
+     * The value configured by default.
+     * This field is only set for patched items.
+     */
+    public defaultValue: any;
     public isSequenceElement: boolean;
     public configFilePath: string;
     public isPatched: boolean = false;
@@ -87,6 +92,7 @@ export class ConfigTreeItem extends TreeItem {
     }
 
     public updateValue(newValue: any) {
+        this.defaultValue = this.value;
         this.value = newValue;
         this.isPatched = true;
         this.iconPath = {
@@ -95,6 +101,9 @@ export class ConfigTreeItem extends TreeItem {
         };
         if (this.value) {
             this.label = this.isSequenceElement ? this.value : `${this.key}: ${this.value}`;
+        }
+        if (this.defaultValue) {
+            this.tooltip = this.value ? `current: ${this.value}\ndefault: ${this.defaultValue}` : undefined;
         }
     }
 
