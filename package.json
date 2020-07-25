@@ -21,6 +21,10 @@
 					"command": "rimeFileExplorer.refreshEntry",
 					"group": "navigation",
 					"when": "view == rimeFileExplorer"
+				}, {
+					"command": "rimeNodeExplorer.refreshEntry",
+					"group": "navigation",
+					"when": "view == rimeNodeExplorer"
 				}
 			],
 			"view/item/context": [
@@ -36,8 +40,16 @@
 				"command": "rimeFileExplorer.refreshEntry",
 				"title": "Refresh",
 				"icon": {
-					"light": "resources/light/refresh.svg",
-					"dark": "resources/dark/refresh.svg"
+					"light": "resources/light/refresh.png",
+					"dark": "resources/dark/refresh.png"
+				}
+			},
+			{
+				"command": "rimeNodeExplorer.refreshEntry",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.png",
+					"dark": "resources/dark/refresh.png"
 				}
 			},
 			{

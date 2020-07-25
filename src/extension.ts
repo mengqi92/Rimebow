@@ -25,6 +25,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	const rimeNodeExplorerProvider: RimeNodeExplorerProvider = new RimeNodeExplorerProvider(rimeConfigurationTree);
 	vscode.window.createTreeView('rimeNodeExplorer', { treeDataProvider: rimeNodeExplorerProvider });
+	vscode.commands.registerCommand('rimeNodeExplorer.refreshEntry', () => { rimeNodeExplorerProvider.refresh(); });
 }
 
 // this method is called when your extension is deactivated
