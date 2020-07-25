@@ -48,6 +48,7 @@ export class ConfigTreeItem extends TreeItem {
     public value: any;
     public isSequenceElement: boolean;
     public configFilePath: string;
+    public isPatched: boolean = false;
     constructor(options: ConfigTreeItemOptions) {
         super(
             options.value
@@ -66,17 +67,6 @@ export class ConfigTreeItem extends TreeItem {
     }
 
     /**
-     * Is current node a patch defined by user.
-     * @returns {boolean} Whether if current node has any child node.
-     */
-    get isPatch(): boolean {
-        if (this.configFilePath) {
-            return this.configFilePath.endsWith('.custom.yaml');
-        }
-        return false;
-    }
-
-    /**
      * Does current node has any child nodes.
      * @returns {boolean} Whether if current node has any child node.
      */
@@ -86,6 +76,11 @@ export class ConfigTreeItem extends TreeItem {
 
     public updateValue(newValue: any) {
         this.value = newValue;
+        this.isPatched = true;
+        this.iconPath = {
+            'light': path.join(__filename, '..', '..', 'resources', 'light', 'patch.png'),
+            'dark': path.join(__filename, '..', '..', 'resources', 'dark', 'patch.png'),
+        };
         if (this.value) {
             this.label = this.isSequenceElement ? this.value : `${this.key}: ${this.value}`;
         }
