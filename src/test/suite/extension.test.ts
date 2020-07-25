@@ -4,7 +4,7 @@ import YAML = require('yaml');
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 import * as vscode from 'vscode';
-import { RimeConfigurationTree, ConfigTreeItem } from '../../RimeConfigurationTree';
+import { RimeConfigurationTree, ConfigTreeItem, ItemKind } from '../../RimeConfigurationTree';
 import { Node } from 'yaml/types';
 
 class RimeConfigurationTreeForTest extends RimeConfigurationTree {
@@ -12,8 +12,8 @@ class RimeConfigurationTreeForTest extends RimeConfigurationTree {
 		return super._buildConfigTreeFromFile(filePath, fileName);
 	}
 
-	public _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string) {
-		return super._buildConfigTree(doc, rootNode, fullPath);
+	public _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string, fileKind: ItemKind) {
+		return super._buildConfigTree(doc, rootNode, fullPath, fileKind);
 	}
 
     public _applyPatch(defaultTree: ConfigTreeItem, userTree: ConfigTreeItem) {
@@ -31,16 +31,17 @@ suite('Extension Test Suite', () => {
 	test('buildConfigTree_whenObjectTreeIsEmpty_expectNodeTreeBuiltIsNull', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
+		const FILE_KIND: ItemKind = ItemKind.Other;
 		const FILE_NAME: string = "baz";
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
-		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), configFilePath: FILE_FULL_PATH });
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH });
 		const emptyObject: object = {};
 		const doc: Node = YAML.createNode(emptyObject);
-		let expectedRootNodeBuilt: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), configFilePath: FILE_FULL_PATH });
+		let expectedRootNodeBuilt: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH });
 		expectedRootNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.None;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, FILE_KIND);
 
 		// Assert.
 		try {
@@ -53,23 +54,25 @@ suite('Extension Test Suite', () => {
 	test('buildConfigTree_whenObjectTreeIsOnlyOneLayerObject_expectNodeTreeBuilt', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
+		const FILE_KIND: ItemKind = ItemKind.Other;
 		const FILE_NAME: string = "baz";
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
-		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), configFilePath: FILE_FULL_PATH });
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH });
 		const oneLayerObject: object = { a: '1', b: 2 };
 		const doc: Node = YAML.createNode(oneLayerObject);
 
-		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), configFilePath: FILE_FULL_PATH, value: '1' });
-		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), configFilePath: FILE_FULL_PATH, value: 2 });
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
 		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
 			key: FILE_NAME,
 			children: new Map([['a', expectedChildNodeA], ['b', expectedChildNodeB]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, FILE_KIND);
 
 		// Assert.
 		try {
@@ -83,30 +86,32 @@ suite('Extension Test Suite', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
 		const FILE_NAME: string = "baz";
-		const IS_CUSTOM_CONFIG: boolean = false;
+		const FILE_KIND: ItemKind = ItemKind.Other;
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
-		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), configFilePath: FILE_FULL_PATH });
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH });
 		const twoLayerObject: object = { a: '1', b: 2, c: { c1: 31, c2: '32' } };
 		const doc: Node = YAML.createNode(twoLayerObject);
 
-		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), configFilePath: FILE_FULL_PATH, value: '1' });
-		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), configFilePath: FILE_FULL_PATH, value: 2 });
-		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: 'c1', children: new Map(), configFilePath: FILE_FULL_PATH, value: 31 });
-		const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: 'c2', children: new Map(), configFilePath: FILE_FULL_PATH, value: '32' });
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
+		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: 'c1', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 31 });
+		const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: 'c2', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '32' });
 		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({
 			key: 'c',
 			children: new Map([['c1', expectedChildNodeC1], ['c2', expectedChildNodeC2]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
 			key: FILE_NAME,
 			children: new Map([['a', expectedChildNodeA], ['b', expectedChildNodeB], ['c', expectedChildNodeC]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, FILE_KIND);
 
 		// Assert.
 		try {
@@ -120,41 +125,47 @@ suite('Extension Test Suite', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
 		const FILE_NAME: string = "baz";
-		const IS_CUSTOM_CONFIG: boolean = false;
+		const FILE_KIND: ItemKind = ItemKind.Other;
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
-		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), configFilePath: FILE_FULL_PATH });
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH });
 		const twoLayerObject: object = { a: '1', b: 2, c: [{ c1: 31, c2: '32' }, { c3: 33 }] };
 		const doc: Node = YAML.createNode(twoLayerObject);
 
-		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), configFilePath: FILE_FULL_PATH, value: '1' });
-		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), configFilePath: FILE_FULL_PATH, value: 2 });
-		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: 'c1', children: new Map(), configFilePath: FILE_FULL_PATH, value: 31 });
-		const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: 'c2', children: new Map(), configFilePath: FILE_FULL_PATH, value: '32' });
-		const expectedChildNodeC3: ConfigTreeItem = new ConfigTreeItem({ key: 'c3', children: new Map(), configFilePath: FILE_FULL_PATH, value: 33 });
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
+		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: 'c1', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 31 });
+		const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: 'c2', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '32' });
+		const expectedChildNodeC3: ConfigTreeItem = new ConfigTreeItem({ key: 'c3', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 33 });
 		const expectedChildNodeCA0: ConfigTreeItem = new ConfigTreeItem({
 			key: '0',
 			children: new Map([['c1', expectedChildNodeC1], ['c2', expectedChildNodeC2]]),
-			configFilePath: FILE_FULL_PATH, isSequenceElement: true
+			configFilePath: FILE_FULL_PATH, 
+			kind: FILE_KIND,
+			isSequenceElement: true
 		});
 		const expectedChildNodeCA1: ConfigTreeItem = new ConfigTreeItem({
 			key: '1',
 			children: new Map([['c3', expectedChildNodeC3]]),
-			configFilePath: FILE_FULL_PATH, isSequenceElement: true
+			configFilePath: FILE_FULL_PATH, 
+			kind: FILE_KIND, 
+			isSequenceElement: true
 		});
 		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({
 			key: 'c',
 			children: new Map([['0', expectedChildNodeCA0], ['1', expectedChildNodeCA1]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
 			key: FILE_NAME,
 			children: new Map([['a', expectedChildNodeA], ['b', expectedChildNodeB], ['c', expectedChildNodeC]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, FILE_KIND);
 
 		// Assert.
 		try {
@@ -168,31 +179,33 @@ suite('Extension Test Suite', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
 		const FILE_NAME: string = "baz";
-		const IS_CUSTOM_CONFIG: boolean = false;
+		const FILE_KIND: ItemKind = ItemKind.Other;
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
-		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), configFilePath: FILE_FULL_PATH });
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH });
 		const oneLayerObject: object = { a: '1', b: 2, c: [3, 4, '5'] };
 		const doc: Node = YAML.createNode(oneLayerObject);
 
-		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), configFilePath: FILE_FULL_PATH, value: '1' });
-		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), configFilePath: FILE_FULL_PATH, value: 2 });
-		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: '0', children: new Map(), configFilePath: FILE_FULL_PATH, value: 3, isSequenceElement: true });
-		const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: '1', children: new Map(), configFilePath: FILE_FULL_PATH, value: 4, isSequenceElement: true });
-		const expectedChildNodeC3: ConfigTreeItem = new ConfigTreeItem({ key: '2', children: new Map(), configFilePath: FILE_FULL_PATH, value: '5', isSequenceElement: true });
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
+		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: '0', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 3, isSequenceElement: true });
+		const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: '1', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 4, isSequenceElement: true });
+		const expectedChildNodeC3: ConfigTreeItem = new ConfigTreeItem({ key: '2', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '5', isSequenceElement: true });
 		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({
 			key: 'c',
 			children: new Map([['0', expectedChildNodeC1], ['1', expectedChildNodeC2], ['2', expectedChildNodeC3]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
 			key: FILE_NAME,
 			children: new Map([['a', expectedChildNodeA], ['b', expectedChildNodeB], ['c', expectedChildNodeC]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, FILE_KIND);
 
 		// Assert.
 		try {
@@ -206,25 +219,26 @@ suite('Extension Test Suite', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
 		const FILE_NAME: string = "baz";
-		const IS_CUSTOM_CONFIG: boolean = false;
+		const FILE_KIND: ItemKind = ItemKind.Other;
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
-		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), configFilePath: FILE_FULL_PATH });
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH });
 		const twoLayerObject: object = { a: '1', b: 2, 'c/c1': 3 };
 		const doc: Node = YAML.createNode(twoLayerObject);
 
-		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), configFilePath: FILE_FULL_PATH, value: '1' });
-		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), configFilePath: FILE_FULL_PATH, value: 2 });
-		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: 'c1', children: new Map(), configFilePath: FILE_FULL_PATH, value: 3 });
-		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({ key: 'c', children: new Map([['c1', expectedChildNodeC1]]), configFilePath: FILE_FULL_PATH });
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
+		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: 'c1', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 3 });
+		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({ key: 'c', children: new Map([['c1', expectedChildNodeC1]]), configFilePath: FILE_FULL_PATH, kind: FILE_KIND });
 		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
 			key: FILE_NAME,
 			children: new Map([['a', expectedChildNodeA], ['b', expectedChildNodeB], ['c', expectedChildNodeC]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, FILE_KIND);
 
 		// Assert.
 		try {
@@ -238,35 +252,38 @@ suite('Extension Test Suite', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
 		const FILE_NAME: string = "baz";
-		const IS_CUSTOM_CONFIG: boolean = false;
+		const FILE_KIND: ItemKind = ItemKind.Other;
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
-		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), configFilePath: FILE_FULL_PATH });
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH });
 		const twoLayerObject: object = { a: '1', b: 2, 'c/c1': { c11: 31, c12: '32' } };
 		const doc: Node = YAML.createNode(twoLayerObject);
 
-		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), configFilePath: FILE_FULL_PATH, value: '1' });
-		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), configFilePath: FILE_FULL_PATH, value: 2 });
-		const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({ key: 'c11', children: new Map(), configFilePath: FILE_FULL_PATH, value: 31 });
-		const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({ key: 'c12', children: new Map(), configFilePath: FILE_FULL_PATH, value: '32' });
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
+		const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({ key: 'c11', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 31 });
+		const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({ key: 'c12', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '32' });
 		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({
 			key: 'c1',
 			children: new Map([['c11', expectedChildNodeC11], ['c12', expectedChildNodeC12]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({
 			key: 'c',
 			children: new Map([['c1', expectedChildNodeC1]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
 			key: FILE_NAME,
 			children: new Map([['a', expectedChildNodeA], ['b', expectedChildNodeB], ['c', expectedChildNodeC]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, FILE_KIND);
 
 		// Assert.
 		try {
@@ -280,40 +297,44 @@ suite('Extension Test Suite', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
 		const FILE_NAME: string = "baz";
-		const IS_CUSTOM_CONFIG: boolean = false;
+		const FILE_KIND: ItemKind = ItemKind.Other;
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
-		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), configFilePath: FILE_FULL_PATH });
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH });
 		const twoLayerObject: object = { a: '1', b: 2, 'c/c1': { c11: 31, c12: '32' }, 'd/d1': 4 };
 		const doc: Node = YAML.createNode(twoLayerObject);
 
-		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), configFilePath: FILE_FULL_PATH, value: '1' });
-		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), configFilePath: FILE_FULL_PATH, value: 2 });
-		const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({ key: 'c11', children: new Map(), configFilePath: FILE_FULL_PATH, value: 31 });
-		const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({ key: 'c12', children: new Map(), configFilePath: FILE_FULL_PATH, value: '32' });
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
+		const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({ key: 'c11', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 31 });
+		const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({ key: 'c12', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '32' });
 		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({
 			key: 'c1',
 			children: new Map([['c11', expectedChildNodeC11], ['c12', expectedChildNodeC12]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({
 			key: 'c',
 			children: new Map([['c1', expectedChildNodeC1]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
-		const expectedChildNodeD1: ConfigTreeItem = new ConfigTreeItem({ key: 'd1', children: new Map(), configFilePath: FILE_FULL_PATH, value: 4 });
+		const expectedChildNodeD1: ConfigTreeItem = new ConfigTreeItem({ key: 'd1', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 4 });
 		const expectedChildNodeD: ConfigTreeItem = new ConfigTreeItem({
 			key: 'd',
-			children: new Map([['d1', expectedChildNodeD1]]), configFilePath: FILE_FULL_PATH
+			children: new Map([['d1', expectedChildNodeD1]]), configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
 			key: FILE_NAME,
 			children: new Map([['a', expectedChildNodeA], ['b', expectedChildNodeB], ['c', expectedChildNodeC], ['d', expectedChildNodeD]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, FILE_KIND);
 
 		// Assert.
 		try {
@@ -327,36 +348,39 @@ suite('Extension Test Suite', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
 		const FILE_NAME: string = "baz";
-		const IS_CUSTOM_CONFIG: boolean = false;
+		const FILE_KIND: ItemKind = ItemKind.Other;
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
-		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), configFilePath: FILE_FULL_PATH });
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH });
 		const twoLayerObject: object = { a: '1', b: 2, 'c/c1': { c11: 31, c12: '32' }, 'c/c2': 4 };
 		const doc: Node = YAML.createNode(twoLayerObject);
 
-		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), configFilePath: FILE_FULL_PATH, value: '1' });
-		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), configFilePath: FILE_FULL_PATH, value: 2 });
-		const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({ key: 'c11', children: new Map(), configFilePath: FILE_FULL_PATH, value: 31 });
-		const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({ key: 'c12', children: new Map(), configFilePath: FILE_FULL_PATH, value: '32' });
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
+		const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({ key: 'c11', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 31 });
+		const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({ key: 'c12', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '32' });
 		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({
 			key: 'c1',
 			children: new Map([['c11', expectedChildNodeC11], ['c12', expectedChildNodeC12]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
-		const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: 'c2', children: new Map(), configFilePath: FILE_FULL_PATH, value: 4 });
+		const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: 'c2', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 4 });
 		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({
 			key: 'c',
 			children: new Map([['c1', expectedChildNodeC1], ['c2', expectedChildNodeC2]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
 			key: FILE_NAME,
 			children: new Map([['a', expectedChildNodeA], ['b', expectedChildNodeB], ['c', expectedChildNodeC]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, FILE_KIND);
 
 		// Assert.
 		try {
@@ -370,40 +394,44 @@ suite('Extension Test Suite', () => {
 		// Arrange.
 		const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
 		const FILE_NAME: string = "baz";
-		const IS_CUSTOM_CONFIG: boolean = false;
+		const FILE_KIND: ItemKind = ItemKind.Other;
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
-		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), configFilePath: FILE_FULL_PATH });
+		const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH });
 		const twoLayerObject: object = { a: '1', b: 2, 'c/c1/c11': { c111: 31, c112: '32' } };
 		const doc: Node = YAML.createNode(twoLayerObject);
 
-		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), configFilePath: FILE_FULL_PATH, value: '1' });
-		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), configFilePath: FILE_FULL_PATH, value: 2 });
-		const expectedChildNodeC111: ConfigTreeItem = new ConfigTreeItem({ key: 'c111', children: new Map(), configFilePath: FILE_FULL_PATH, value: 31 });
-		const expectedChildNodeC112: ConfigTreeItem = new ConfigTreeItem({ key: 'c112', children: new Map(), configFilePath: FILE_FULL_PATH, value: '32' });
+		const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
+		const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
+		const expectedChildNodeC111: ConfigTreeItem = new ConfigTreeItem({ key: 'c111', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 31 });
+		const expectedChildNodeC112: ConfigTreeItem = new ConfigTreeItem({ key: 'c112', children: new Map(), kind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '32' });
 		const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({
 			key: 'c11',
 			children: new Map([['c111', expectedChildNodeC111], ['c112', expectedChildNodeC112]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({
 			key: 'c1',
 			children: new Map([['c11', expectedChildNodeC11]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({
 			key: 'c',
 			children: new Map([['c1', expectedChildNodeC1]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
 			key: FILE_NAME,
 			children: new Map([['a', expectedChildNodeA], ['b', expectedChildNodeB], ['c', expectedChildNodeC]]),
-			configFilePath: FILE_FULL_PATH
+			configFilePath: FILE_FULL_PATH,
+			kind: FILE_KIND
 		});
 		expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 
 		// Act.
-		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH);
+		rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, FILE_KIND);
 
 		// Assert.
 		try {
@@ -416,9 +444,10 @@ suite('Extension Test Suite', () => {
 
 	test('mergeTree_whenNewNodeInB_expectNewNodeAddedToA', () => {
 		// Arrange.
-		const treeA: ConfigTreeItem = new ConfigTreeItem({key: 'a', children: new Map(), configFilePath: 'A_FILEPATH'});
-		const nodeB1: ConfigTreeItem = new ConfigTreeItem({key: 'b1', children: new Map(), configFilePath: 'B_FILEPATH'});
-		const treeB: ConfigTreeItem = new ConfigTreeItem({key: 'a', children: new Map([['b1', nodeB1]]), configFilePath: ''});
+		const FILE_KIND: ItemKind = ItemKind.Other;
+		const treeA: ConfigTreeItem = new ConfigTreeItem({key: 'a', children: new Map(), kind: FILE_KIND, configFilePath: 'A_FILEPATH'});
+		const nodeB1: ConfigTreeItem = new ConfigTreeItem({key: 'b1', children: new Map(), kind: FILE_KIND, configFilePath: 'B_FILEPATH'});
+		const treeB: ConfigTreeItem = new ConfigTreeItem({key: 'a', children: new Map([['b1', nodeB1]]), configFilePath: '', kind: FILE_KIND});
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
 		// Act.
@@ -435,10 +464,11 @@ suite('Extension Test Suite', () => {
 		// Arrange.
 		// treeA: { 1: { 2: 'a' } }
 		// treeB: { 1: { 2: 'b' } }
-		const nodeA2: ConfigTreeItem = new ConfigTreeItem({key: '2', children: new Map(), configFilePath: 'A_FILEPATH', value: 'a'});
-		const treeA: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map([['2', nodeA2]]), configFilePath: 'A_FILEPATH'});
-		const nodeB2: ConfigTreeItem = new ConfigTreeItem({key: '2', children: new Map(), configFilePath: 'B_FILEPATH', value: 'b'});
-		const treeB: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map([['2', nodeB2]]), configFilePath: 'B_FILEPATH'});
+		const FILE_KIND: ItemKind = ItemKind.Other;
+		const nodeA2: ConfigTreeItem = new ConfigTreeItem({key: '2', children: new Map(), kind: FILE_KIND, configFilePath: 'A_FILEPATH', value: 'a'});
+		const treeA: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map([['2', nodeA2]]), configFilePath: 'A_FILEPATH', kind: FILE_KIND});
+		const nodeB2: ConfigTreeItem = new ConfigTreeItem({key: '2', children: new Map(), kind: FILE_KIND, configFilePath: 'B_FILEPATH', value: 'b'});
+		const treeB: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map([['2', nodeB2]]), configFilePath: 'B_FILEPATH', kind: FILE_KIND});
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
 		// Act.
@@ -456,18 +486,19 @@ suite('Extension Test Suite', () => {
 		// Arrange.
 		// defaultTree: { FileA: { 1: 'a' } }
 		// userTree: { FileA.custom: { 'patch': { 1: 'b' } } }
-		const nodeDefault1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), configFilePath: 'DEFAULT_CONFIG_FILEPATH', value: 'a'});
-		const nodeFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['1', nodeDefault1]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH'});
-		const defaultTree: ConfigTreeItem = new ConfigTreeItem({key: 'DEFAULT', children: new Map([['FileA', nodeFileA]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH'});
-		const nodeUser1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), configFilePath: 'USER_CONFIG_FILEPATH', value: 'b'});
-		const nodeUserPatch: ConfigTreeItem = new ConfigTreeItem({key: 'patch', children: new Map([['1', nodeUser1]]), configFilePath: 'USER_CONFIG_FILEPATH'});
-		const nodeFileACustom: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['patch', nodeUserPatch]]), configFilePath: 'USER_CONFIG_FILEPATH'});
-		const userTree: ConfigTreeItem = new ConfigTreeItem({key: 'USER', children: new Map([['FileA', nodeFileACustom]]), configFilePath: 'USER_CONFIG_FILEPATH'});
+		const FILE_KIND: ItemKind = ItemKind.Other;
+		const nodeDefault1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: FILE_KIND, configFilePath: 'DEFAULT_CONFIG_FILEPATH', value: 'a'});
+		const nodeFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['1', nodeDefault1]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH', kind: FILE_KIND});
+		const defaultTree: ConfigTreeItem = new ConfigTreeItem({key: 'DEFAULT', children: new Map([['FileA', nodeFileA]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH', kind: FILE_KIND});
+		const nodeUser1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: FILE_KIND, configFilePath: 'USER_CONFIG_FILEPATH', value: 'b'});
+		const nodeUserPatch: ConfigTreeItem = new ConfigTreeItem({key: 'patch', children: new Map([['1', nodeUser1]]), configFilePath: 'USER_CONFIG_FILEPATH', kind: FILE_KIND});
+		const nodeFileACustom: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['patch', nodeUserPatch]]), configFilePath: 'USER_CONFIG_FILEPATH', kind: FILE_KIND});
+		const userTree: ConfigTreeItem = new ConfigTreeItem({key: 'USER', children: new Map([['FileA', nodeFileACustom]]), configFilePath: 'USER_CONFIG_FILEPATH', kind: FILE_KIND});
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
-		const expectedNodeDefault1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), configFilePath: 'DEFAULT_CONFIG_FILEPATH', value: 'b'});
-		const expectedNodeFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['2', nodeDefault1]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH'});
-		const expectedDefaultTree: ConfigTreeItem = new ConfigTreeItem({key: 'DEFAULT', children: new Map([['FileA', nodeFileA]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH'});
+		const expectedNodeDefault1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: FILE_KIND, configFilePath: 'DEFAULT_CONFIG_FILEPATH', value: 'b'});
+		const expectedNodeFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['2', nodeDefault1]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH', kind: FILE_KIND});
+		const expectedDefaultTree: ConfigTreeItem = new ConfigTreeItem({key: 'DEFAULT', children: new Map([['FileA', nodeFileA]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH', kind: FILE_KIND});
 
 		// Act.
 		rimeConfigurationTree._applyPatch(defaultTree, userTree);
