@@ -242,8 +242,8 @@ export class RimeConfigurationTree {
 
         const doc: YAML.Document.Parsed = YAML.parseDocument(data.toString());
 
-        const fileLabel: string = fileName.replace('.yaml', '').replace('.custom', '');
-        const fileKind: ItemKind = this._categoriseConfigFile(fileLabel);
+        const fileKind: ItemKind = this._categoriseConfigFile(fileName);
+        const fileLabel: string = fileName.replace('.yaml', '').replace('.custom', '').replace('.schema', '');
         // The root node is representing the configuration file.
         let rootNode: ConfigTreeItem = new ConfigTreeItem({ key: fileLabel, children: new Map(), configFilePath: fullName, kind: fileKind, isFile: true });
         if (doc.contents === null) {
@@ -417,12 +417,13 @@ export class RimeConfigurationTree {
         });
     }
 
-    private _categoriseConfigFile(fileName: string): ItemKind {
+    private _categoriseConfigFile(fileNameWithExtensions: string): ItemKind {
+        const fileName: string = fileNameWithExtensions.replace('.yaml', '');
         if (fileName === 'default') {
             return ItemKind.Default;
         } else if (fileName.endsWith('schema')) {
             return ItemKind.Schema;
-        } else if (fileName in ['weasel', 'squirrel', 'ibus_rime']) {
+        } else if (['weasel', 'squirrel', 'ibus_rime', 'installation', 'user'].indexOf(fileName) !== -1) {
             return ItemKind.Program;
         } else {
             return ItemKind.Other;
