@@ -134,7 +134,7 @@ export class ConfigTreeItem extends TreeItem {
                 break;
             case ItemKind.Program:
                 iconFullName = 'program.png';
-                break; 
+                break;
             case ItemKind.Default:
                 iconFullName = 'default.png';
                 break;
@@ -251,7 +251,49 @@ export class RimeConfigurationTree {
         }
         // Build ConfigNode tree by traversing the nodeTree object.
         this._buildConfigTree(doc.contents, rootNode, fileLabel, fileKind);
+        if (fileKind === ItemKind.Schema
+            && rootNode.hasChildren
+            && rootNode.children.has('schema')) {
+            const schemaMetadata: ConfigTreeItem = rootNode.children.get('schema')!;
+            this._setSchemaNameAsLabel(schemaMetadata, rootNode);
+            this._setMetadataAsTooltip(schemaMetadata, rootNode);
+        }
         return rootNode;
+    }
+    _setMetadataAsTooltip(schemaMetadata: ConfigTreeItem, rootNode: ConfigTreeItem) {
+        if (!schemaMetadata.hasChildren) {
+            return;
+        }
+        let tooltipLines: string[] = [];
+        if (schemaMetadata.children.has('author')) {
+            if (schemaMetadata.children.get('author')!.value) {
+                tooltipLines.push(`作者：${schemaMetadata.children.get('author')!.value}`);
+            } else if (schemaMetadata.children.get('author')!.hasChildren) {
+                tooltipLines.push('作者：');
+                schemaMetadata.children.get('author')!.children.forEach((authorItem: ConfigTreeItem) => {
+                    if (authorItem.isSequenceElement) {
+                        tooltipLines.push(`${authorItem.label}`);
+                    }
+                });
+            }
+        }
+        if (schemaMetadata.children.has('version')
+            && schemaMetadata.children.get('version')!.value) {
+            tooltipLines.push(`版本：${schemaMetadata.children.get('version')!.value}`);
+        }
+        if (schemaMetadata.children.has('description')
+            && schemaMetadata.children.get('description')!.value) {
+            tooltipLines.push(`------\n${schemaMetadata.children.get('description')!.value}`);
+        }
+        rootNode.tooltip = tooltipLines.join('\n');
+    }
+
+    private _setSchemaNameAsLabel(schemaMetadata: ConfigTreeItem, fileNode: ConfigTreeItem) {
+        if (schemaMetadata.hasChildren
+            && schemaMetadata.children.has('name')
+            && schemaMetadata.children.get('name')!.value) {
+            fileNode.label = schemaMetadata.children.get('name')!.value;
+        }
     }
 
     /**
