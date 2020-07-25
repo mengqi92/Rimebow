@@ -140,7 +140,7 @@ export class ConfigTreeItem extends TreeItem {
         }
         return {
             'light': path.join(__filename, '..', '..', 'resources', 'light', 'configKind', iconFullName),
-            'dark': path.join(__filename, '..', '..', 'resources', 'light', 'configKind', iconFullName),
+            'dark': path.join(__filename, '..', '..', 'resources', 'dark', 'configKind', iconFullName),
         }
     }
 }
