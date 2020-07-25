@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { TreeItem } from 'vscode';
-import { RimeConfigurationTree } from './RimeConfigurationTree';
+import { RimeConfigurationTree, ConfigTreeItem } from './RimeConfigurationTree';
 
 export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<TreeItem | undefined> = new vscode.EventEmitter<TreeItem | undefined>();
@@ -31,9 +31,17 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
             return [defaultFolder, userFolder, buildFolder];
         } else {
             if (element.label === 'Default Configurations') {
-                return Array.from(this.configurationTree.defaultConfigTree.children.values());
+                return Array.from(this.configurationTree.defaultConfigTree.children.values())
+                    .map((item: ConfigTreeItem) => { 
+                        item.collapsibleState = undefined; 
+                        return item;
+                    });
             } else if (element.label === 'User Configurations') {
-                return Array.from(this.configurationTree.userConfigTree.children.values());
+                return Array.from(this.configurationTree.userConfigTree.children.values())
+                    .map((item: ConfigTreeItem) => { 
+                        item.collapsibleState = undefined; 
+                        return item;
+                    });
             }
         }
     }
