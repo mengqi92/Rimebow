@@ -69,6 +69,22 @@
 					"icon": "media/rime.png"
 				}
 			]
+		},
+		"configuration": {
+			"type": "object",
+			"title": "Rime assistant configuration",
+			"properties": {
+                "rimeAssistant.userConfigDir": {
+                    "type": "string",
+                    "default": false,
+                    "description": "The directory containing user defined config files."
+				},
+				"rimeAssistant.defaultConfigDir": {
+                    "type": "string",
+					"default": false,
+					"description": "The directory containing default RIME config files."
+				}
+			}
 		}
 	},
 	"scripts": {

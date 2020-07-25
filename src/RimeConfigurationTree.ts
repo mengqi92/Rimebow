@@ -10,6 +10,7 @@ import { stringify } from 'querystring';
 
 const readDirAsync = util.promisify(fs.readdir);
 const readFileAsync = util.promisify(fs.readFile);
+const existsAsync = util.promisify(fs.exists);
 
 export interface ConfigTreeItemOptions {
     /**
@@ -111,34 +112,56 @@ export class ConfigTreeItem extends TreeItem {
 }
 
 export class RimeConfigurationTree {
-    private static readonly DEFAULT_CONFIG_PATH: string = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
-    private static readonly USER_CONFIG_PATH: string = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime');
-    private static readonly DEFAULT_CONFIG_LABEL: string = 'Default Config';
-    private static readonly USER_CONFIG_LABEL: string = 'User Config';
-
     public configTree: ConfigTreeItem = new ConfigTreeItem({ key: 'ROOT', children: new Map(), configFilePath: '' });
     /**
      * Configuration tree, including config files, in the default config folder.
      */
     public defaultConfigTree: ConfigTreeItem = new ConfigTreeItem({
-        key: 'DEFAULT', 
-        children: new Map(), 
-        configFilePath: RimeConfigurationTree.DEFAULT_CONFIG_PATH });
+        key: 'DEFAULT',
+        children: new Map(),
+        configFilePath: ''
+    });
     /**
      * Configuration tree, including config files, in the user config folder.
      */
-    public userConfigTree: ConfigTreeItem = new ConfigTreeItem({ 
-        key: 'USER', 
-        children: new Map(), 
-        configFilePath: RimeConfigurationTree.USER_CONFIG_PATH });
+    public userConfigTree: ConfigTreeItem = new ConfigTreeItem({
+        key: 'USER',
+        children: new Map(),
+        configFilePath: ''
+    });
 
-    constructor() { }
+    private static readonly DEFAULT_CONFIG_PATH: string = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
+    private static readonly USER_CONFIG_PATH: string = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime');
+    private static readonly DEFAULT_CONFIG_LABEL: string = 'Default Config';
+    private static readonly USER_CONFIG_LABEL: string = 'User Config';
+    private userConfigDir: string = "";
+    private defaultConfigDir: string = "";
+
+    constructor() {
+    }
 
     public async build() {
+        const defaultConfigDirConfigKey: string = "defaultConfigDir";
+        const userConfigDirConfigKey: string = "userConfigDir";
+        const rimeAssistantConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('rimeAssistant');
+        if (rimeAssistantConfiguration.has(defaultConfigDirConfigKey)
+            && await existsAsync(rimeAssistantConfiguration.get(defaultConfigDirConfigKey) as string)) {
+            this.defaultConfigDir = rimeAssistantConfiguration.get(defaultConfigDirConfigKey) as string;
+        } else {
+            // 'C:\\Program Files (x86)\\Rime\\weasel-0.14.3\\data'
+            this.defaultConfigDir = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
+        }
+        if (rimeAssistantConfiguration.has(userConfigDirConfigKey)
+            && await existsAsync(rimeAssistantConfiguration.get(userConfigDirConfigKey) as string)) {
+            this.userConfigDir = rimeAssistantConfiguration.get(userConfigDirConfigKey) as string;
+        } else {
+            // 'C:\\Users\\mengq\\AppData\\Roaming\\Rime'
+            this.userConfigDir = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime');
+        }
         this.defaultConfigTree = await this._buildConfigTreeFromFiles(
-            RimeConfigurationTree.DEFAULT_CONFIG_PATH, RimeConfigurationTree.DEFAULT_CONFIG_LABEL);
+            this.defaultConfigDir, RimeConfigurationTree.DEFAULT_CONFIG_LABEL);
         this.userConfigTree = await this._buildConfigTreeFromFiles(
-            RimeConfigurationTree.USER_CONFIG_PATH, RimeConfigurationTree.USER_CONFIG_LABEL);
+            this.userConfigDir, RimeConfigurationTree.USER_CONFIG_LABEL);
         this._applyPatch(this.defaultConfigTree, this.userConfigTree);
         this.configTree.addChildNode(this.defaultConfigTree);
     }
@@ -280,7 +303,7 @@ export class RimeConfigurationTree {
             // Found the custom config file.
             const userConfigTree: ConfigTreeItem = userTree.children.get(customFileName)!;
 
-            if(userConfigTree.children.has('patch')) {
+            if (userConfigTree.children.has('patch')) {
                 const PatchNode: ConfigTreeItem = userConfigTree.children.get('patch')!;
                 this._mergeTree(defaultFileNode, PatchNode);
             }
