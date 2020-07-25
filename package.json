@@ -44,8 +44,8 @@
 				"command": "rimeAssistant.openConfigFile",
 				"title": "Open",
 				"icon": {
-					"light": "resources/light/document.svg",
-					"dark": "resources/dark/document.svg"
+					"light": "resources/light/actions/open.png",
+					"dark": "resources/dark/actions/open.png"
 				}
 			}
 		],
