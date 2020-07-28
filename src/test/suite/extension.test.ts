@@ -497,8 +497,8 @@ suite('Extension Test Suite', () => {
 		const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
 		const expectedNodeDefault1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: FILE_KIND, configFilePath: 'DEFAULT_CONFIG_FILEPATH', value: 'b'});
-		const expectedNodeFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['2', nodeDefault1]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH', kind: FILE_KIND});
-		const expectedDefaultTree: ConfigTreeItem = new ConfigTreeItem({key: 'DEFAULT', children: new Map([['FileA', nodeFileA]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH', kind: FILE_KIND});
+		const expectedNodeFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['2', expectedNodeDefault1]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH', kind: FILE_KIND});
+		const expectedDefaultTree: ConfigTreeItem = new ConfigTreeItem({key: 'DEFAULT', children: new Map([['FileA', expectedNodeFileA]]), configFilePath: 'DEFAULT_CONFIG_FILEPATH', kind: FILE_KIND});
 
 		// Act.
 		rimeConfigurationTree._applyPatch(defaultTree, userTree);
