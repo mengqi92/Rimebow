@@ -265,7 +265,8 @@ export class RimeConfigurationTree {
         }
         return rootNode;
     }
-    _setMetadataAsTooltip(schemaMetadata: ConfigTreeItem, rootNode: ConfigTreeItem) {
+
+    private _setMetadataAsTooltip(schemaMetadata: ConfigTreeItem, rootNode: ConfigTreeItem) {
         if (!schemaMetadata.hasChildren) {
             return;
         }
