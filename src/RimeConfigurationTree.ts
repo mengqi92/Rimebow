@@ -255,12 +255,23 @@ export class RimeConfigurationTree {
                 return await this._buildConfigTreeFromFile(configDir, fileName);
             });
         const fileItems: ConfigTreeItem[] = await Promise.all(promises).catch((error: YAMLSemanticError) => []);
+        // Files are collected now, apply patches if needed.
         let fileMap: Map<string, ConfigTreeItem> = new Map();
         fileItems.forEach((fileItem: ConfigTreeItem) => {
             if (!fileMap.has(fileItem.key)) {
                 fileMap.set(fileItem.key, fileItem);
             } else {
-                fileMap.get(fileItem.key)!.children = this._applyPatch(fileMap.get(fileItem.key)!, fileItem);
+                // TODO: merge the similar logic with the one in _applyPatch
+                // The file already exists in merged tree. Check if merge is needed.
+                let [fileToPatch, patchFile] 
+                    = this._distinguishFileToPatchWithPatchFile(fileMap.get(fileItem.key)!, fileItem);
+                if (fileToPatch === null || patchFile === null || !patchFile.children.has('patch')) {
+                    return;
+                }
+
+                const patchNode: ConfigTreeItem = patchFile.children.get('patch')!;
+                this._mergeTree(fileToPatch, patchNode);
+                fileMap.set(fileToPatch.key, fileToPatch);
             }
         });
         return new ConfigTreeItem({
@@ -382,16 +393,15 @@ export class RimeConfigurationTree {
     }
 
     /**
-     * Apply patches from user config tree to the default config tree.
-     * After applied, the default tree will have updated nodes.
-     * @param {ConfigTreeItem} defaultTree The default config tree.
-     * @param {ConfigTreeItem} userTree The user config tree.
+     * Apply patches to the file to patch.
+     * @param {ConfigTreeItem} fileToPatch The default config tree.
+     * @param {ConfigTreeItem} patchFile The user config tree.
      * @returns {Map<string, ConfigTreeItem>} The merged children map after applied patches.
      */
-    protected _applyPatch(defaultTree: ConfigTreeItem, userTree: ConfigTreeItem): Map<string, ConfigTreeItem> {
+    protected _applyPatch(fileToPatch: ConfigTreeItem, patchFile: ConfigTreeItem): Map<string, ConfigTreeItem> {
         let mergedMap: Map<string, ConfigTreeItem> = new Map();
-        mergedMap = defaultTree.children;
-        userTree.children.forEach((userFileItem: ConfigTreeItem, fileKey: string) => {
+        mergedMap = fileToPatch.children;
+        patchFile.children.forEach((userFileItem: ConfigTreeItem, fileKey: string) => {
             if (!mergedMap.has(fileKey)) {
                 mergedMap.set(fileKey, userFileItem);
             } else {
