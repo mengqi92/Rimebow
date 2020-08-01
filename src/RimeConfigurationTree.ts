@@ -45,9 +45,9 @@ export interface ConfigTreeItemOptions {
      */
     readonly configFilePath: string;
     /**
-     * Whether if the node is representing a customized config file, such as foo.custom.yaml.
+     * The kind of the file when the node is a file (kind === ItemKind.File). 
      */
-    readonly isCustomFile?: boolean;
+    readonly fileKind?: FileKind;
     /**
      * Whether current node is representing a sequential yaml node (just like a map with only values).
      * Consider as false if no value provided.
@@ -79,13 +79,13 @@ export class ConfigTreeItem extends TreeItem {
      */
     public defaultValue: any;
     /**
+     * The kind of the file when the node is a config file.
+     */
+    public fileKind?: FileKind;
+    /**
      * Path to the configuration file that contains the current node.
      */
     public configFilePath: string;
-    /**
-     * Whether if the file is a customized config file, such as foo.custom.yaml.
-     */
-    public isCustomFile: boolean = false;
     /**
      * Whether if current node is an element in a sequence.
      */
@@ -104,7 +104,7 @@ export class ConfigTreeItem extends TreeItem {
         this.children = options.children;
         this.value = options.value;
         this.configFilePath = options.configFilePath;
-        this.isCustomFile = options.isCustomFile || false;
+        this.fileKind = options.fileKind;
         this.isSequenceElement = options.isSequenceElement || false;
 
         this.contextValue = options.kind.toString();
@@ -118,6 +118,10 @@ export class ConfigTreeItem extends TreeItem {
      */
     get hasChildren(): boolean {
         return this.children.size > 0;
+    }
+
+    get isCustomFile(): boolean {
+        return this.fileKind === FileKind.Custom;
     }
 
     public updateValue(newValue: any) {
@@ -298,7 +302,7 @@ export class RimeConfigurationTree {
             children: new Map(), 
             configFilePath: fullName, 
             kind: ItemKind.File, 
-            isCustomFile: fileKind === FileKind.Custom });
+            fileKind: FileKind.Custom });
         if (doc.contents === null) {
             return rootNode;
         }

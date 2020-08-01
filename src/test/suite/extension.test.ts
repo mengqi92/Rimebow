@@ -4,7 +4,7 @@ import YAML = require('yaml');
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 import * as vscode from 'vscode';
-import { RimeConfigurationTree, ConfigTreeItem, ItemKind } from '../../RimeConfigurationTree';
+import { RimeConfigurationTree, ConfigTreeItem, ItemKind, FileKind } from '../../RimeConfigurationTree';
 import { Node } from 'yaml/types';
 
 class RimeConfigurationTreeForTest extends RimeConfigurationTree {
@@ -510,7 +510,7 @@ suite('Extension Test Suite', () => {
         const defaultTree: ConfigTreeItem = new ConfigTreeItem({key: 'DEFAULT', children: new Map([['FileA', nodeFileA]]), configFilePath: 'DefaultPath', kind: ItemKind.Folder});
         const nodeUser1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'UserPath/FileA.custom.yaml', value: 'b'});
         const nodeUserPatch: ConfigTreeItem = new ConfigTreeItem({key: 'patch', children: new Map([['1', nodeUser1]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.PatchNode});
-        const nodeFileACustom: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['patch', nodeUserPatch]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.File, isCustomFile: true});
+        const nodeFileACustom: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['patch', nodeUserPatch]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.File, fileKind: FileKind.Custom});
         const userTree: ConfigTreeItem = new ConfigTreeItem({key: 'USER', children: new Map([['FileA', nodeFileACustom]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
