@@ -480,7 +480,38 @@ suite('Extension Test Suite', () => {
         assert.ok(treeA.children.has('2'));
         assert.equal(treeA.children.get('2')!.value, 'b');
         assert.equal(treeA.children.get('2')!.label, '2: b');
-    });
+	});
+	
+    test('mergeTree_whenUpdatedArrayInB_expectArrayOverrideInA', () => {
+        // Arrange.
+        // treeA: { a: [ a1, a2 ] }
+		// treeB: { a: [ a2, a3, a4 ] }
+		// expected: { a: [ a2, a3, a4 ] }
+		const FILE_KIND: ItemKind = ItemKind.Other;
+		const A_FILE_PATH: string = 'A_FILEPATH';
+		const B_FILE_PATH: string = 'B_FILEPBTH';
+		const nodeA1: ConfigTreeItem = new ConfigTreeItem({ key: '0', children: new Map(), configFilePath: A_FILE_PATH, kind: FILE_KIND, value: 'a1' });
+		const nodeA2: ConfigTreeItem = new ConfigTreeItem({ key: '1', children: new Map(), configFilePath: A_FILE_PATH, kind: FILE_KIND, value: 'a2' });
+        const treeA: ConfigTreeItem = new ConfigTreeItem({key: 'a', children: new Map([['0', nodeA1], ['1', nodeA2]]), kind: FILE_KIND, configFilePath: A_FILE_PATH});
+		const nodeB1: ConfigTreeItem = new ConfigTreeItem({ key: '0', children: new Map(), configFilePath: B_FILE_PATH, kind: FILE_KIND, value: 'a2' });
+		const nodeB2: ConfigTreeItem = new ConfigTreeItem({ key: '1', children: new Map(), configFilePath: B_FILE_PATH, kind: FILE_KIND, value: 'a3' });
+		const nodeB3: ConfigTreeItem = new ConfigTreeItem({ key: '2', children: new Map(), configFilePath: B_FILE_PATH, kind: FILE_KIND, value: 'a4' });
+        const treeB: ConfigTreeItem = new ConfigTreeItem({key: 'a', children: new Map([['0', nodeB1], ['1', nodeB2], ['2', nodeB3]]), configFilePath: B_FILE_PATH, kind: FILE_KIND});
+        const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+
+        // Act.
+        rimeConfigurationTree._mergeTree(treeA, treeB);
+
+        // Assert.
+        assert.equal(treeA.key, 'a');
+        assert.equal(treeA.children.size, 3);
+        assert.ok(treeA.children.has('0'));
+        assert.equal(treeA.children.get('0')!.value, 'a2');
+        assert.ok(treeA.children.has('1'));
+        assert.equal(treeA.children.get('1')!.value, 'a3');
+        assert.ok(treeA.children.has('2'));
+        assert.equal(treeA.children.get('2')!.value, 'a4');
+	});
 
     test('applyPatch_whenUserTreeHasPatch_expectNodeUpdatedInMergedTree', () => {
         // Arrange.
