@@ -302,42 +302,6 @@ export class RimeConfigurationTree {
         return rootNode;
     }
 
-    private _setMetadataAsTooltip(schemaMetadata: ConfigTreeItem, rootNode: ConfigTreeItem) {
-        if (!schemaMetadata.hasChildren) {
-            return;
-        }
-        let tooltipLines: string[] = [];
-        if (schemaMetadata.children.has('author')) {
-            if (schemaMetadata.children.get('author')!.value) {
-                tooltipLines.push(`作者：${schemaMetadata.children.get('author')!.value}`);
-            } else if (schemaMetadata.children.get('author')!.hasChildren) {
-                tooltipLines.push('作者：');
-                schemaMetadata.children.get('author')!.children.forEach((authorItem: ConfigTreeItem) => {
-                    if (authorItem.isSequenceElement) {
-                        tooltipLines.push(`${authorItem.label}`);
-                    }
-                });
-            }
-        }
-        if (schemaMetadata.children.has('version')
-            && schemaMetadata.children.get('version')!.value) {
-            tooltipLines.push(`版本：${schemaMetadata.children.get('version')!.value}`);
-        }
-        if (schemaMetadata.children.has('description')
-            && schemaMetadata.children.get('description')!.value) {
-            tooltipLines.push(`------\n${schemaMetadata.children.get('description')!.value}`);
-        }
-        rootNode.tooltip = tooltipLines.join('\n');
-    }
-
-    private _setSchemaNameAsLabel(schemaMetadata: ConfigTreeItem, fileNode: ConfigTreeItem) {
-        if (schemaMetadata.hasChildren
-            && schemaMetadata.children.has('name')
-            && schemaMetadata.children.get('name')!.value) {
-            fileNode.label = schemaMetadata.children.get('name')!.value;
-        }
-    }
-
     /**
      * Build up a configuration tree based on the object tree parsed.
      * @param {Node} doc The root node of the object tree parsed from yaml file.
@@ -445,16 +409,6 @@ export class RimeConfigurationTree {
         return mergedMap;
     }
 
-    private _distinguishFileToPatchWithPatchFile(oneFile: ConfigTreeItem, anotherFile: ConfigTreeItem): [ConfigTreeItem | null, ConfigTreeItem | null] {
-        if (!oneFile.isCustomFile && anotherFile.isCustomFile) {
-            return [oneFile, anotherFile];
-        } else if (oneFile.isCustomFile && !anotherFile.isCustomFile) {
-            return [anotherFile, oneFile];
-        } else {
-            return [null, null];
-        }
-    }
-
     protected _mergeTree(treeA: ConfigTreeItem, treeB: ConfigTreeItem) {
         if (treeB.key !== 'patch' && treeA.key !== treeB.key) {
             throw new Error('The trees to be merged have no common ancestor.');
@@ -486,6 +440,52 @@ export class RimeConfigurationTree {
             return ItemKind.Program;
         } else {
             return ItemKind.Other;
+        }
+    }
+
+    private _setMetadataAsTooltip(schemaMetadata: ConfigTreeItem, rootNode: ConfigTreeItem) {
+        if (!schemaMetadata.hasChildren) {
+            return;
+        }
+        let tooltipLines: string[] = [];
+        if (schemaMetadata.children.has('author')) {
+            if (schemaMetadata.children.get('author')!.value) {
+                tooltipLines.push(`作者：${schemaMetadata.children.get('author')!.value}`);
+            } else if (schemaMetadata.children.get('author')!.hasChildren) {
+                tooltipLines.push('作者：');
+                schemaMetadata.children.get('author')!.children.forEach((authorItem: ConfigTreeItem) => {
+                    if (authorItem.isSequenceElement) {
+                        tooltipLines.push(`${authorItem.label}`);
+                    }
+                });
+            }
+        }
+        if (schemaMetadata.children.has('version')
+            && schemaMetadata.children.get('version')!.value) {
+            tooltipLines.push(`版本：${schemaMetadata.children.get('version')!.value}`);
+        }
+        if (schemaMetadata.children.has('description')
+            && schemaMetadata.children.get('description')!.value) {
+            tooltipLines.push(`------\n${schemaMetadata.children.get('description')!.value}`);
+        }
+        rootNode.tooltip = tooltipLines.join('\n');
+    }
+
+    private _setSchemaNameAsLabel(schemaMetadata: ConfigTreeItem, fileNode: ConfigTreeItem) {
+        if (schemaMetadata.hasChildren
+            && schemaMetadata.children.has('name')
+            && schemaMetadata.children.get('name')!.value) {
+            fileNode.label = schemaMetadata.children.get('name')!.value;
+        }
+    }
+
+    private _distinguishFileToPatchWithPatchFile(oneFile: ConfigTreeItem, anotherFile: ConfigTreeItem): [ConfigTreeItem | null, ConfigTreeItem | null] {
+        if (!oneFile.isCustomFile && anotherFile.isCustomFile) {
+            return [oneFile, anotherFile];
+        } else if (oneFile.isCustomFile && !anotherFile.isCustomFile) {
+            return [anotherFile, oneFile];
+        } else {
+            return [null, null];
         }
     }
 }
