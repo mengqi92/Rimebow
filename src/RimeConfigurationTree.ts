@@ -6,6 +6,7 @@ import util = require('util');
 import { TreeItem, TreeItemCollapsibleState } from 'vscode';
 import { YAMLSemanticError } from 'yaml/util';
 import { Node, YAMLMap, Pair, Scalar, YAMLSeq } from 'yaml/types';
+import { stringify } from 'yaml';
 
 const readDirAsync = util.promisify(fs.readdir);
 const readFileAsync = util.promisify(fs.readFile);
@@ -352,7 +353,7 @@ export class RimeConfigurationTree {
                 }
                 if (value instanceof Scalar) {
                     // Current node is a leaf node in the object tree.
-                    current.addChildNode(new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, value: value.value, kind: ItemKind.Node }));
+                    current.addChildNode(new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, value: stringify(value), kind: ItemKind.Node }));
                 } else if (value instanceof YAMLMap) {
                     // Current node in the object tree has children.
                     let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: ItemKind.Node });
@@ -364,7 +365,7 @@ export class RimeConfigurationTree {
                     current.addChildNode(childNode);
                     value.items.forEach((valueItem: Node, itemIndex: number) => {
                         if (valueItem instanceof Scalar) {
-                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, value: valueItem.value, isSequenceElement: true });
+                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, value: stringify(valueItem), isSequenceElement: true });
                             childNode.addChildNode(grandChildNode);
                         } else {
                             let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, isSequenceElement: true });
@@ -375,7 +376,7 @@ export class RimeConfigurationTree {
                 }
             });
         } else if (doc instanceof Scalar) {
-            rootNode.value = doc.value;
+            rootNode.value = stringify(doc);
         }
     }
 
