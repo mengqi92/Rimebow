@@ -39,6 +39,10 @@ export interface ConfigTreeItemOptions {
      */
     readonly configFilePath: string;
     /**
+     * Whether if the node is representing a customized config file, such as foo.custom.yaml.
+     */
+    readonly isCustomFile?: boolean;
+    /**
      * Whether current node is representing a sequential yaml node (just like a map with only values).
      * Consider as false if no value provided.
      */
@@ -56,16 +60,38 @@ export interface ConfigTreeItemOptions {
 }
 
 export class ConfigTreeItem extends TreeItem {
+    /**
+     * Node identifier.
+     */
     public key: string;
+    /**
+     * Children nodes indexed by node identifiers.
+     */
     public children: Map<string, ConfigTreeItem>;
-    public value: any;
+    /**
+     * Value of the node, if any.
+     */
+    public value?: any;
     /**
      * The value configured by default.
      * This field is only set for patched items.
      */
     public defaultValue: any;
-    public isSequenceElement: boolean;
+    /**
+     * Path to the configuration file that contains the current node.
+     */
     public configFilePath: string;
+    /**
+     * Whether if the file is a customized config file, such as foo.custom.yaml.
+     */
+    public isCustomFile: boolean = false;
+    /**
+     * Whether if current node is an element in a sequence.
+     */
+    public isSequenceElement: boolean = false;
+    /**
+     * Whether if current node is a patched node.
+     */
     public isPatched: boolean = false;
     constructor(options: ConfigTreeItemOptions) {
         super(
@@ -74,9 +100,10 @@ export class ConfigTreeItem extends TreeItem {
                 : options.key,
             options.children.size > 0 ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None);
         this.key = options.key;
-        this.configFilePath = options.configFilePath;
         this.children = options.children;
         this.value = options.value;
+        this.configFilePath = options.configFilePath;
+        this.isCustomFile = options.isCustomFile || false;
         this.isSequenceElement = options.isSequenceElement || false;
 
         this.contextValue = options.isFile ? 'file' : 'item';
@@ -210,8 +237,7 @@ export class RimeConfigurationTree {
             this.defaultConfigDir, RimeConfigurationTree.DEFAULT_CONFIG_LABEL);
         this.userConfigTree = await this._buildConfigTreeFromFiles(
             this.userConfigDir, RimeConfigurationTree.USER_CONFIG_LABEL);
-        this._applyPatch(this.defaultConfigTree, this.userConfigTree);
-        this.configTree.addChildNode(this.defaultConfigTree);
+        this.configTree = this._applyPatch(this.defaultConfigTree, this.userConfigTree);
     }
 
     /**
@@ -231,7 +257,12 @@ export class RimeConfigurationTree {
         const fileItems: ConfigTreeItem[] = await Promise.all(promises).catch((error: YAMLSemanticError) => []);
         let fileMap: Map<string, ConfigTreeItem> = new Map();
         fileItems.forEach((fileItem: ConfigTreeItem) => {
-            fileMap.set(fileItem.key, fileItem);
+            if (!fileMap.has(fileItem.key)) {
+                fileMap.set(fileItem.key, fileItem);
+            } else {
+                const mergedFileItem: ConfigTreeItem = this._applyPatch(fileMap.get(fileItem.key)!, fileItem);
+                fileMap.set(fileItem.key, mergedFileItem);
+            }
         });
         return new ConfigTreeItem({
             key: label,
@@ -250,7 +281,13 @@ export class RimeConfigurationTree {
         const fileKind: ItemKind = this._categoriseConfigFile(fileName);
         const fileLabel: string = fileName.replace('.yaml', '').replace('.custom', '').replace('.schema', '');
         // The root node is representing the configuration file.
-        let rootNode: ConfigTreeItem = new ConfigTreeItem({ key: fileLabel, children: new Map(), configFilePath: fullName, kind: fileKind, isFile: true });
+        let rootNode: ConfigTreeItem = new ConfigTreeItem({ 
+            key: fileLabel, 
+            children: new Map(), 
+            configFilePath: fullName, 
+            kind: fileKind, 
+            isFile: true, 
+            isCustomFile: fileKind === ItemKind.Patch });
         if (doc.contents === null) {
             return rootNode;
         }
@@ -386,22 +423,37 @@ export class RimeConfigurationTree {
      * After applied, the default tree will have updated nodes.
      * @param {ConfigTreeItem} defaultTree The default config tree.
      * @param {ConfigTreeItem} userTree The user config tree.
+     * @returns {ConfigTreeItem} The merged tree after applied patches.
      */
-    protected _applyPatch(defaultTree: ConfigTreeItem, userTree: ConfigTreeItem) {
-        defaultTree.children.forEach((defaultFileNode: ConfigTreeItem, key: string) => {
-            const customFileName: string = key;
-            if (!userTree.children.has(customFileName)) {
-                // Didn't find the corresponding custom config file.
-                return;
-            }
-            // Found the custom config file.
-            const userConfigTree: ConfigTreeItem = userTree.children.get(customFileName)!;
+    protected _applyPatch(defaultTree: ConfigTreeItem, userTree: ConfigTreeItem): ConfigTreeItem {
+        let mergedTree: ConfigTreeItem = new ConfigTreeItem({ key: 'ROOT', children: new Map(), configFilePath: '', kind: ItemKind.Root});
+        mergedTree.children = defaultTree.children;
+        userTree.children.forEach((userFileItem: ConfigTreeItem, fileKey: string) => {
+            if (!mergedTree.children.has(fileKey)) {
+                mergedTree.children.set(fileKey, userFileItem);
+            } else {
+                // The file already exists in merged tree. Check if merge is needed.
+                let [fileToPatch, patchFile] 
+                    = this._distinguishFileToPatchWithPatchFile(mergedTree.children.get(fileKey)!, userFileItem);
+                if (fileToPatch === null || patchFile === null || !patchFile.children.has('patch')) {
+                    return;
+                }
 
-            if (userConfigTree.children.has('patch')) {
-                const PatchNode: ConfigTreeItem = userConfigTree.children.get('patch')!;
-                this._mergeTree(defaultFileNode, PatchNode);
+                const patchNode: ConfigTreeItem = patchFile.children.get('patch')!;
+                this._mergeTree(fileToPatch, patchNode);
             }
         });
+        return mergedTree;
+    }
+
+    private _distinguishFileToPatchWithPatchFile(oneFile: ConfigTreeItem, anotherFile: ConfigTreeItem): [ConfigTreeItem | null, ConfigTreeItem | null] {
+        if (!oneFile.isCustomFile && anotherFile.isCustomFile) {
+            return [oneFile, anotherFile];
+        } else if (oneFile.isCustomFile && !anotherFile.isCustomFile) {
+            return [anotherFile, oneFile];
+        } else {
+            return [null, null];
+        }
     }
 
     protected _mergeTree(treeA: ConfigTreeItem, treeB: ConfigTreeItem) {
