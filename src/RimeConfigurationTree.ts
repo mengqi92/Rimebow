@@ -109,7 +109,7 @@ export class ConfigTreeItem extends TreeItem {
 
         this.contextValue = options.kind.toString();
         this.tooltip = options.value ? `value: ${options.value}` : undefined;
-        this.iconPath = this._getIconPath(options.kind);
+        this.iconPath = this._getIconPath(options.kind, options.fileKind);
     }
 
     /**
@@ -128,7 +128,7 @@ export class ConfigTreeItem extends TreeItem {
         this.defaultValue = this.value;
         this.value = newValue;
         this.isPatched = true;
-        this.iconPath = this._getIconPath(ItemKind.PatchNode);
+        this.iconPath = this._getIconPath(ItemKind.PatchNode, undefined);
         if (this.value) {
             this.label = this.isSequenceElement ? this.value : `${this.key}: ${this.value}`;
         }
@@ -156,30 +156,41 @@ export class ConfigTreeItem extends TreeItem {
         return childNode;
     }
 
-    private _getIconPath(configFileKind: ItemKind | FileKind): string | vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri; } | vscode.ThemeIcon | undefined {
+    private _getIconPath(itemKind: ItemKind, fileKind: FileKind | undefined): string | vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri; } | vscode.ThemeIcon | undefined {
         let iconFullName: string = '';
-        switch (configFileKind) {
+        switch (itemKind) {
             case ItemKind.Folder:
                 iconFullName = 'folder.png';
                 break;
-            case FileKind.Program:
-                iconFullName = 'program.png';
-                break;
-            case FileKind.Default:
-                iconFullName = 'default.png';
-                break;
-            case FileKind.Schema:
-                iconFullName = 'schema.png';
+            case ItemKind.File:
+                switch (fileKind) {
+                    case FileKind.Program:
+                        iconFullName = 'program.png';
+                        break;
+                    case FileKind.Default:
+                        iconFullName = 'default.png';
+                        break;
+                    case FileKind.Schema:
+                        iconFullName = 'schema.png';
+                        break;
+                    case FileKind.Custom:
+                        iconFullName = 'patch.png';
+                        break;
+                    case FileKind.Other:
+                        iconFullName = 'other.png';
+                        break;
+                    default:
+                        break;
+                }
                 break;
             case ItemKind.PatchNode:
-            case FileKind.Custom:
                 iconFullName = 'patch.png';
-                break;
-            case FileKind.Other:
-                iconFullName = 'other.png';
                 break;
             default:
                 break;
+        }
+        if (iconFullName === '') {
+            return undefined;
         }
         return {
             'light': path.join(__filename, '..', '..', 'resources', 'light', 'configKind', iconFullName),
@@ -302,7 +313,7 @@ export class RimeConfigurationTree {
             children: new Map(), 
             configFilePath: fullName, 
             kind: ItemKind.File, 
-            fileKind: FileKind.Custom });
+            fileKind: fileKind });
         if (doc.contents === null) {
             return rootNode;
         }
