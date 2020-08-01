@@ -419,6 +419,11 @@ export class RimeConfigurationTree {
         return mergedMap;
     }
 
+    /**
+     * Merge two trees. Tree A will be updated to the merged tree.
+     * @param {ConfigTreeItem} treeA The root node of the first tree to be merged.
+     * @param {ConfigTreeItem} treeB The root node of the second tree to be merged.
+     */
     protected _mergeTree(treeA: ConfigTreeItem, treeB: ConfigTreeItem) {
         if (treeB.key !== 'patch' && treeA.key !== treeB.key) {
             throw new Error('The trees to be merged have no common ancestor.');
