@@ -22,12 +22,12 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
     getChildren(element?: TreeItem): vscode.ProviderResult<TreeItem[]> {
         // Root node.
         if (!element) {
-            const defaultFolder: TreeItem = this.configurationTree.defaultConfigTree;
-            const userFolder: TreeItem = this.configurationTree.userConfigTree;
-            return [defaultFolder, userFolder];
+            const programConfigFolder: TreeItem = this.configurationTree.programConfigTree;
+            const userConfigFolder: TreeItem = this.configurationTree.userConfigTree;
+            return [programConfigFolder, userConfigFolder];
         } else {
-            if (element.id === this.configurationTree.defaultConfigTree.id) {
-                return Array.from(this.configurationTree.defaultConfigTree.children.values())
+            if (element.id === this.configurationTree.programConfigTree.id) {
+                return Array.from(this.configurationTree.programConfigTree.children.values())
                     .map((item: ConfigTreeItem) => { 
                         item.collapsibleState = undefined; 
                         return item;

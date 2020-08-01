@@ -202,10 +202,10 @@ export class ConfigTreeItem extends TreeItem {
 export class RimeConfigurationTree {
     public configTree: ConfigTreeItem = new ConfigTreeItem({ key: 'ROOT', children: new Map(), kind: ItemKind.Root, configFilePath: '' });
     /**
-     * Configuration tree, including config files, in the default config folder.
+     * Configuration tree, including config files, in the program config folder.
      */
-    public defaultConfigTree: ConfigTreeItem = new ConfigTreeItem({
-        key: 'DEFAULT',
+    public programConfigTree: ConfigTreeItem = new ConfigTreeItem({
+        key: 'PROGRAM',
         children: new Map(),
         configFilePath: '',
         kind: ItemKind.Folder
@@ -220,26 +220,26 @@ export class RimeConfigurationTree {
         kind: ItemKind.Folder
     });
 
-    private static readonly DEFAULT_CONFIG_LABEL: string = 'Rime Config';
+    private static readonly PROGRAM_CONFIG_LABEL: string = 'Program Config';
     private static readonly USER_CONFIG_LABEL: string = 'User Config';
     private userConfigDir: string = "";
-    private defaultConfigDir: string = "";
+    private programConfigDir: string = "";
 
     constructor() {
     }
 
     public async build() {
-        const defaultConfigDirConfigKey: string = "defaultConfigDir";
+        const programConfigDirConfigKey: string = "programConfigDir";
         const userConfigDirConfigKey: string = "userConfigDir";
         const rimeAssistantConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('rimeAssistant');
-        if (rimeAssistantConfiguration.has(defaultConfigDirConfigKey)
-            && await existsAsync(rimeAssistantConfiguration.get(defaultConfigDirConfigKey) as string)) {
-            this.defaultConfigDir = rimeAssistantConfiguration.get(defaultConfigDirConfigKey) as string;
+        if (rimeAssistantConfiguration.has(programConfigDirConfigKey)
+            && await existsAsync(rimeAssistantConfiguration.get(programConfigDirConfigKey) as string)) {
+            this.programConfigDir = rimeAssistantConfiguration.get(programConfigDirConfigKey) as string;
         } else {
             // Squirrel: /Library/Input\ Methods/Squirrel.app/Contents/SharedSupport/
-            // this.defaultConfigDir = path.join('Library', 'Input Methods', 'Squirrel.app', 'Contents', 'SharedSupport');
+            // this.programConfigDir = path.join('Library', 'Input Methods', 'Squirrel.app', 'Contents', 'SharedSupport');
             // 'C:\\Program Files (x86)\\Rime\\weasel-0.14.3\\data'
-            this.defaultConfigDir = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
+            this.programConfigDir = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
         }
         if (rimeAssistantConfiguration.has(userConfigDirConfigKey)
             && await existsAsync(rimeAssistantConfiguration.get(userConfigDirConfigKey) as string)) {
@@ -250,11 +250,11 @@ export class RimeConfigurationTree {
             // 'C:\\Users\\mengq\\AppData\\Roaming\\Rime'
             this.userConfigDir = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime');
         }
-        this.defaultConfigTree = await this._buildConfigTreeFromFiles(
-            this.defaultConfigDir, RimeConfigurationTree.DEFAULT_CONFIG_LABEL);
+        this.programConfigTree = await this._buildConfigTreeFromFiles(
+            this.programConfigDir, RimeConfigurationTree.PROGRAM_CONFIG_LABEL);
         this.userConfigTree = await this._buildConfigTreeFromFiles(
             this.userConfigDir, RimeConfigurationTree.USER_CONFIG_LABEL);
-        this.configTree.children = this._applyPatch(this.defaultConfigTree, this.userConfigTree);
+        this.configTree.children = this._applyPatch(this.programConfigTree, this.userConfigTree);
     }
 
     /**
@@ -409,7 +409,7 @@ export class RimeConfigurationTree {
 
     /**
      * Apply patches to the file to patch.
-     * @param {ConfigTreeItem} fileToPatch The default config tree.
+     * @param {ConfigTreeItem} fileToPatch The program config tree.
      * @param {ConfigTreeItem} patchFile The user config tree.
      * @returns {Map<string, ConfigTreeItem>} The merged children map after applied patches.
      */

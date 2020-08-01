@@ -16,8 +16,8 @@ class RimeConfigurationTreeForTest extends RimeConfigurationTree {
         return super._buildConfigTree(doc, rootNode, fullPath);
     }
 
-    public _applyPatch(defaultTree: ConfigTreeItem, userTree: ConfigTreeItem) {
-        return super._applyPatch(defaultTree, userTree);
+    public _applyPatch(programConfigTree: ConfigTreeItem, userConfigTree: ConfigTreeItem) {
+        return super._applyPatch(programConfigTree, userConfigTree);
     }
 
     public _mergeTree(treeA: ConfigTreeItem, treeB: ConfigTreeItem) {
@@ -502,26 +502,26 @@ suite('Extension Test Suite', () => {
 
     test('applyPatch_whenUserTreeHasPatch_expectNodeUpdatedInMergedTree', () => {
         // Arrange.
-        // defaultTree: { FileA: { 1: 'a' } }
-        // userTree: { FileA.custom: { 'patch': { 1: 'b' } } }
+        // programConfigTree: { FileA: { 1: 'a' } }
+        // userConfigTree: { FileA.custom: { 'patch': { 1: 'b' } } }
         // expectedMergedTree: { FileA: { 1: 'b' } }
-        const nodeDefault1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'DefaultPath/FileA.yaml', value: 'a'});
-        const nodeFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['1', nodeDefault1]]), configFilePath: 'DefaultPath/FileA.yaml', kind: ItemKind.File});
-        const defaultTree: ConfigTreeItem = new ConfigTreeItem({key: 'DEFAULT', children: new Map([['FileA', nodeFileA]]), configFilePath: 'DefaultPath', kind: ItemKind.Folder});
+        const nodeProgram1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'ProgramPath/FileA.yaml', value: 'a'});
+        const nodeFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['1', nodeProgram1]]), configFilePath: 'ProgramPath/FileA.yaml', kind: ItemKind.File});
+        const programConfigTree: ConfigTreeItem = new ConfigTreeItem({key: 'PROGRAM', children: new Map([['FileA', nodeFileA]]), configFilePath: 'ProgramPath', kind: ItemKind.Folder});
         const nodeUser1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'UserPath/FileA.custom.yaml', value: 'b'});
         const nodeUserPatch: ConfigTreeItem = new ConfigTreeItem({key: 'patch', children: new Map([['1', nodeUser1]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.PatchNode});
         const nodeFileACustom: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['patch', nodeUserPatch]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.File, fileKind: FileKind.Custom});
-        const userTree: ConfigTreeItem = new ConfigTreeItem({key: 'USER', children: new Map([['FileA', nodeFileACustom]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
+        const userConfigTree: ConfigTreeItem = new ConfigTreeItem({key: 'USER', children: new Map([['FileA', nodeFileACustom]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
-        let expectedFileA1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'DefaultPath/FileA.yaml', value: 'a'});
+        let expectedFileA1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'ProgramPath/FileA.yaml', value: 'a'});
         expectedFileA1.updateValue('b');
-		const expectedFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['1', expectedFileA1]]), configFilePath: 'DefaultPath/FileA.yaml', kind: ItemKind.File});
+		const expectedFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['1', expectedFileA1]]), configFilePath: 'ProgramPath/FileA.yaml', kind: ItemKind.File});
 		// TODO: config file path of the merged tree should be the one contains the effective node.
-        const expectedMergedTree: ConfigTreeItem = new ConfigTreeItem({key: 'DEFAULT', children: new Map([['FileA', expectedFileA]]), configFilePath: 'DefaultPath', kind: ItemKind.Folder});
+        const expectedMergedTree: ConfigTreeItem = new ConfigTreeItem({key: 'PROGRAM', children: new Map([['FileA', expectedFileA]]), configFilePath: 'ProgramPath', kind: ItemKind.Folder});
 
         // Act.
-        let actualMergedChildren: Map<string, ConfigTreeItem> = rimeConfigurationTree._applyPatch(defaultTree, userTree);
+        let actualMergedChildren: Map<string, ConfigTreeItem> = rimeConfigurationTree._applyPatch(programConfigTree, userConfigTree);
 
         // Assert.
         assert.deepStrictEqual(actualMergedChildren, expectedMergedTree.children);
@@ -529,25 +529,25 @@ suite('Extension Test Suite', () => {
 
     test('applyPatch_whenNewFileInUserTree_expectFileAddedInMergedTree', () => {
         // Arrange.
-        // defaultTree: { FileA: { 1: 'a' } }
-        // userTree: { FileB: { 1: 'b' } }
+        // programConfigTree: { FileA: { 1: 'a' } }
+        // userConfigTree: { FileB: { 1: 'b' } }
         // expectedMergedTree: { FileA: { 1: 'a' }, FileB: { 1: 'b' } }
-        const nodeDefault1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'DefaultPath/FileA.yaml', value: 'a'});
-        const nodeFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['1', nodeDefault1]]), configFilePath: 'DefaultPath/FileA.yaml', kind: ItemKind.File});
-        const defaultTree: ConfigTreeItem = new ConfigTreeItem({key: 'DEFAULT', children: new Map([['FileA', nodeFileA]]), configFilePath: 'DefaultPath', kind: ItemKind.Folder});
+        const nodeProgram1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'ProgramPath/FileA.yaml', value: 'a'});
+        const nodeFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['1', nodeProgram1]]), configFilePath: 'ProgramPath/FileA.yaml', kind: ItemKind.File});
+        const programConfigTree: ConfigTreeItem = new ConfigTreeItem({key: 'PROGRAM', children: new Map([['FileA', nodeFileA]]), configFilePath: 'ProgramPath', kind: ItemKind.Folder});
         const nodeUser1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'UserPath/FileB.yaml', value: 'b'});
         const nodeFileBCustom: ConfigTreeItem = new ConfigTreeItem({key: 'FileB', children: new Map([['1', nodeUser1]]), configFilePath: 'UserPath/FileB.yaml', kind: ItemKind.File});
-        const userTree: ConfigTreeItem = new ConfigTreeItem({key: 'USER', children: new Map([['FileB', nodeFileBCustom]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
+        const userConfigTree: ConfigTreeItem = new ConfigTreeItem({key: 'USER', children: new Map([['FileB', nodeFileBCustom]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
-        const expectedFileA1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'DefaultPath/FileA.yaml', value: 'a'});
-        const expectedFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['1', expectedFileA1]]), configFilePath: 'DefaultPath/FileA.yaml', kind: ItemKind.File});
+        const expectedFileA1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'ProgramPath/FileA.yaml', value: 'a'});
+        const expectedFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['1', expectedFileA1]]), configFilePath: 'ProgramPath/FileA.yaml', kind: ItemKind.File});
         const expectedFileB1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'UserPath/FileB.yaml', value: 'b'});
         const expectedFileB: ConfigTreeItem = new ConfigTreeItem({key: 'FileB', children: new Map([['1', expectedFileB1]]), configFilePath: 'UserPath/FileB.yaml', kind: ItemKind.File});
-        const expectedMergedTree: ConfigTreeItem = new ConfigTreeItem({key: 'DEFAULT', children: new Map([['FileA', expectedFileA], ['FileB', expectedFileB]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
+        const expectedMergedTree: ConfigTreeItem = new ConfigTreeItem({key: 'PROGRAM', children: new Map([['FileA', expectedFileA], ['FileB', expectedFileB]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
 
         // Act.
-        let actualMergedChildren: Map<string, ConfigTreeItem> = rimeConfigurationTree._applyPatch(defaultTree, userTree);
+        let actualMergedChildren: Map<string, ConfigTreeItem> = rimeConfigurationTree._applyPatch(programConfigTree, userConfigTree);
 
         // Assert.
         assert.deepStrictEqual(actualMergedChildren, expectedMergedTree.children);
