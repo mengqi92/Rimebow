@@ -22,21 +22,17 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
     getChildren(element?: TreeItem): vscode.ProviderResult<TreeItem[]> {
         // Root node.
         if (!element) {
-            const defaultFolder: TreeItem = new TreeItem("Default Configurations", vscode.TreeItemCollapsibleState.Collapsed); 
-            defaultFolder.contextValue = 'folder';
-            const userFolder: TreeItem = new TreeItem("User Configurations", vscode.TreeItemCollapsibleState.Collapsed);
-            userFolder.contextValue = 'folder';
-            const buildFolder: TreeItem = new TreeItem("Build Folder", vscode.TreeItemCollapsibleState.Collapsed);
-            userFolder.contextValue = 'folder';
-            return [defaultFolder, userFolder, buildFolder];
+            const defaultFolder: TreeItem = this.configurationTree.defaultConfigTree;
+            const userFolder: TreeItem = this.configurationTree.userConfigTree;
+            return [defaultFolder, userFolder];
         } else {
-            if (element.label === 'Default Configurations') {
+            if (element.id === this.configurationTree.defaultConfigTree.id) {
                 return Array.from(this.configurationTree.defaultConfigTree.children.values())
                     .map((item: ConfigTreeItem) => { 
                         item.collapsibleState = undefined; 
                         return item;
                     });
-            } else if (element.label === 'User Configurations') {
+            } else if (element.id === this.configurationTree.userConfigTree.id) {
                 return Array.from(this.configurationTree.userConfigTree.children.values())
                     .map((item: ConfigTreeItem) => { 
                         item.collapsibleState = undefined; 

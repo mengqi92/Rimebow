@@ -33,6 +33,11 @@
                     "command": "rimeAssistant.openConfigFile",
                     "group": "inline",
                     "when": "viewItem == file"
+                },
+                {
+                    "command": "rimeAssistant.openFolder",
+                    "group": "inline",
+                    "when": "viewItem == folder"
                 }
             ]
         },
@@ -56,6 +61,14 @@
             {
                 "command": "rimeAssistant.openConfigFile",
                 "title": "Open",
+                "icon": {
+                    "light": "resources/light/actions/open.png",
+                    "dark": "resources/dark/actions/open.png"
+                }
+            },
+            {
+                "command": "rimeAssistant.openFolder",
+                "title": "Open Folder in VS Code",
                 "icon": {
                     "light": "resources/light/actions/open.png",
                     "dark": "resources/dark/actions/open.png"

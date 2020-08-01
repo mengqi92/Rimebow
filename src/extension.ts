@@ -19,6 +19,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	await rimeConfigurationTree.build();
 
 	vscode.commands.registerCommand('rimeAssistant.openConfigFile', (node: ConfigTreeItem) => { vscode.commands.executeCommand('vscode.open', vscode.Uri.file(node.configFilePath)); });
+	vscode.commands.registerCommand('rimeAssistant.openFolder', (node: ConfigTreeItem) => { vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(node.configFilePath)); });
 	const rimeFileExplorerProvider: RimeFileExplorerProvider = new RimeFileExplorerProvider(rimeConfigurationTree);
 	vscode.commands.registerCommand('rimeFileExplorer.refreshEntry', () => { rimeFileExplorerProvider.refresh(); });
 	vscode.window.createTreeView('rimeFileExplorer', { treeDataProvider: rimeFileExplorerProvider });

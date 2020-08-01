@@ -12,11 +12,11 @@ const readFileAsync = util.promisify(fs.readFile);
 const existsAsync = util.promisify(fs.exists);
 
 export enum ItemKind {
-    Root,
-    Folder,
-    File,
-    Node,
-    PatchNode,
+    Root = 'ROOT',
+    Folder = 'folder',
+    File = 'file',
+    Node = 'node',
+    PatchNode = 'patched',
 }
 
 export enum FileKind {
