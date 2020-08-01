@@ -54,11 +54,6 @@ export interface ConfigTreeItemOptions {
      */
     readonly isSequenceElement?: boolean;
     /**
-     * Wether current node is representing a configuration file.
-     * Consider as false if no value provided.
-     */
-    readonly isFile?: boolean;
-    /**
      * The value of the leaf node.
      * Consider the node as not a leaf node if no value provided.
      */
@@ -112,7 +107,7 @@ export class ConfigTreeItem extends TreeItem {
         this.isCustomFile = options.isCustomFile || false;
         this.isSequenceElement = options.isSequenceElement || false;
 
-        this.contextValue = options.isFile ? 'file' : 'item';
+        this.contextValue = options.kind.toString();
         this.tooltip = options.value ? `value: ${options.value}` : undefined;
         this.iconPath = this._getIconPath(options.kind);
     }
@@ -303,7 +298,6 @@ export class RimeConfigurationTree {
             children: new Map(), 
             configFilePath: fullName, 
             kind: ItemKind.File, 
-            isFile: true, 
             isCustomFile: fileKind === FileKind.Custom });
         if (doc.contents === null) {
             return rootNode;
