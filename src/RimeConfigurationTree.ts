@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as _ from 'lodash';
 import YAML = require('yaml');
 import util = require('util');
 import { TreeItem, TreeItemCollapsibleState } from 'vscode';
@@ -17,7 +18,7 @@ export enum ItemKind {
     Folder = 'folder',
     File = 'file',
     Node = 'node',
-    PatchNode = 'patched',
+    Patched = 'patched',
 }
 
 export enum FileKind {
@@ -95,6 +96,7 @@ export class ConfigTreeItem extends TreeItem {
      * Whether if current node is a patched node.
      */
     public isPatched: boolean = false;
+    public readonly kind: ItemKind;
     constructor(options: ConfigTreeItemOptions) {
         super(
             options.value
@@ -105,6 +107,7 @@ export class ConfigTreeItem extends TreeItem {
         this.children = options.children;
         this.value = options.value;
         this.configFilePath = options.configFilePath;
+        this.kind = options.kind;
         this.fileKind = options.fileKind;
         this.isSequenceElement = options.isSequenceElement || false;
 
@@ -129,7 +132,7 @@ export class ConfigTreeItem extends TreeItem {
         this.defaultValue = this.value;
         this.value = newValue;
         this.isPatched = true;
-        this.iconPath = this._getIconPath(ItemKind.PatchNode, undefined);
+        this.iconPath = this._getIconPath(ItemKind.Patched, undefined);
         if (this.value) {
             this.label = this.isSequenceElement ? this.value : `${this.key}: ${this.value}`;
         }
@@ -184,7 +187,7 @@ export class ConfigTreeItem extends TreeItem {
                         break;
                 }
                 break;
-            case ItemKind.PatchNode:
+            case ItemKind.Patched:
                 iconFullName = 'patch.png';
                 break;
             default:
@@ -273,31 +276,44 @@ export class RimeConfigurationTree {
                 return await this._buildConfigTreeFromFile(configDir, fileName);
             });
         const fileItems: ConfigTreeItem[] = await Promise.all(promises).catch((error: YAMLSemanticError) => []);
-        // Files are collected now, apply patches if needed.
-        let fileMap: Map<string, ConfigTreeItem> = new Map();
-        fileItems.forEach((fileItem: ConfigTreeItem) => {
-            if (!fileMap.has(fileItem.key)) {
-                fileMap.set(fileItem.key, fileItem);
-            } else {
-                // TODO: merge the similar logic with the one in _applyPatch
-                // The file already exists in merged tree. Check if merge is needed.
-                let [fileToPatch, patchFile] 
-                    = this._distinguishFileToPatchWithPatchFile(fileMap.get(fileItem.key)!, fileItem);
-                if (fileToPatch === null || patchFile === null || !patchFile.children.has('patch')) {
-                    return;
-                }
-
-                const patchNode: ConfigTreeItem = patchFile.children.get('patch')!;
-                this._mergeTree(fileToPatch, patchNode);
-                fileMap.set(fileToPatch.key, fileToPatch);
-            }
-        });
+        // Files are collected now.
+        // Apply custom pactches if needed.
+        // For schema config, will also need to override default config.
+        // Config priority:
+        // - schema config: schema.custom.yaml > schema.yaml > default.custom.yaml > default.yaml
+        // - other config: foo.custom > foo
+        let fileMap: Map<string, ConfigTreeItem> = this._mergeFilesInSameFolder(fileItems);
         return new ConfigTreeItem({
             key: label,
             children: fileMap,
             configFilePath: configDir,
             kind: ItemKind.Folder
         });
+    }
+
+    private _mergeFilesInSameFolder(fileItems: ConfigTreeItem[]) {
+        let fileMap: Map<string, ConfigTreeItem> = new Map();
+        fileItems.forEach((fileItem: ConfigTreeItem) => {
+            if (!fileMap.has(fileItem.key)) {
+                fileMap.set(fileItem.key, fileItem);
+            }
+            else {
+                // TODO: merge the similar logic with the one in _applyPatch
+                // The file already exists in merged tree. Check if merge is needed.
+                let [fileToPatch, patchFile] = this._distinguishFileToPatchWithPatchFile(fileMap.get(fileItem.key)!, fileItem);
+                if (fileToPatch === null || patchFile === null || !patchFile.children.has('patch')) {
+                    return;
+                }
+
+                const patchNode: ConfigTreeItem = patchFile.children.get('patch')!;
+                fileMap.set(fileToPatch.key, this._mergeTree(fileToPatch, patchNode));
+            }
+        });
+        return fileMap;
+    }
+
+    protected _cloneTree(tree: ConfigTreeItem): ConfigTreeItem {
+        return _.cloneDeep(tree);
     }
 
     protected async _buildConfigTreeFromFile(filePath: string, fileName: string): Promise<ConfigTreeItem> {
@@ -410,14 +426,14 @@ export class RimeConfigurationTree {
 
     /**
      * Apply patches to the file to patch.
-     * @param {ConfigTreeItem} fileToPatch The program config tree.
-     * @param {ConfigTreeItem} patchFile The user config tree.
+     * @param {ConfigTreeItem} programConfigTree The program config tree.
+     * @param {ConfigTreeItem} userConfigTree The user config tree.
      * @returns {Map<string, ConfigTreeItem>} The merged children map after applied patches.
      */
-    protected _applyPatch(fileToPatch: ConfigTreeItem, patchFile: ConfigTreeItem): Map<string, ConfigTreeItem> {
+    protected _applyPatch(programConfigTree: ConfigTreeItem, userConfigTree: ConfigTreeItem): Map<string, ConfigTreeItem> {
         let mergedMap: Map<string, ConfigTreeItem> = new Map();
-        mergedMap = fileToPatch.children;
-        patchFile.children.forEach((userFileItem: ConfigTreeItem, fileKey: string) => {
+        mergedMap = programConfigTree.children;
+        userConfigTree.children.forEach((userFileItem: ConfigTreeItem, fileKey: string) => {
             if (!mergedMap.has(fileKey)) {
                 mergedMap.set(fileKey, userFileItem);
             } else {
@@ -429,9 +445,22 @@ export class RimeConfigurationTree {
                 }
 
                 const patchNode: ConfigTreeItem = patchFile.children.get('patch')!;
-                this._mergeTree(fileToPatch, patchNode);
+                mergedMap.set(fileKey, this._mergeTree(fileToPatch, patchNode));
             }
         });
+        // The default config node should now be patched.
+        if (mergedMap.has('default')) {
+            let defaultTree: ConfigTreeItem = mergedMap.get('default')!;
+            // Override default config for schema config.
+            mergedMap.forEach((fileItem: ConfigTreeItem, fileKey: string) => {
+                if (fileItem.fileKind === FileKind.Schema) {
+                    let mergedTree: ConfigTreeItem = this._cloneTree(fileItem);
+                    mergedTree.children = this._mergeTree(defaultTree, fileItem).children;
+                    mergedMap.set(fileKey, mergedTree);
+                }
+            });
+        }
+        mergedMap.delete('default');
         return mergedMap;
     }
 
@@ -439,24 +468,29 @@ export class RimeConfigurationTree {
      * Merge two trees. Tree A will be updated to the merged tree.
      * @param {ConfigTreeItem} treeA The root node of the first tree to be merged.
      * @param {ConfigTreeItem} treeB The root node of the second tree to be merged.
+     * @returns {ConfigTreeItem} The root node of the merged tree.
      */
-    protected _mergeTree(treeA: ConfigTreeItem, treeB: ConfigTreeItem) {
-        if (treeB.key !== 'patch' && treeA.key !== treeB.key) {
+    protected _mergeTree(treeA: ConfigTreeItem, treeB: ConfigTreeItem): ConfigTreeItem {
+        if (treeB.key !== 'patch' && treeA.key !== 'default' && treeA.key !== treeB.key) {
             throw new Error('The trees to be merged have no common ancestor.');
         }
+        let mergedTree: ConfigTreeItem = this._cloneTree(treeA);
         if (treeA.value && treeB.value && treeA.value !== treeB.value) {
-            treeA.updateValue(treeB.value);
-            return;
+            // TODO: distinguish the override-default one with the custom-patch one.
+            mergedTree.updateValue(treeB.value);
+            return mergedTree;
         }
         treeB.children.forEach((childB: ConfigTreeItem, childBKey: string) => {
             if (treeA.children.has(childBKey)) {
                 // The childB is also in tree A.
-                this._mergeTree(treeA.children.get(childBKey)!, childB);
+                const mergedChild: ConfigTreeItem = this._mergeTree(treeA.children.get(childBKey)!, childB);
+                mergedTree.children.set(childBKey, mergedChild);
             } else {
                 // The childB is a new node to tree A.
-                treeA.addChildNode(childB);
+                mergedTree.addChildNode(childB);
             }
         });
+        return mergedTree;
     }
 
     private _categoriseConfigFile(fileNameWithExtensions: string): FileKind {

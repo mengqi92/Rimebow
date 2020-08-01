@@ -22,7 +22,11 @@ class RimeConfigurationTreeForTest extends RimeConfigurationTree {
 
     public _mergeTree(treeA: ConfigTreeItem, treeB: ConfigTreeItem) {
         return super._mergeTree(treeA, treeB);
-    }
+	}
+	
+	public _cloneTree(tree: ConfigTreeItem) {
+		return super._cloneTree(tree);
+	}
 }
 
 suite('Extension Test Suite', () => {
@@ -440,13 +444,13 @@ suite('Extension Test Suite', () => {
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
         // Act.
-        rimeConfigurationTree._mergeTree(treeA, treeB);
+        const mergedTree: ConfigTreeItem = rimeConfigurationTree._mergeTree(treeA, treeB);
 
         // Assert.
-        assert.equal(treeA.key, 'a');
-        assert.equal(treeA.children.size, 1);
-        assert.ok(treeA.children.has('b1'));
-        assert.equal(treeA.children.get('b1')!.key, 'b1');
+        assert.equal(mergedTree.key, 'a');
+        assert.equal(mergedTree.children.size, 1);
+        assert.ok(mergedTree.children.has('b1'));
+        assert.equal(mergedTree.children.get('b1')!.key, 'b1');
     });
 
     test('mergeTree_whenUpdatedNodeInB_expectNodeOverrideInA', () => {
@@ -460,14 +464,14 @@ suite('Extension Test Suite', () => {
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
         // Act.
-        rimeConfigurationTree._mergeTree(treeA, treeB);
+        const mergedTree: ConfigTreeItem = rimeConfigurationTree._mergeTree(treeA, treeB);
 
         // Assert.
-        assert.equal(treeA.key, '1');
-        assert.equal(treeA.children.size, 1);
-        assert.ok(treeA.children.has('2'));
-        assert.equal(treeA.children.get('2')!.value, 'b');
-        assert.equal(treeA.children.get('2')!.label, '2: b');
+        assert.equal(mergedTree.key, '1');
+        assert.equal(mergedTree.children.size, 1);
+        assert.ok(mergedTree.children.has('2'));
+        assert.equal(mergedTree.children.get('2')!.value, 'b');
+        assert.equal(mergedTree.children.get('2')!.label, '2: b');
 	});
 	
     test('mergeTree_whenUpdatedArrayInB_expectArrayOverrideInA', () => {
@@ -487,17 +491,17 @@ suite('Extension Test Suite', () => {
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
         // Act.
-        rimeConfigurationTree._mergeTree(treeA, treeB);
+        const mergedTree: ConfigTreeItem = rimeConfigurationTree._mergeTree(treeA, treeB);
 
         // Assert.
-        assert.equal(treeA.key, 'a');
-        assert.equal(treeA.children.size, 3);
-        assert.ok(treeA.children.has('0'));
-        assert.equal(treeA.children.get('0')!.value, 'a2');
-        assert.ok(treeA.children.has('1'));
-        assert.equal(treeA.children.get('1')!.value, 'a3');
-        assert.ok(treeA.children.has('2'));
-        assert.equal(treeA.children.get('2')!.value, 'a4');
+        assert.equal(mergedTree.key, 'a');
+        assert.equal(mergedTree.children.size, 3);
+        assert.ok(mergedTree.children.has('0'));
+        assert.equal(mergedTree.children.get('0')!.value, 'a2');
+        assert.ok(mergedTree.children.has('1'));
+        assert.equal(mergedTree.children.get('1')!.value, 'a3');
+        assert.ok(mergedTree.children.has('2'));
+        assert.equal(mergedTree.children.get('2')!.value, 'a4');
 	});
 
     test('applyPatch_whenUserTreeHasPatch_expectNodeUpdatedInMergedTree', () => {
@@ -509,7 +513,7 @@ suite('Extension Test Suite', () => {
         const nodeFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['1', nodeProgram1]]), configFilePath: 'ProgramPath/FileA.yaml', kind: ItemKind.File});
         const programConfigTree: ConfigTreeItem = new ConfigTreeItem({key: 'PROGRAM', children: new Map([['FileA', nodeFileA]]), configFilePath: 'ProgramPath', kind: ItemKind.Folder});
         const nodeUser1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'UserPath/FileA.custom.yaml', value: 'b'});
-        const nodeUserPatch: ConfigTreeItem = new ConfigTreeItem({key: 'patch', children: new Map([['1', nodeUser1]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.PatchNode});
+        const nodeUserPatch: ConfigTreeItem = new ConfigTreeItem({key: 'patch', children: new Map([['1', nodeUser1]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.Patched});
         const nodeFileACustom: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['patch', nodeUserPatch]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.File, fileKind: FileKind.Custom});
         const userConfigTree: ConfigTreeItem = new ConfigTreeItem({key: 'USER', children: new Map([['FileA', nodeFileACustom]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
@@ -551,5 +555,43 @@ suite('Extension Test Suite', () => {
 
         // Assert.
         assert.deepStrictEqual(actualMergedChildren, expectedMergedTree.children);
+    });
+    
+    test('cloneTree_whenTreeHasChildren_expectTreeCloned', () => {
+        // Arrange.
+        const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+        const FILE_PATH: string = 'FILE_PATH';
+        // { a: '1' }
+		// { a: [ 1, 2 ], b: 3 }
+		let childNode1: ConfigTreeItem = new ConfigTreeItem({ key: '0', children: new Map(), configFilePath: FILE_PATH, value: 1, kind: ItemKind.Node });
+		let childNode2: ConfigTreeItem = new ConfigTreeItem({ key: '1', children: new Map(), configFilePath: FILE_PATH, value: 2, kind: ItemKind.Node });
+		let childNodeA: ConfigTreeItem = new ConfigTreeItem({ 
+			key: 'a', 
+			children: new Map([['0', childNode1], ['1', childNode2]]), 
+			configFilePath: FILE_PATH, 
+			kind: ItemKind.Node 
+		});
+		let childNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), configFilePath: FILE_PATH, value: 3, kind: ItemKind.Node });
+        let tree: ConfigTreeItem = new ConfigTreeItem({ key: 'ROOT', children: new Map([['a', childNodeA], ['b', childNodeB]]), configFilePath: FILE_PATH, kind: ItemKind.Node });
+
+        // Act.
+		let clonedTree: ConfigTreeItem = rimeConfigurationTree._cloneTree(tree);
+		childNodeB.value = 4;
+
+		// Assert.
+		assert.ok(clonedTree.hasChildren);
+		assert.equal(clonedTree.children.size, 2);
+		assert.ok(clonedTree.children.has('a'));
+		assert.equal(clonedTree.children.get('a')!.key, 'a');
+		assert.ok(clonedTree.children.get('a')!.hasChildren);
+		assert.equal(clonedTree.children.get('a')!.children.size, 2);
+		assert.ok(clonedTree.children.get('a')!.children.has('0'));
+		assert.equal(clonedTree.children.get('a')!.children.get('0')!.value, 1);
+		assert.ok(clonedTree.children.get('a')!.children.has('1'));
+		assert.equal(clonedTree.children.get('a')!.children.get('1')!.value, 2);
+		assert.ok(clonedTree.children.has('b'));
+		assert.ok(!clonedTree.children.get('b')!.hasChildren);
+		// The cloned value should not be changed.
+		assert.equal(clonedTree.children.get('b')!.value, 3);
     });
 });
