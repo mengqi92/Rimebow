@@ -14,10 +14,16 @@ const existsAsync = util.promisify(fs.exists);
 export enum ItemKind {
     Root,
     Folder,
+    File,
+    Node,
+    PatchNode,
+}
+
+export enum FileKind {
     Program,
     Default,
     Schema,
-    Patch,
+    Custom,
     Other
 }
 
@@ -123,7 +129,7 @@ export class ConfigTreeItem extends TreeItem {
         this.defaultValue = this.value;
         this.value = newValue;
         this.isPatched = true;
-        this.iconPath = this._getIconPath(ItemKind.Patch);
+        this.iconPath = this._getIconPath(ItemKind.PatchNode);
         if (this.value) {
             this.label = this.isSequenceElement ? this.value : `${this.key}: ${this.value}`;
         }
@@ -151,25 +157,26 @@ export class ConfigTreeItem extends TreeItem {
         return childNode;
     }
 
-    private _getIconPath(configFileKind: ItemKind): string | vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri; } | vscode.ThemeIcon | undefined {
+    private _getIconPath(configFileKind: ItemKind | FileKind): string | vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri; } | vscode.ThemeIcon | undefined {
         let iconFullName: string = '';
         switch (configFileKind) {
             case ItemKind.Folder:
                 iconFullName = 'folder.png';
                 break;
-            case ItemKind.Program:
+            case FileKind.Program:
                 iconFullName = 'program.png';
                 break;
-            case ItemKind.Default:
+            case FileKind.Default:
                 iconFullName = 'default.png';
                 break;
-            case ItemKind.Schema:
+            case FileKind.Schema:
                 iconFullName = 'schema.png';
                 break;
-            case ItemKind.Patch:
+            case ItemKind.PatchNode:
+            case FileKind.Custom:
                 iconFullName = 'patch.png';
                 break;
-            case ItemKind.Other:
+            case FileKind.Other:
                 iconFullName = 'other.png';
                 break;
             default:
@@ -288,22 +295,22 @@ export class RimeConfigurationTree {
 
         const doc: YAML.Document.Parsed = YAML.parseDocument(data.toString());
 
-        const fileKind: ItemKind = this._categoriseConfigFile(fileName);
+        const fileKind: FileKind = this._categoriseConfigFile(fileName);
         const fileLabel: string = fileName.replace('.yaml', '').replace('.custom', '').replace('.schema', '');
         // The root node is representing the configuration file.
         let rootNode: ConfigTreeItem = new ConfigTreeItem({ 
             key: fileLabel, 
             children: new Map(), 
             configFilePath: fullName, 
-            kind: fileKind, 
+            kind: ItemKind.File, 
             isFile: true, 
-            isCustomFile: fileKind === ItemKind.Patch });
+            isCustomFile: fileKind === FileKind.Custom });
         if (doc.contents === null) {
             return rootNode;
         }
         // Build ConfigNode tree by traversing the nodeTree object.
-        this._buildConfigTree(doc.contents, rootNode, fileLabel, fileKind);
-        if (fileKind === ItemKind.Schema
+        this._buildConfigTree(doc.contents, rootNode, fileLabel);
+        if (fileKind === FileKind.Schema
             && rootNode.hasChildren
             && rootNode.children.has('schema')) {
             const schemaMetadata: ConfigTreeItem = rootNode.children.get('schema')!;
@@ -318,9 +325,8 @@ export class RimeConfigurationTree {
      * @param {Node} doc The root node of the object tree parsed from yaml file.
      * @param {ConfigTreeItem} rootNode The current traversed node in the configuration tree we are building.
      * @param {string} fullPath The full path of the configuration file.
-     * @param {ItemKind} fileKind The kind of the configuration file.
      */
-    protected _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string, fileKind: ItemKind) {
+    protected _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string) {
         if (doc instanceof YAMLMap || doc instanceof YAMLSeq) {
             doc.items.forEach((pair: Pair) => {
                 let current: ConfigTreeItem = rootNode;
@@ -329,7 +335,7 @@ export class RimeConfigurationTree {
                 // If the key has slash, create separate nodes for each part.
                 // For instance, "foo/bar/baz: 1" should be created as a four-layer tree.
                 if (key.indexOf("/") !== -1) {
-                    let leafNode: ConfigTreeItem | undefined = this._buildSlashSeparatedNodes(key, current, fullPath, fileKind);
+                    let leafNode: ConfigTreeItem | undefined = this._buildSlashSeparatedNodes(key, current, fullPath);
                     if (leafNode) {
                         current = leafNode;
                         key = key.substring(key.lastIndexOf("/") + 1);
@@ -337,24 +343,24 @@ export class RimeConfigurationTree {
                 }
                 if (value instanceof Scalar) {
                     // Current node is a leaf node in the object tree.
-                    current.addChildNode(new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: fileKind, value: value.value }));
+                    current.addChildNode(new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, value: value.value, kind: ItemKind.Node }));
                 } else if (value instanceof YAMLMap) {
                     // Current node in the object tree has children.
-                    let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: fileKind });
+                    let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: ItemKind.Node });
                     current.addChildNode(childNode);
-                    this._buildConfigTree(value, childNode, fullPath, fileKind);
+                    this._buildConfigTree(value, childNode, fullPath);
                 } else if (value instanceof YAMLSeq) {
                     // Current node in the object tree has children and it's an array.
-                    let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: fileKind });
+                    let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: ItemKind.Node });
                     current.addChildNode(childNode);
                     value.items.forEach((valueItem: Node, itemIndex: number) => {
                         if (valueItem instanceof Scalar) {
-                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, kind: fileKind, value: valueItem.value, isSequenceElement: true });
+                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, value: valueItem.value, isSequenceElement: true });
                             childNode.addChildNode(grandChildNode);
                         } else {
-                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, kind: fileKind, isSequenceElement: true });
+                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, isSequenceElement: true });
                             childNode.addChildNode(grandChildNode);
-                            this._buildConfigTree(valueItem, grandChildNode, fullPath, fileKind);
+                            this._buildConfigTree(valueItem, grandChildNode, fullPath);
                         }
                     });
                 }
@@ -372,7 +378,7 @@ export class RimeConfigurationTree {
      * @param {string} filePath Path to the config file.
      * @returns {ConfigTreeItem} The leaf node built.
      */
-    protected _buildSlashSeparatedNodes(key: string, rootNode: ConfigTreeItem, filePath: string, fileKind: ItemKind): ConfigTreeItem | undefined {
+    protected _buildSlashSeparatedNodes(key: string, rootNode: ConfigTreeItem, filePath: string): ConfigTreeItem | undefined {
         if (key === undefined || key === null) {
             return;
         }
@@ -385,11 +391,11 @@ export class RimeConfigurationTree {
             key: key.substring(0, key.indexOf("/")),
             children: new Map(),
             configFilePath: filePath,
-            kind: fileKind
+            kind: ItemKind.Node
         });
         // add childNode as a child of rootNode, and then point to the childNode as current.
         rootNode = rootNode.addChildNode(childNode);
-        return this._buildSlashSeparatedNodes(key.substring(key.indexOf("/") + 1), rootNode, filePath, fileKind);
+        return this._buildSlashSeparatedNodes(key.substring(key.indexOf("/") + 1), rootNode, filePath);
     }
 
     /**
@@ -443,18 +449,18 @@ export class RimeConfigurationTree {
         });
     }
 
-    private _categoriseConfigFile(fileNameWithExtensions: string): ItemKind {
+    private _categoriseConfigFile(fileNameWithExtensions: string): FileKind {
         const fileName: string = fileNameWithExtensions.replace('.yaml', '');
         if (fileName === 'default') {
-            return ItemKind.Default;
+            return FileKind.Default;
         } else if (fileName.endsWith('schema')) {
-            return ItemKind.Schema;
+            return FileKind.Schema;
         } else if (fileName.endsWith('custom')) {
-            return ItemKind.Patch;
+            return FileKind.Custom;
         } else if (['weasel', 'squirrel', 'ibus_rime', 'installation', 'user'].indexOf(fileName) !== -1) {
-            return ItemKind.Program;
+            return FileKind.Program;
         } else {
-            return ItemKind.Other;
+            return FileKind.Other;
         }
     }
 
