@@ -353,7 +353,7 @@ export class RimeConfigurationTree {
                 }
                 if (value instanceof Scalar) {
                     // Current node is a leaf node in the object tree.
-                    current.addChildNode(new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, value: stringify(value), kind: ItemKind.Node }));
+                    current.addChildNode(new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, value: this._formatScalarValue(value), kind: ItemKind.Node }));
                 } else if (value instanceof YAMLMap) {
                     // Current node in the object tree has children.
                     let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: ItemKind.Node });
@@ -365,7 +365,7 @@ export class RimeConfigurationTree {
                     current.addChildNode(childNode);
                     value.items.forEach((valueItem: Node, itemIndex: number) => {
                         if (valueItem instanceof Scalar) {
-                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, value: stringify(valueItem), isSequenceElement: true });
+                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, value: this._formatScalarValue(valueItem), isSequenceElement: true });
                             childNode.addChildNode(grandChildNode);
                         } else {
                             let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ key: itemIndex.toString(), children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, isSequenceElement: true });
@@ -376,7 +376,7 @@ export class RimeConfigurationTree {
                 }
             });
         } else if (doc instanceof Scalar) {
-            rootNode.value = stringify(doc);
+            rootNode.value = this._formatScalarValue(doc);
         }
     }
 
@@ -518,5 +518,12 @@ export class RimeConfigurationTree {
         } else {
             return [null, null];
         }
+    }
+
+    private _formatScalarValue(doc: Scalar): any {
+        if (doc.format === 'HEX') {
+            return stringify(doc);
+        }
+        return doc.value;
     }
 }
