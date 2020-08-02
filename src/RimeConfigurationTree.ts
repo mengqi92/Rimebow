@@ -23,6 +23,7 @@ export enum ItemKind {
 export enum FileKind {
     Program,
     Default,
+    DefaultCustom,
     Schema,
     Custom,
     Other
@@ -137,7 +138,7 @@ export class ConfigTreeItem extends TreeItem {
     }
 
     get isCustomFile(): boolean {
-        return this.fileKind === FileKind.Custom;
+        return this.fileKind === FileKind.Custom || this.fileKind === FileKind.DefaultCustom;
     }
 
     public update(newItem: ConfigTreeItem) {
@@ -150,7 +151,7 @@ export class ConfigTreeItem extends TreeItem {
         this.isSequenceElement = newItem.isSequenceElement || false;
         this.contextValue = newItem.kind.toString();
 
-        if (newItem.fileKind === FileKind.Custom) {
+        if (newItem.fileKind === FileKind.Custom || newItem.fileKind === FileKind.DefaultCustom) {
             this.isPatched = true;
         }
         if (this.value) {
@@ -194,6 +195,9 @@ export class ConfigTreeItem extends TreeItem {
                         break;
                     case FileKind.Default:
                         iconFullName = 'default.png';
+                        break;
+                    case FileKind.DefaultCustom:
+                        iconFullName = 'default-patch.png';
                         break;
                     case FileKind.Schema:
                         iconFullName = 'schema.png';
@@ -544,7 +548,9 @@ export class RimeConfigurationTree {
 
     private _categoriseConfigFile(fileNameWithExtensions: string): FileKind {
         const fileName: string = fileNameWithExtensions.replace('.yaml', '');
-        if (fileName === 'default') {
+        if (fileName === 'default.custom') {
+            return FileKind.DefaultCustom;
+        } else if (fileName === 'default') {
             return FileKind.Default;
         } else if (fileName.endsWith('schema')) {
             return FileKind.Schema;
