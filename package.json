@@ -60,7 +60,7 @@
             },
             {
                 "command": "rimeAssistant.openConfigFile",
-                "title": "Open",
+                "title": "Open in Editor",
                 "icon": {
                     "light": "resources/light/actions/open.png",
                     "dark": "resources/dark/actions/open.png"
@@ -70,8 +70,8 @@
                 "command": "rimeAssistant.openFolder",
                 "title": "Open Folder in VS Code",
                 "icon": {
-                    "light": "resources/light/actions/open.png",
-                    "dark": "resources/dark/actions/open.png"
+                    "light": "resources/light/actions/openFolder.png",
+                    "dark": "resources/dark/actions/openFolder.png"
                 }
             }
         ],
