@@ -32,7 +32,7 @@
                 {
                     "command": "rimeAssistant.openConfigFile",
                     "group": "inline",
-                    "when": "viewItem == file"
+                    "when": "viewItem == file || viewItem == node"
                 },
                 {
                     "command": "rimeAssistant.openFolder",

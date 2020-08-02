@@ -440,7 +440,7 @@ suite('Extension Test Suite', () => {
         // Arrange.
         const treeA: ConfigTreeItem = new ConfigTreeItem({key: 'a', children: new Map(), kind: ItemKind.Node, configFilePath: 'A_FILEPATH'});
         const nodeB1: ConfigTreeItem = new ConfigTreeItem({key: 'b1', children: new Map(), kind: ItemKind.Node, configFilePath: 'B_FILEPATH'});
-        const treeB: ConfigTreeItem = new ConfigTreeItem({key: 'a', children: new Map([['b1', nodeB1]]), kind: ItemKind.Node, configFilePath: ''});
+        const treeB: ConfigTreeItem = new ConfigTreeItem({key: 'a', children: new Map([['b1', nodeB1]]), kind: ItemKind.Node, configFilePath: 'B_FILEPATH'});
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
         // Act.
@@ -451,6 +451,7 @@ suite('Extension Test Suite', () => {
         assert.equal(mergedTree.children.size, 1);
         assert.ok(mergedTree.children.has('b1'));
         assert.equal(mergedTree.children.get('b1')!.key, 'b1');
+        assert.equal(mergedTree.children.get('b1')!.configFilePath, treeB.configFilePath);
     });
 
     test('mergeTree_whenUpdatedNodeInB_expectNodeOverrideInA', () => {
@@ -472,6 +473,7 @@ suite('Extension Test Suite', () => {
         assert.ok(mergedTree.children.has('2'));
         assert.equal(mergedTree.children.get('2')!.value, 'b');
         assert.equal(mergedTree.children.get('2')!.label, '2: b');
+        assert.equal(mergedTree.children.get('2')!.configFilePath, nodeB2.configFilePath);
 	});
 	
     test('mergeTree_whenUpdatedArrayInB_expectArrayOverrideInA', () => {
@@ -498,10 +500,13 @@ suite('Extension Test Suite', () => {
         assert.equal(mergedTree.children.size, 3);
         assert.ok(mergedTree.children.has('0'));
         assert.equal(mergedTree.children.get('0')!.value, 'a2');
+        assert.equal(mergedTree.children.get('0')!.configFilePath, nodeB1.configFilePath);
         assert.ok(mergedTree.children.has('1'));
         assert.equal(mergedTree.children.get('1')!.value, 'a3');
+        assert.equal(mergedTree.children.get('1')!.configFilePath, nodeB2.configFilePath);
         assert.ok(mergedTree.children.has('2'));
         assert.equal(mergedTree.children.get('2')!.value, 'a4');
+        assert.equal(mergedTree.children.get('2')!.configFilePath, nodeB3.configFilePath);
 	});
 
     test('applyPatch_whenUserTreeHasPatch_expectNodeUpdatedInMergedTree', () => {
@@ -519,10 +524,9 @@ suite('Extension Test Suite', () => {
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
         let expectedFileA1: ConfigTreeItem = new ConfigTreeItem({key: '1', children: new Map(), kind: ItemKind.Node, configFilePath: 'ProgramPath/FileA.yaml', value: 'a'});
-        expectedFileA1.updateValue('b');
+        expectedFileA1.update(nodeUser1);
 		const expectedFileA: ConfigTreeItem = new ConfigTreeItem({key: 'FileA', children: new Map([['1', expectedFileA1]]), configFilePath: 'ProgramPath/FileA.yaml', kind: ItemKind.File});
-		// TODO: config file path of the merged tree should be the one contains the effective node.
-        const expectedMergedTree: ConfigTreeItem = new ConfigTreeItem({key: 'PROGRAM', children: new Map([['FileA', expectedFileA]]), configFilePath: 'ProgramPath', kind: ItemKind.Folder});
+        const expectedMergedTree: ConfigTreeItem = new ConfigTreeItem({key: 'PROGRAM', children: new Map([['FileA', expectedFileA]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
 
         // Act.
         let actualMergedChildren: Map<string, ConfigTreeItem> = rimeConfigurationTree._applyPatch(programConfigTree, userConfigTree);

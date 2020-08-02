@@ -128,9 +128,10 @@ export class ConfigTreeItem extends TreeItem {
         return this.fileKind === FileKind.Custom;
     }
 
-    public updateValue(newValue: any) {
+    public update(newItem: ConfigTreeItem) {
         this.defaultValue = this.value;
-        this.value = newValue;
+        this.value = newItem.value;
+        this.configFilePath = newItem.configFilePath;
         this.isPatched = true;
         this.iconPath = this._getIconPath(ItemKind.Patched, undefined);
         if (this.value) {
@@ -335,7 +336,7 @@ export class RimeConfigurationTree {
             return rootNode;
         }
         // Build ConfigNode tree by traversing the nodeTree object.
-        this._buildConfigTree(doc.contents, rootNode, fileLabel);
+        this._buildConfigTree(doc.contents, rootNode, fullName);
         if (fileKind === FileKind.Schema
             && rootNode.hasChildren
             && rootNode.children.has('schema')) {
@@ -465,7 +466,7 @@ export class RimeConfigurationTree {
     }
 
     /**
-     * Merge two trees. Tree A will be updated to the merged tree.
+     * Merge two trees. The merged result is updated based on a clone of tree A.
      * @param {ConfigTreeItem} treeA The root node of the first tree to be merged.
      * @param {ConfigTreeItem} treeB The root node of the second tree to be merged.
      * @returns {ConfigTreeItem} The root node of the merged tree.
@@ -477,7 +478,7 @@ export class RimeConfigurationTree {
         let mergedTree: ConfigTreeItem = this._cloneTree(treeA);
         if (treeA.value && treeB.value && treeA.value !== treeB.value) {
             // TODO: distinguish the override-default one with the custom-patch one.
-            mergedTree.updateValue(treeB.value);
+            mergedTree.update(treeB);
             return mergedTree;
         }
         treeB.children.forEach((childB: ConfigTreeItem, childBKey: string) => {
