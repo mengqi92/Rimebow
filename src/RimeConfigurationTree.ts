@@ -188,7 +188,6 @@ export class ConfigTreeItem extends TreeItem {
                 iconFullName = 'folder.png';
                 break;
             case ItemKind.File:
-            case ItemKind.Node:
                 switch (fileKind) {
                     case FileKind.Program:
                         iconFullName = 'program.png';
@@ -204,6 +203,30 @@ export class ConfigTreeItem extends TreeItem {
                         break;
                     case FileKind.Custom:
                         iconFullName = 'patch.png';
+                        break;
+                    case FileKind.Other:
+                        iconFullName = 'other.png';
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case ItemKind.Node:
+                switch (fileKind) {
+                    case FileKind.Program:
+                        iconFullName = 'program.png';
+                        break;
+                    case FileKind.Default:
+                        iconFullName = 'default.png';
+                        break;
+                    case FileKind.DefaultCustom:
+                        iconFullName = 'default-patch.png';
+                        break;
+                    case FileKind.Schema:
+                        iconFullName = 'schema-node.png';
+                        break;
+                    case FileKind.Custom:
+                        iconFullName = 'schema-node-patch.png';
                         break;
                     case FileKind.Other:
                         iconFullName = 'other.png';
