@@ -51,7 +51,12 @@ export interface ConfigTreeItemOptions {
      */
     readonly fileKind?: FileKind;
     /**
-     * Whether current node is representing a sequential yaml node (just like a map with only values).
+     * Whether current node is representing a sequential node.
+     * Consider as false if no value provided.
+     */
+    readonly isSequence?: boolean;
+    /**
+     * Whether current node is an element of a sequential node.
      * Consider as false if no value provided.
      */
     readonly isSequenceElement?: boolean;
@@ -89,6 +94,10 @@ export class ConfigTreeItem extends TreeItem {
      */
     public configFilePath: string;
     /**
+     * Whether current node is representing a sequential node.
+     */
+    public isSequence: boolean = false;
+    /**
      * Whether if current node is an element in a sequence.
      */
     public isSequenceElement: boolean = false;
@@ -109,6 +118,7 @@ export class ConfigTreeItem extends TreeItem {
         this.configFilePath = options.configFilePath;
         this.kind = options.kind;
         this.fileKind = options.fileKind;
+        this.isSequence = options.isSequence || false;
         this.isSequenceElement = options.isSequenceElement || false;
 
         this.contextValue = options.kind.toString();
@@ -378,7 +388,7 @@ export class RimeConfigurationTree {
                     this._buildConfigTree(value, childNode, fullPath);
                 } else if (value instanceof YAMLSeq) {
                     // Current node in the object tree has children and it's an array.
-                    let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: ItemKind.Node });
+                    let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, isSequence: true });
                     current.addChildNode(childNode);
                     value.items.forEach((valueItem: Node, itemIndex: number) => {
                         if (valueItem instanceof Scalar) {
@@ -484,8 +494,14 @@ export class RimeConfigurationTree {
         treeB.children.forEach((childB: ConfigTreeItem, childBKey: string) => {
             if (treeA.children.has(childBKey)) {
                 // The childB is also in tree A.
-                const mergedChild: ConfigTreeItem = this._mergeTree(treeA.children.get(childBKey)!, childB);
-                mergedTree.children.set(childBKey, mergedChild);
+                const childA: ConfigTreeItem = treeA.children.get(childBKey)!;
+                if (childA.isSequence && childB.isSequence) {
+                    // Override child A when both are arrays.
+                    mergedTree.children.set(childBKey, childB);
+                } else {
+                    const mergedChild: ConfigTreeItem = this._mergeTree(childA, childB);
+                    mergedTree.children.set(childBKey, mergedChild);
+                }
             } else {
                 // The childB is a new node to tree A.
                 mergedTree.addChildNode(childB);

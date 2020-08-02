@@ -154,7 +154,8 @@ suite('Extension Test Suite', () => {
             key: 'c',
             children: new Map([['0', expectedChildNodeCA0], ['1', expectedChildNodeCA1]]),
             configFilePath: FILE_FULL_PATH,
-            kind: ItemKind.Node
+            kind: ItemKind.Node,
+            isSequence: true
         });
         const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
             key: FILE_NAME,
@@ -193,7 +194,8 @@ suite('Extension Test Suite', () => {
             key: 'c',
             children: new Map([['0', expectedChildNodeC1], ['1', expectedChildNodeC2], ['2', expectedChildNodeC3]]),
             configFilePath: FILE_FULL_PATH,
-            kind: ItemKind.Node
+            kind: ItemKind.Node,
+            isSequence: true
         });
         const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
             key: FILE_NAME,
