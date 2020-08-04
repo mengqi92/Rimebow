@@ -2,12 +2,11 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as _ from 'lodash';
-import YAML = require('yaml');
 import util = require('util');
+import * as Yaml from 'yaml-ast-parser';
+import { determineScalarType, ScalarType } from 'yaml-ast-parser';
 import { TreeItem, TreeItemCollapsibleState } from 'vscode';
-import { YAMLSemanticError } from 'yaml/util';
-import { Node, YAMLMap, Pair, Scalar, YAMLSeq } from 'yaml/types';
-import { stringify } from 'yaml';
+import { YAMLNode, YAMLScalar } from 'yaml-ast-parser';
 
 const readDirAsync = util.promisify(fs.readdir);
 const readFileAsync = util.promisify(fs.readFile);
@@ -320,7 +319,7 @@ export class RimeConfigurationTree {
             .map(async (fileName: string): Promise<ConfigTreeItem> => {
                 return await this._buildConfigTreeFromFile(configDir, fileName);
             });
-        const fileItems: ConfigTreeItem[] = await Promise.all(promises).catch((error: YAMLSemanticError) => []);
+        const fileItems: ConfigTreeItem[] = await Promise.all(promises).catch(() => []);
         // Files are collected now.
         // Apply custom pactches if needed.
         // For schema config, will also need to override default config.
@@ -365,7 +364,9 @@ export class RimeConfigurationTree {
         const fullName: string = path.join(filePath, fileName);
         const data = await readFileAsync(fullName);
 
-        const doc: YAML.Document.Parsed = YAML.parseDocument(data.toString());
+        const doc: Yaml.YAMLNode = Yaml.load(data.toString());
+        // const doc: YAMLDocument = parseYAML(data.toString());
+        // const doc: YAML.Document.Parsed = YAML.parseDocument(data.toString());
 
         const fileKind: FileKind = this._categoriseConfigFile(fileName);
         const fileLabel: string = fileName.replace('.yaml', '').replace('.custom', '').replace('.schema', '');
@@ -376,11 +377,12 @@ export class RimeConfigurationTree {
             configFilePath: fullName, 
             kind: ItemKind.File, 
             fileKind: fileKind });
-        if (doc.contents === null) {
+        if (doc === null) {
+        // if (doc === null || doc.documents.length === 0 || !doc.documents[0].root) {
             return rootNode;
         }
         // Build ConfigNode tree by traversing the nodeTree object.
-        this._buildConfigTree(doc.contents, rootNode, fullName, fileKind);
+        this._buildConfigTree(doc, rootNode, fullName, fileKind);
         if (fileKind === FileKind.Schema
             && rootNode.hasChildren
             && rootNode.children.has('schema')) {
@@ -393,74 +395,100 @@ export class RimeConfigurationTree {
 
     /**
      * Build up a configuration tree based on the object tree parsed.
-     * @param {Node} doc The root node of the object tree parsed from yaml file.
+     * @param {YAMLNode} node The root node of the object tree parsed from yaml file.
      * @param {ConfigTreeItem} rootNode The current traversed node in the configuration tree we are building.
      * @param {string} fullPath The full path of the configuration file.
      * @param {FileKind} fileKind Kind of the configuration file.
      */
-    protected _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string, fileKind: FileKind) {
-        if (doc instanceof YAMLMap || doc instanceof YAMLSeq) {
-            doc.items.forEach((pair: Pair) => {
-                let current: ConfigTreeItem = rootNode;
-                let key: string = (pair.key as Scalar).value;
-                let value: any = pair.value;
-                // If the key has slash, create separate nodes for each part.
-                // For instance, "foo/bar/baz: 1" should be created as a four-layer tree.
-                if (key.indexOf("/") !== -1) {
-                    let leafNode: ConfigTreeItem | undefined = this._buildSlashSeparatedNodes(key, current, fileKind, fullPath);
-                    if (leafNode) {
-                        current = leafNode;
-                        key = key.substring(key.lastIndexOf("/") + 1);
+    protected _buildConfigTree(node: YAMLNode, rootNode: ConfigTreeItem, fullPath: string, fileKind: FileKind) {
+        if (node === undefined || node === null) {
+            return;
+        }
+        switch (node.kind) {
+            case Yaml.Kind.MAP:
+                let mapNode: Yaml.YamlMap = <Yaml.YamlMap>node;
+                mapNode.mappings.forEach((mapping: Yaml.YAMLMapping) => {
+                    this._buildASTNode(mapping, rootNode, fullPath, fileKind);
+                });
+                break;
+            case Yaml.Kind.SEQ:
+                let sequenceNode: Yaml.YAMLSequence = <Yaml.YAMLSequence>node;
+                sequenceNode.items.forEach((itemNode: YAMLNode) => {
+                    this._buildASTNode(itemNode, rootNode, fullPath, fileKind);
+                });
+                break;
+            case Yaml.Kind.SCALAR:
+                rootNode.value = this._formatScalarValue(<Yaml.YAMLScalar>node);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private _buildASTNode(mapping: YAMLNode, rootNode: ConfigTreeItem, fullPath: string, fileKind: FileKind) {
+        let current: ConfigTreeItem = rootNode;
+        let key: string = mapping.key?.value;
+        let value: YAMLNode = mapping.value;
+        // If the key has slash, create separate nodes for each part.
+        // For instance, "foo/bar/baz: 1" should be created as a four-layer tree.
+        if (key.indexOf("/") !== -1) {
+            let leafNode: ConfigTreeItem | undefined = this._buildSlashSeparatedNodes(key, current, fileKind, fullPath);
+            if (leafNode) {
+                current = leafNode;
+                key = key.substring(key.lastIndexOf("/") + 1);
+            }
+        }
+        switch (value.kind) {
+            case Yaml.Kind.SCALAR:
+                // Current node is a leaf node in the object tree.
+                current.addChildNode(new ConfigTreeItem({ 
+                    key: key, 
+                    children: new Map(), 
+                    configFilePath: fullPath, 
+                    value: this._formatScalarValue(<Yaml.YAMLScalar>value), 
+                    kind: ItemKind.Node, 
+                    fileKind: fileKind 
+                }));
+                break;
+            case Yaml.Kind.MAP:
+                // Current node in the object tree has children.
+                let childMapNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, fileKind: fileKind });
+                current.addChildNode(childMapNode);
+                this._buildConfigTree(value, childMapNode, fullPath, fileKind);
+                break;
+            case Yaml.Kind.SEQ:
+                // Current node in the object tree has children and it's an array.
+                let childSeqNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, fileKind: fileKind, isSequence: true });
+                current.addChildNode(childSeqNode);
+                let valueSeq: Yaml.YAMLSequence = <Yaml.YAMLSequence>value;
+                valueSeq.items?.forEach((valueItem: YAMLNode, itemIndex: number) => {
+                    if (valueItem.kind === Yaml.Kind.SCALAR) {
+                        let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ 
+                            key: itemIndex.toString(), 
+                            children: new Map(), 
+                            configFilePath: fullPath, 
+                            kind: ItemKind.Node, 
+                            fileKind: fileKind, 
+                            value: this._formatScalarValue(<Yaml.YAMLScalar>valueItem), 
+                            isSequenceElement: true 
+                        });
+                        childSeqNode.addChildNode(grandChildNode);
+                    } else {
+                        let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ 
+                            key: itemIndex.toString(), 
+                            children: new Map(), 
+                            configFilePath: fullPath, 
+                            kind: ItemKind.Node, 
+                            fileKind: fileKind, 
+                            isSequenceElement: true 
+                        });
+                        childSeqNode.addChildNode(grandChildNode);
+                        this._buildConfigTree(valueItem, grandChildNode, fullPath, fileKind);
                     }
-                }
-                if (value instanceof Scalar) {
-                    // Current node is a leaf node in the object tree.
-                    current.addChildNode(new ConfigTreeItem({ 
-                        key: key, 
-                        children: new Map(), 
-                        configFilePath: fullPath, 
-                        value: this._formatScalarValue(value), 
-                        kind: ItemKind.Node, 
-                        fileKind: fileKind 
-                    }));
-                } else if (value instanceof YAMLMap) {
-                    // Current node in the object tree has children.
-                    let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, fileKind: fileKind });
-                    current.addChildNode(childNode);
-                    this._buildConfigTree(value, childNode, fullPath, fileKind);
-                } else if (value instanceof YAMLSeq) {
-                    // Current node in the object tree has children and it's an array.
-                    let childNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, fileKind: fileKind, isSequence: true });
-                    current.addChildNode(childNode);
-                    value.items.forEach((valueItem: Node, itemIndex: number) => {
-                        if (valueItem instanceof Scalar) {
-                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ 
-                                key: itemIndex.toString(), 
-                                children: new Map(), 
-                                configFilePath: fullPath, 
-                                kind: ItemKind.Node, 
-                                fileKind: fileKind, 
-                                value: this._formatScalarValue(valueItem), 
-                                isSequenceElement: true 
-                            });
-                            childNode.addChildNode(grandChildNode);
-                        } else {
-                            let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ 
-                                key: itemIndex.toString(), 
-                                children: new Map(), 
-                                configFilePath: fullPath, 
-                                kind: ItemKind.Node, 
-                                fileKind: fileKind, 
-                                isSequenceElement: true 
-                            });
-                            childNode.addChildNode(grandChildNode);
-                            this._buildConfigTree(valueItem, grandChildNode, fullPath, fileKind);
-                        }
-                    });
-                }
-            });
-        } else if (doc instanceof Scalar) {
-            rootNode.value = this._formatScalarValue(doc);
+                });
+                break;
+            default:
+                break;
         }
     }
 
@@ -632,10 +660,23 @@ export class RimeConfigurationTree {
         }
     }
 
-    private _formatScalarValue(doc: Scalar): any {
-        if (doc.format === 'HEX') {
-            return stringify(doc);
+    private _formatScalarValue(valueNode: YAMLScalar): any {
+        const base16 = /^0x[0-9a-fA-F]+$/;
+        if (base16.test(valueNode.value)) {
+            return valueNode.rawValue;
         }
-        return doc.value;
+        const scalarType = determineScalarType(valueNode);
+        switch (scalarType) {
+            case ScalarType.bool:
+                return valueNode.valueObject;
+            case ScalarType.int:
+                return valueNode.valueObject;
+            case ScalarType.string:
+                return valueNode.value;
+            case ScalarType.float:
+                return valueNode.valueObject;
+            default:
+                return valueNode.rawValue;
+        }
     }
 }

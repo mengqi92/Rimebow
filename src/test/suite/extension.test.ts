@@ -1,18 +1,15 @@
 import * as assert from 'assert';
-import YAML = require('yaml');
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
 import * as vscode from 'vscode';
 import { RimeConfigurationTree, ConfigTreeItem, ItemKind, FileKind } from '../../RimeConfigurationTree';
-import { Node } from 'yaml/types';
+import { YAMLNode } from 'yaml-ast-parser';
+import * as Yaml from 'yaml-ast-parser';
 
 class RimeConfigurationTreeForTest extends RimeConfigurationTree {
     public async _buildConfigTreeFromFile(filePath: string, fileName: string): Promise<ConfigTreeItem> {
         return super._buildConfigTreeFromFile(filePath, fileName);
     }
 
-    public _buildConfigTree(doc: Node, rootNode: ConfigTreeItem, fullPath: string, fileKind: FileKind) {
+    public _buildConfigTree(doc: YAMLNode, rootNode: ConfigTreeItem, fullPath: string, fileKind: FileKind) {
         return super._buildConfigTree(doc, rootNode, fullPath, fileKind);
     }
 
@@ -39,8 +36,7 @@ suite('Extension Test Suite', () => {
         const FILE_KIND: FileKind = FileKind.Default;
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
         const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: ItemKind.File, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH });
-        const emptyObject: object = {};
-        const doc: Node = YAML.createNode(emptyObject);
+        const doc: Yaml.YAMLNode = Yaml.load('');
         let expectedRootNodeBuilt: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: ItemKind.Root, configFilePath: FILE_FULL_PATH });
         expectedRootNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.None;
 
@@ -62,14 +58,46 @@ suite('Extension Test Suite', () => {
         const FILE_KIND: FileKind = FileKind.Default;
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
         const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: ItemKind.File, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH });
-        const oneLayerObject: object = { a: '1', b: 2 };
-        const doc: Node = YAML.createNode(oneLayerObject);
+        const oneLayerObject: string = "a: '1'\nb: 2";
+        const doc: Yaml.YAMLNode = Yaml.load(oneLayerObject);
 
         const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
         const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
         const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
             key: FILE_NAME,
             children: new Map([['a', expectedChildNodeA], ['b', expectedChildNodeB]]),
+            configFilePath: FILE_FULL_PATH,
+            kind: ItemKind.File,
+            fileKind: FILE_KIND
+        });
+        expectedNodeBuilt.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+
+        // Act.
+        rimeConfigurationTree._buildConfigTree(doc, rootNode, FILE_FULL_PATH, FILE_KIND);
+
+        // Assert.
+        try {
+            assert.deepStrictEqual(rootNode, expectedNodeBuilt);
+        } catch (error) {
+            assert.fail(`Error occurred during assertion: ${error.message}`);
+        }
+    });
+
+    test('buildConfigTree_whenObjectTreeIsOneLayerObjectWithHexColorValue_expectColorValueStillInHexFormat', () => {
+        // Arrange.
+        const FILE_FULL_PATH: string = "C:/foo/bar/baz.yaml";
+        const FILE_NAME: string = "baz";
+        const FILE_KIND: FileKind = FileKind.Default;
+        const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+        const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: ItemKind.File, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH });
+        const oneLayerObject: string = "a: '1'\ncolor: 0xFFEE00";
+        const doc: Yaml.YAMLNode = Yaml.load(oneLayerObject);
+
+        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
+        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'color', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '0xFFEE00' });
+        const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
+            key: FILE_NAME,
+            children: new Map([['a', expectedChildNodeA], ['color', expectedChildNodeB]]),
             configFilePath: FILE_FULL_PATH,
             kind: ItemKind.File,
             fileKind: FILE_KIND
@@ -94,11 +122,11 @@ suite('Extension Test Suite', () => {
         const FILE_KIND: FileKind = FileKind.Default;
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
         const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: ItemKind.File, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH });
-        const twoLayerObject: object = { a: '1', b: 2, c: { c1: 31, c2: '32' } };
-        const doc: Node = YAML.createNode(twoLayerObject);
+        const twoLayerObject: string = "a: 1.5\nb: true\nc:\n  c1: 31\n  c2: '32'";
+        const doc: Yaml.YAMLNode = Yaml.load(twoLayerObject);
 
-        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
-        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
+        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 1.5 });
+        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: true });
         const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: 'c1', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 31 });
         const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: 'c2', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '32' });
         const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({
@@ -135,8 +163,8 @@ suite('Extension Test Suite', () => {
         const FILE_KIND: FileKind = FileKind.Default;
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
         const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: ItemKind.File, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH });
-        const twoLayerObject: object = { a: '1', b: 2, c: [{ c1: 31, c2: '32' }, { c3: 33 }] };
-        const doc: Node = YAML.createNode(twoLayerObject);
+        const twoLayerObject: string = "a: '1'\nb: 2\nc:\n  - c1: 31\n    c2: '32'\n  - c3: 33";
+        const doc: Yaml.YAMLNode = Yaml.load(twoLayerObject);
 
         const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
         const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
@@ -194,8 +222,8 @@ suite('Extension Test Suite', () => {
         const FILE_KIND: FileKind = FileKind.Default;
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
         const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: ItemKind.File, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH });
-        const oneLayerObject: object = { a: '1', b: 2, c: [3, 4, '5'] };
-        const doc: Node = YAML.createNode(oneLayerObject);
+        const oneLayerObject: string = "a: '1'\nb: 2\nc:\n  - 3\n  - 4\n  - '5'";
+        const doc: YAMLNode = Yaml.load(oneLayerObject);
 
         const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
         const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
@@ -237,8 +265,8 @@ suite('Extension Test Suite', () => {
         const FILE_KIND: FileKind = FileKind.Default;
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
         const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: ItemKind.File, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH });
-        const twoLayerObject: object = { a: '1', b: 2, 'c/c1': 3 };
-        const doc: Node = YAML.createNode(twoLayerObject);
+        const objectWithSlashInKey: string = "a: '1'\nb: 2\nc/c1: 3";
+        const doc: YAMLNode = Yaml.load(objectWithSlashInKey);
 
         const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
         const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
@@ -271,8 +299,8 @@ suite('Extension Test Suite', () => {
         const FILE_KIND: FileKind = FileKind.Default;
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
         const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: ItemKind.File, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH });
-        const twoLayerObject: object = { a: '1', b: 2, 'c/c1': { c11: 31, c12: '32' } };
-        const doc: Node = YAML.createNode(twoLayerObject);
+        const twoLayerObjectWithSlashInKey: string = "a: '1'\nb: 2\nc/c1:\n  c11: 31\n  c12: '32'";
+        const doc: YAMLNode = Yaml.load(twoLayerObjectWithSlashInKey);
 
         const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
         const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
@@ -319,8 +347,8 @@ suite('Extension Test Suite', () => {
         const FILE_KIND: FileKind = FileKind.Default;
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
         const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: ItemKind.File, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH });
-        const twoLayerObject: object = { a: '1', b: 2, 'c/c1': { c11: 31, c12: '32' }, 'd/d1': 4 };
-        const doc: Node = YAML.createNode(twoLayerObject);
+        const twoLayerObject: string = "a: '1'\nb: 2\nc/c1:\n  c11: 31\n  c12: '32'\nd/d1: 4";
+        const doc: YAMLNode = Yaml.load(twoLayerObject);
 
         const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
         const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
@@ -374,8 +402,8 @@ suite('Extension Test Suite', () => {
         const FILE_KIND: FileKind = FileKind.Default;
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
         const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: ItemKind.File, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH });
-        const twoLayerObject: object = { a: '1', b: 2, 'c/c1': { c11: 31, c12: '32' }, 'c/c2': 4 };
-        const doc: Node = YAML.createNode(twoLayerObject);
+        const twoLayerObject: string = "a: '1'\nb: 2\nc/c1:\n  c11: 31\n  c12: '32'\nc/c2: 4";
+        const doc: YAMLNode = Yaml.load(twoLayerObject);
 
         const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
         const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
@@ -423,8 +451,8 @@ suite('Extension Test Suite', () => {
         const FILE_KIND: FileKind = FileKind.Default;
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
         const rootNode: ConfigTreeItem = new ConfigTreeItem({ key: FILE_NAME, children: new Map(), kind: ItemKind.File, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH });
-        const twoLayerObject: object = { a: '1', b: 2, 'c/c1/c11': { c111: 31, c112: '32' } };
-        const doc: Node = YAML.createNode(twoLayerObject);
+        const twoLayerObject: string = "a: '1'\nb: 2\nc/c1/c11:\n  c111: 31\n  c112: '32'";
+        const doc: YAMLNode = Yaml.load(twoLayerObject);
 
         const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
         const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
