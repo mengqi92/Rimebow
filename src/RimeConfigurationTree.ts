@@ -7,7 +7,6 @@ import * as Yaml from 'yaml-ast-parser';
 import { determineScalarType, ScalarType } from 'yaml-ast-parser';
 import { TreeItem, TreeItemCollapsibleState } from 'vscode';
 import { YAMLNode, YAMLScalar } from 'yaml-ast-parser';
-import { last } from 'lodash';
 
 const readDirAsync = util.promisify(fs.readdir);
 const readFileAsync = util.promisify(fs.readFile);
@@ -276,7 +275,7 @@ export class RimeConfigurationTree {
     /**
      * Configuration tree, including config files, in the program config folder.
      */
-    public programConfigTree: ConfigTreeItem = new ConfigTreeItem({
+    public sharedConfigTree: ConfigTreeItem = new ConfigTreeItem({
         key: 'PROGRAM',
         children: new Map(),
         configFilePath: '',
@@ -292,23 +291,23 @@ export class RimeConfigurationTree {
         kind: ItemKind.Folder
     });
 
-    private static readonly PROGRAM_CONFIG_LABEL: string = 'Program Config';
+    private static readonly SHARED_CONFIG_LABEL: string = 'Shared Config';
     private static readonly USER_CONFIG_LABEL: string = 'User Config';
     private userConfigDir: string = "";
-    private programConfigDir: string = "";
+    private sharedConfigDir: string = "";
 
     constructor() {
     }
 
     public async build() {
-        const programConfigDirConfigKey: string = "programConfigDir";
+        const sharedConfigDirConfigKey: string = "sharedConfigDir";
         const userConfigDirConfigKey: string = "userConfigDir";
         const rimeAssistantConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('rimeAssistant');
-        if (rimeAssistantConfiguration.has(programConfigDirConfigKey)
-            && await existsAsync(rimeAssistantConfiguration.get(programConfigDirConfigKey) as string)) {
-            this.programConfigDir = rimeAssistantConfiguration.get(programConfigDirConfigKey) as string;
+        if (rimeAssistantConfiguration.has(sharedConfigDirConfigKey)
+            && await existsAsync(rimeAssistantConfiguration.get(sharedConfigDirConfigKey) as string)) {
+            this.sharedConfigDir = rimeAssistantConfiguration.get(sharedConfigDirConfigKey) as string;
         } else {
-            this.programConfigDir = this._getDefaultProgramConfigDir();
+            this.sharedConfigDir = this._getDefaultSharedConfigDir();
         }
         if (rimeAssistantConfiguration.has(userConfigDirConfigKey)
             && await existsAsync(rimeAssistantConfiguration.get(userConfigDirConfigKey) as string)) {
@@ -316,11 +315,11 @@ export class RimeConfigurationTree {
         } else {
             this.userConfigDir = this._getUserConfigDir();
         }
-        this.programConfigTree = await this._buildConfigTreeFromFiles(
-            this.programConfigDir, RimeConfigurationTree.PROGRAM_CONFIG_LABEL);
+        this.sharedConfigTree = await this._buildConfigTreeFromFiles(
+            this.sharedConfigDir, RimeConfigurationTree.SHARED_CONFIG_LABEL);
         this.userConfigTree = await this._buildConfigTreeFromFiles(
             this.userConfigDir, RimeConfigurationTree.USER_CONFIG_LABEL);
-        this.configTree.children = this._applyPatch(this.programConfigTree, this.userConfigTree);
+        this.configTree.children = this._applyPatch(this.sharedConfigTree, this.userConfigTree);
     }
 
     /**
@@ -583,13 +582,13 @@ export class RimeConfigurationTree {
 
     /**
      * Apply patches to the file to patch.
-     * @param {ConfigTreeItem} programConfigTree The program config tree.
+     * @param {ConfigTreeItem} sharedConfigTree The program config tree.
      * @param {ConfigTreeItem} userConfigTree The user config tree.
      * @returns {Map<string, ConfigTreeItem>} The merged children map after applied patches.
      */
-    protected _applyPatch(programConfigTree: ConfigTreeItem, userConfigTree: ConfigTreeItem): Map<string, ConfigTreeItem> {
+    protected _applyPatch(sharedConfigTree: ConfigTreeItem, userConfigTree: ConfigTreeItem): Map<string, ConfigTreeItem> {
         let mergedMap: Map<string, ConfigTreeItem> = new Map();
-        mergedMap = programConfigTree.children;
+        mergedMap = sharedConfigTree.children;
         userConfigTree.children.forEach((userFileItem: ConfigTreeItem, fileKey: string) => {
             if (!mergedMap.has(fileKey)) {
                 mergedMap.set(fileKey, userFileItem);
@@ -739,7 +738,7 @@ export class RimeConfigurationTree {
         }
     }
 
-    private _getDefaultProgramConfigDir(): string {
+    private _getDefaultSharedConfigDir(): string {
         switch(process.platform) {
             case "win32":
                 // TODO Use dynamics version number
