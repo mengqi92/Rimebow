@@ -7,6 +7,7 @@ import * as Yaml from 'yaml-ast-parser';
 import { determineScalarType, ScalarType } from 'yaml-ast-parser';
 import { TreeItem, TreeItemCollapsibleState } from 'vscode';
 import { YAMLNode, YAMLScalar } from 'yaml-ast-parser';
+import { last } from 'lodash';
 
 const readDirAsync = util.promisify(fs.readdir);
 const readFileAsync = util.promisify(fs.readFile);
@@ -45,6 +46,14 @@ export interface ConfigTreeItemOptions {
      * Full path of the config file containing current node, used for navigation.
      */
     readonly configFilePath: string;
+    /**
+     * Offset of the node in the original config file.
+     */
+    readonly configOffset?: number;
+    /**
+     * Length of the node in the original config file.
+     */
+    readonly configLength?: number;
     /**
      * The kind of the file when the node is a file or node (kind === ItemKind.File || kind === ItemKind.Node). 
      */
@@ -93,6 +102,14 @@ export class ConfigTreeItem extends TreeItem {
      */
     public configFilePath: string;
     /**
+     * Offset of the node in the original config file.
+     */
+    public configOffset: number = 0;
+    /**
+     * Length of the node in the original config file.
+     */
+    public configLength: number = 0;
+    /**
      * Whether current node is representing a sequential node.
      */
     public isSequence: boolean = false;
@@ -118,6 +135,8 @@ export class ConfigTreeItem extends TreeItem {
         this.children = options.children;
         this.value = options.value;
         this.configFilePath = options.configFilePath;
+        this.configOffset = options.configOffset || 0;
+        this.configLength = options.configLength || 0;
         this.kind = options.kind;
         this.fileKind = options.fileKind;
         this.isSequence = options.isSequence || false;
@@ -248,7 +267,12 @@ export class ConfigTreeItem extends TreeItem {
 }
 
 export class RimeConfigurationTree {
-    public configTree: ConfigTreeItem = new ConfigTreeItem({ key: 'ROOT', children: new Map(), kind: ItemKind.Root, configFilePath: '' });
+    public configTree: ConfigTreeItem = new ConfigTreeItem({ 
+        key: 'ROOT', 
+        children: new Map(), 
+        kind: ItemKind.Root, 
+        configFilePath: ''
+    });
     /**
      * Configuration tree, including config files, in the program config folder.
      */
@@ -256,7 +280,7 @@ export class RimeConfigurationTree {
         key: 'PROGRAM',
         children: new Map(),
         configFilePath: '',
-        kind: ItemKind.Folder
+        kind: ItemKind.Folder,
     });
     /**
      * Configuration tree, including config files, in the user config folder.
@@ -426,16 +450,25 @@ export class RimeConfigurationTree {
     }
 
     private _buildASTNode(mapping: YAMLNode, rootNode: ConfigTreeItem, fullPath: string, fileKind: FileKind) {
+        if (mapping.key === undefined || mapping.key === null) {
+            return;
+        }
         let current: ConfigTreeItem = rootNode;
-        let key: string = mapping.key?.value;
+        let key: string = mapping.key!.value;
+        let mappingStartPos: number = mapping.key!.startPosition;
+        let mappingLength: number = mapping.key!.endPosition - mapping.key!.startPosition;
         let value: YAMLNode = mapping.value;
         // If the key has slash, create separate nodes for each part.
         // For instance, "foo/bar/baz: 1" should be created as a four-layer tree.
         if (key.indexOf("/") !== -1) {
-            let leafNode: ConfigTreeItem | undefined = this._buildSlashSeparatedNodes(key, current, fileKind, fullPath);
+            let leafNode: ConfigTreeItem | undefined = this._buildSlashSeparatedNodes(key, current, mapping.key.startPosition, fileKind, fullPath);
             if (leafNode) {
                 current = leafNode;
-                key = key.substring(key.lastIndexOf("/") + 1);
+                const lastSlashInKeyIdx: number = key.lastIndexOf("/");
+                // Update current mapping to the leaf node (the part after the last "/").
+                key = key.substring(lastSlashInKeyIdx + 1);
+                mappingStartPos = mappingStartPos + lastSlashInKeyIdx + 1;
+                mappingLength = mappingLength - (lastSlashInKeyIdx + 1);
             }
         }
         switch (value.kind) {
@@ -445,6 +478,8 @@ export class RimeConfigurationTree {
                     key: key, 
                     children: new Map(), 
                     configFilePath: fullPath, 
+                    configOffset: value.startPosition,
+                    configLength: value.endPosition - value.startPosition,
                     value: this._formatScalarValue(<Yaml.YAMLScalar>value), 
                     kind: ItemKind.Node, 
                     fileKind: fileKind 
@@ -452,13 +487,30 @@ export class RimeConfigurationTree {
                 break;
             case Yaml.Kind.MAP:
                 // Current node in the object tree has children.
-                let childMapNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, fileKind: fileKind });
+                let childMapNode: ConfigTreeItem = new ConfigTreeItem({ 
+                    key: key, 
+                    children: new Map(), 
+                    configFilePath: fullPath, 
+                    configOffset: mappingStartPos,
+                    configLength: mappingLength,
+                    kind: ItemKind.Node, 
+                    fileKind: fileKind 
+                });
                 current.addChildNode(childMapNode);
                 this._buildConfigTree(value, childMapNode, fullPath, fileKind);
                 break;
             case Yaml.Kind.SEQ:
                 // Current node in the object tree has children and it's an array.
-                let childSeqNode: ConfigTreeItem = new ConfigTreeItem({ key: key, children: new Map(), configFilePath: fullPath, kind: ItemKind.Node, fileKind: fileKind, isSequence: true });
+                let childSeqNode: ConfigTreeItem = new ConfigTreeItem({ 
+                    key: key, 
+                    children: new Map(), 
+                    configFilePath: fullPath, 
+                    configOffset: mappingStartPos,
+                    configLength: mappingLength,
+                    kind: ItemKind.Node, 
+                    fileKind: fileKind, 
+                    isSequence: true 
+                });
                 current.addChildNode(childSeqNode);
                 let valueSeq: Yaml.YAMLSequence = <Yaml.YAMLSequence>value;
                 valueSeq.items?.forEach((valueItem: YAMLNode, itemIndex: number) => {
@@ -467,6 +519,8 @@ export class RimeConfigurationTree {
                             key: itemIndex.toString(), 
                             children: new Map(), 
                             configFilePath: fullPath, 
+                            configOffset: valueItem.startPosition,
+                            configLength: valueItem.endPosition - valueItem.startPosition,
                             kind: ItemKind.Node, 
                             fileKind: fileKind, 
                             value: this._formatScalarValue(<Yaml.YAMLScalar>valueItem), 
@@ -478,6 +532,8 @@ export class RimeConfigurationTree {
                             key: itemIndex.toString(), 
                             children: new Map(), 
                             configFilePath: fullPath, 
+                            configOffset: valueItem.startPosition,
+                            configLength: valueItem.endPosition - valueItem.startPosition,
                             kind: ItemKind.Node, 
                             fileKind: fileKind, 
                             isSequenceElement: true 
@@ -497,11 +553,17 @@ export class RimeConfigurationTree {
      * For instance, given the key "foo/bar/baz", there would be 3 layers of nodes: foo -> bar -> baz.
      * @param {string} key The original key composing multi-layer keys by slashes, such as foo/bar/baz.
      * @param {ConfigTreeItem} rootNode The root node to build from.
+     * @param {number} keyStartPos The start position of the key in the original config file.
      * @param {FileKind} fileKind The kind of the config file.
      * @param {string} filePath Path to the config file.
      * @returns {ConfigTreeItem} The leaf node built.
      */
-    protected _buildSlashSeparatedNodes(key: string, rootNode: ConfigTreeItem, fileKind: FileKind, filePath: string): ConfigTreeItem | undefined {
+    protected _buildSlashSeparatedNodes(
+        key: string, 
+        rootNode: ConfigTreeItem, 
+        keyStartPos: number, 
+        fileKind: FileKind, 
+        filePath: string): ConfigTreeItem | undefined {
         if (key === undefined || key === null) {
             return;
         }
@@ -510,16 +572,19 @@ export class RimeConfigurationTree {
             return rootNode;
         }
 
+        const firstSlashInKeyIdx: number = key.indexOf("/");
         const childNode: ConfigTreeItem = new ConfigTreeItem({
             key: key.substring(0, key.indexOf("/")),
             children: new Map(),
             configFilePath: filePath,
+            configOffset: keyStartPos,
+            configLength: firstSlashInKeyIdx,
             kind: ItemKind.Node,
             fileKind: fileKind
         });
         // add childNode as a child of rootNode, and then point to the childNode as current.
         rootNode = rootNode.addChildNode(childNode);
-        return this._buildSlashSeparatedNodes(key.substring(key.indexOf("/") + 1), rootNode, fileKind, filePath);
+        return this._buildSlashSeparatedNodes(key.substring(firstSlashInKeyIdx + 1), rootNode, keyStartPos + firstSlashInKeyIdx + 1, fileKind, filePath);
     }
 
     /**

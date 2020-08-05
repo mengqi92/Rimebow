@@ -61,8 +61,24 @@ suite('Extension Test Suite', () => {
         const oneLayerObject: string = "a: '1'\nb: 2";
         const doc: Yaml.YAMLNode = Yaml.load(oneLayerObject);
 
-        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
-        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
+        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'a', 
+            children: new Map(), 
+            kind: ItemKind.Node, 
+            fileKind: FILE_KIND, 
+            configFilePath: FILE_FULL_PATH, 
+            configOffset: 3, 
+            configLength: 3, 
+            value: '1' });
+        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'b', 
+            children: new Map(), 
+            kind: ItemKind.Node, 
+            fileKind: FILE_KIND, 
+            configFilePath: FILE_FULL_PATH, 
+            configOffset: 10, 
+            configLength: 1, 
+            value: 2 });
         const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
             key: FILE_NAME,
             children: new Map([['a', expectedChildNodeA], ['b', expectedChildNodeB]]),
@@ -93,8 +109,25 @@ suite('Extension Test Suite', () => {
         const oneLayerObject: string = "a: '1'\ncolor: 0xFFEE00";
         const doc: Yaml.YAMLNode = Yaml.load(oneLayerObject);
 
-        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
-        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'color', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '0xFFEE00' });
+        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({
+            key: 'a', 
+            children: new Map(), 
+            kind: ItemKind.Node, 
+            fileKind: FILE_KIND, 
+            configFilePath: FILE_FULL_PATH, 
+            configOffset: 3, 
+            configLength: 3, 
+            value: '1'
+        });
+        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'color', 
+            children: new Map(), 
+            kind: ItemKind.Node, 
+            fileKind: FILE_KIND, 
+            configFilePath: FILE_FULL_PATH, 
+            configOffset: 14, 
+            configLength: 8, 
+            value: '0xFFEE00' });
         const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
             key: FILE_NAME,
             children: new Map([['a', expectedChildNodeA], ['color', expectedChildNodeB]]),
@@ -125,15 +158,53 @@ suite('Extension Test Suite', () => {
         const twoLayerObject: string = "a: 1.5\nb: true\nc:\n  c1: 31\n  c2: '32'";
         const doc: Yaml.YAMLNode = Yaml.load(twoLayerObject);
 
-        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 1.5 });
-        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: true });
-        const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: 'c1', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 31 });
-        const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: 'c2', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '32' });
+        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'a', 
+            children: new Map(), 
+            kind: ItemKind.Node, 
+            fileKind: FILE_KIND, 
+            configFilePath: FILE_FULL_PATH, 
+            configOffset: 3, 
+            configLength: 3, 
+            value: 1.5 
+        });
+        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'b', 
+            children: new Map(), 
+            kind: ItemKind.Node, 
+            fileKind: FILE_KIND, 
+            configFilePath: FILE_FULL_PATH, 
+            configOffset: 10, 
+            configLength: 4, 
+            value: true 
+        });
+        const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'c1',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 24, 
+            configLength: 2, 
+            value: 31 
+        });
+        const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'c2',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 33, 
+            configLength: 4, 
+            value: '32' 
+        });
         const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({
             key: 'c',
             children: new Map([['c1', expectedChildNodeC1], ['c2', expectedChildNodeC2]]),
             configFilePath: FILE_FULL_PATH,
             kind: ItemKind.Node,
+            configOffset: 15, 
+            configLength: 1, 
             fileKind: FILE_KIND
         });
         const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
@@ -166,15 +237,62 @@ suite('Extension Test Suite', () => {
         const twoLayerObject: string = "a: '1'\nb: 2\nc:\n  - c1: 31\n    c2: '32'\n  - c3: 33";
         const doc: Yaml.YAMLNode = Yaml.load(twoLayerObject);
 
-        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
-        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
-        const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: 'c1', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 31 });
-        const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: 'c2', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '32' });
-        const expectedChildNodeC3: ConfigTreeItem = new ConfigTreeItem({ key: 'c3', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 33 });
+        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'a',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 3, 
+            configLength: 3, 
+            value: '1' 
+        });
+        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'b',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 10, 
+            configLength: 1, 
+            value: 2 
+        });
+        const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'c1',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 23, 
+            configLength: 2, 
+            value: 31 
+        });
+        const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'c2',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 34, 
+            configLength: 4, 
+            value: '32' 
+        });
+        const expectedChildNodeC3: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'c3',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 47, 
+            configLength: 2, 
+            value: 33 
+        });
         const expectedChildNodeCA0: ConfigTreeItem = new ConfigTreeItem({
             key: '0',
             children: new Map([['c1', expectedChildNodeC1], ['c2', expectedChildNodeC2]]),
             configFilePath: FILE_FULL_PATH, 
+            configOffset: 19, 
+            configLength: 19, 
             kind: ItemKind.Node,
             fileKind: FILE_KIND,
             isSequenceElement: true
@@ -183,6 +301,8 @@ suite('Extension Test Suite', () => {
             key: '1',
             children: new Map([['c3', expectedChildNodeC3]]),
             configFilePath: FILE_FULL_PATH, 
+            configOffset: 43, 
+            configLength: 6, 
             kind: ItemKind.Node, 
             fileKind: FILE_KIND,
             isSequenceElement: true
@@ -191,6 +311,8 @@ suite('Extension Test Suite', () => {
             key: 'c',
             children: new Map([['0', expectedChildNodeCA0], ['1', expectedChildNodeCA1]]),
             configFilePath: FILE_FULL_PATH,
+            configOffset: 12, 
+            configLength: 1, 
             kind: ItemKind.Node,
             fileKind: FILE_KIND,
             isSequence: true
@@ -225,15 +347,61 @@ suite('Extension Test Suite', () => {
         const oneLayerObject: string = "a: '1'\nb: 2\nc:\n  - 3\n  - 4\n  - '5'";
         const doc: YAMLNode = Yaml.load(oneLayerObject);
 
-        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
-        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
-        const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: '0', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 3, isSequenceElement: true });
-        const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 4, isSequenceElement: true });
-        const expectedChildNodeC3: ConfigTreeItem = new ConfigTreeItem({ key: '2', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '5', isSequenceElement: true });
+        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'a', 
+            children: new Map(), 
+            kind: ItemKind.Node, 
+            fileKind: FILE_KIND, 
+            configFilePath: FILE_FULL_PATH, 
+            configOffset: 3, 
+            configLength: 3, 
+            value: '1' 
+        });
+        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 10, 
+            configLength: 1, 
+            value: 2 
+        });
+        const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: '0',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 19, 
+            configLength: 1, 
+            value: 3,
+            isSequenceElement: true 
+        });
+        const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: '1',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 25, 
+            configLength: 1, 
+            value: 4,
+            isSequenceElement: true 
+        });
+        const expectedChildNodeC3: ConfigTreeItem = new ConfigTreeItem({ key: '2',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 31, 
+            configLength: 3, 
+            value: '5',
+            isSequenceElement: true 
+        });
         const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({
             key: 'c',
             children: new Map([['0', expectedChildNodeC1], ['1', expectedChildNodeC2], ['2', expectedChildNodeC3]]),
             configFilePath: FILE_FULL_PATH,
+            configOffset: 12, 
+            configLength: 1, 
             kind: ItemKind.Node,
             fileKind: FILE_KIND,
             isSequence: true
@@ -268,10 +436,42 @@ suite('Extension Test Suite', () => {
         const objectWithSlashInKey: string = "a: '1'\nb: 2\nc/c1: 3";
         const doc: YAMLNode = Yaml.load(objectWithSlashInKey);
 
-        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
-        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
-        const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: 'c1', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 3 });
-        const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({ key: 'c', children: new Map([['c1', expectedChildNodeC1]]), fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, kind: ItemKind.Node });
+        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 3, 
+            configLength: 3, 
+            value: '1' 
+        });
+        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 10, 
+            configLength: 1, 
+            value: 2 
+        });
+        const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({ key: 'c1',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 18, 
+            configLength: 1, 
+            value: 3 
+        });
+        const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({ key: 'c',
+            children: new Map([['c1',
+            expectedChildNodeC1]]),
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 12, 
+            configLength: 1, 
+            kind: ItemKind.Node 
+        });
         const expectedNodeBuilt: ConfigTreeItem = new ConfigTreeItem({
             key: FILE_NAME,
             children: new Map([['a', expectedChildNodeA], ['b', expectedChildNodeB], ['c', expectedChildNodeC]]),
@@ -302,14 +502,48 @@ suite('Extension Test Suite', () => {
         const twoLayerObjectWithSlashInKey: string = "a: '1'\nb: 2\nc/c1:\n  c11: 31\n  c12: '32'";
         const doc: YAMLNode = Yaml.load(twoLayerObjectWithSlashInKey);
 
-        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
-        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
-        const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({ key: 'c11', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 31 });
-        const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({ key: 'c12', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '32' });
+        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 3, 
+            configLength: 3, 
+            value: '1' 
+        });
+        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 10, 
+            configLength: 1, 
+            value: 2 
+        });
+        const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({ key: 'c11',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 25, 
+            configLength: 2, 
+            value: 31 
+        });
+        const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({ key: 'c12',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 35, 
+            configLength: 4, 
+            value: '32' 
+        });
         const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({
             key: 'c1',
             children: new Map([['c11', expectedChildNodeC11], ['c12', expectedChildNodeC12]]),
             configFilePath: FILE_FULL_PATH,
+            configOffset: 14, 
+            configLength: 2, 
             kind: ItemKind.Node,
             fileKind: FILE_KIND, 
         });
@@ -317,6 +551,8 @@ suite('Extension Test Suite', () => {
             key: 'c',
             children: new Map([['c1', expectedChildNodeC1]]),
             configFilePath: FILE_FULL_PATH,
+            configOffset: 12, 
+            configLength: 1, 
             kind: ItemKind.Node,
             fileKind: FILE_KIND
         });
@@ -350,14 +586,48 @@ suite('Extension Test Suite', () => {
         const twoLayerObject: string = "a: '1'\nb: 2\nc/c1:\n  c11: 31\n  c12: '32'\nd/d1: 4";
         const doc: YAMLNode = Yaml.load(twoLayerObject);
 
-        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
-        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
-        const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({ key: 'c11', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 31 });
-        const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({ key: 'c12', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '32' });
+        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 3, 
+            configLength: 3, 
+            value: '1' 
+        });
+        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 10, 
+            configLength: 1, 
+            value: 2 
+        });
+        const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({ key: 'c11',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 25, 
+            configLength: 2, 
+            value: 31 
+        });
+        const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({ key: 'c12',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 35, 
+            configLength: 4, 
+            value: '32' 
+        });
         const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({
             key: 'c1',
             children: new Map([['c11', expectedChildNodeC11], ['c12', expectedChildNodeC12]]),
             configFilePath: FILE_FULL_PATH,
+            configOffset: 14, 
+            configLength: 2, 
             kind: ItemKind.Node,
             fileKind: FILE_KIND
         });
@@ -365,13 +635,27 @@ suite('Extension Test Suite', () => {
             key: 'c',
             children: new Map([['c1', expectedChildNodeC1]]),
             configFilePath: FILE_FULL_PATH,
+            configOffset: 12, 
+            configLength: 1, 
             kind: ItemKind.Node,
             fileKind: FILE_KIND
         });
-        const expectedChildNodeD1: ConfigTreeItem = new ConfigTreeItem({ key: 'd1', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 4 });
+        const expectedChildNodeD1: ConfigTreeItem = new ConfigTreeItem({ 
+            key: 'd1', 
+            children: new Map(), 
+            kind: ItemKind.Node, 
+            fileKind: FILE_KIND, 
+            configFilePath: FILE_FULL_PATH, 
+            configOffset: 46, 
+            configLength: 1, 
+            value: 4 
+        });
         const expectedChildNodeD: ConfigTreeItem = new ConfigTreeItem({
             key: 'd',
-            children: new Map([['d1', expectedChildNodeD1]]), configFilePath: FILE_FULL_PATH,
+            children: new Map([['d1', expectedChildNodeD1]]), 
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 40, 
+            configLength: 1, 
             kind: ItemKind.Node,
             fileKind: FILE_KIND
         });
@@ -405,22 +689,66 @@ suite('Extension Test Suite', () => {
         const twoLayerObject: string = "a: '1'\nb: 2\nc/c1:\n  c11: 31\n  c12: '32'\nc/c2: 4";
         const doc: YAMLNode = Yaml.load(twoLayerObject);
 
-        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
-        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
-        const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({ key: 'c11', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 31 });
-        const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({ key: 'c12', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '32' });
+        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 3, 
+            configLength: 3, 
+            value: '1' 
+        });
+        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 10, 
+            configLength: 1, 
+            value: 2 
+        });
+        const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({ key: 'c11',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 25, 
+            configLength: 2, 
+            value: 31 
+        });
+        const expectedChildNodeC12: ConfigTreeItem = new ConfigTreeItem({ key: 'c12',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 35, 
+            configLength: 4, 
+            value: '32' 
+        });
         const expectedChildNodeC1: ConfigTreeItem = new ConfigTreeItem({
             key: 'c1',
             children: new Map([['c11', expectedChildNodeC11], ['c12', expectedChildNodeC12]]),
             configFilePath: FILE_FULL_PATH,
+            configOffset: 14, 
+            configLength: 2, 
             kind: ItemKind.Node,
             fileKind: FILE_KIND
         });
-        const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: 'c2', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 4 });
+        const expectedChildNodeC2: ConfigTreeItem = new ConfigTreeItem({ key: 'c2',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 46, 
+            configLength: 1, 
+            value: 4 
+        });
         const expectedChildNodeC: ConfigTreeItem = new ConfigTreeItem({
             key: 'c',
             children: new Map([['c1', expectedChildNodeC1], ['c2', expectedChildNodeC2]]),
             configFilePath: FILE_FULL_PATH,
+            configOffset: 12, 
+            configLength: 1, 
             kind: ItemKind.Node,
             fileKind: FILE_KIND
         });
@@ -454,14 +782,48 @@ suite('Extension Test Suite', () => {
         const twoLayerObject: string = "a: '1'\nb: 2\nc/c1/c11:\n  c111: 31\n  c112: '32'";
         const doc: YAMLNode = Yaml.load(twoLayerObject);
 
-        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '1' });
-        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 2 });
-        const expectedChildNodeC111: ConfigTreeItem = new ConfigTreeItem({ key: 'c111', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: 31 });
-        const expectedChildNodeC112: ConfigTreeItem = new ConfigTreeItem({ key: 'c112', children: new Map(), kind: ItemKind.Node, fileKind: FILE_KIND, configFilePath: FILE_FULL_PATH, value: '32' });
+        const expectedChildNodeA: ConfigTreeItem = new ConfigTreeItem({ key: 'a',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 3, 
+            configLength: 3, 
+            value: '1' 
+        });
+        const expectedChildNodeB: ConfigTreeItem = new ConfigTreeItem({ key: 'b',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 10, 
+            configLength: 1, 
+            value: 2 
+        });
+        const expectedChildNodeC111: ConfigTreeItem = new ConfigTreeItem({ key: 'c111',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 30, 
+            configLength: 2, 
+            value: 31 
+        });
+        const expectedChildNodeC112: ConfigTreeItem = new ConfigTreeItem({ key: 'c112',
+            children: new Map(),
+            kind: ItemKind.Node,
+            fileKind: FILE_KIND,
+            configFilePath: FILE_FULL_PATH,
+            configOffset: 41, 
+            configLength: 4, 
+            value: '32' 
+        });
         const expectedChildNodeC11: ConfigTreeItem = new ConfigTreeItem({
             key: 'c11',
             children: new Map([['c111', expectedChildNodeC111], ['c112', expectedChildNodeC112]]),
             configFilePath: FILE_FULL_PATH,
+            configOffset: 17, 
+            configLength: 3, 
             kind: ItemKind.Node,
             fileKind: FILE_KIND
         });
@@ -469,6 +831,8 @@ suite('Extension Test Suite', () => {
             key: 'c1',
             children: new Map([['c11', expectedChildNodeC11]]),
             configFilePath: FILE_FULL_PATH,
+            configOffset: 14, 
+            configLength: 2, 
             kind: ItemKind.Node,
             fileKind: FILE_KIND
         });
@@ -476,6 +840,8 @@ suite('Extension Test Suite', () => {
             key: 'c',
             children: new Map([['c1', expectedChildNodeC1]]),
             configFilePath: FILE_FULL_PATH,
+            configOffset: 12, 
+            configLength: 1, 
             kind: ItemKind.Node,
             fileKind: FILE_KIND
         });
