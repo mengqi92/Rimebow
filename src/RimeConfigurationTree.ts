@@ -308,19 +308,13 @@ export class RimeConfigurationTree {
             && await existsAsync(rimeAssistantConfiguration.get(programConfigDirConfigKey) as string)) {
             this.programConfigDir = rimeAssistantConfiguration.get(programConfigDirConfigKey) as string;
         } else {
-            // Squirrel: /Library/Input\ Methods/Squirrel.app/Contents/SharedSupport/
-            // this.programConfigDir = path.join('Library', 'Input Methods', 'Squirrel.app', 'Contents', 'SharedSupport');
-            // 'C:\\Program Files (x86)\\Rime\\weasel-0.14.3\\data'
-            this.programConfigDir = path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
+            this.programConfigDir = this._getDefaultProgramConfigDir();
         }
         if (rimeAssistantConfiguration.has(userConfigDirConfigKey)
             && await existsAsync(rimeAssistantConfiguration.get(userConfigDirConfigKey) as string)) {
             this.userConfigDir = rimeAssistantConfiguration.get(userConfigDirConfigKey) as string;
         } else {
-            // Squirrel: /Users/Mengqi/Library/Rime
-            // this.userConfigDir = path.join('Users', 'Mengqi', 'Library', 'Rime');
-            // 'C:\\Users\\mengq\\AppData\\Roaming\\Rime'
-            this.userConfigDir = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime');
+            this.userConfigDir = this._getUserConfigDir();
         }
         this.programConfigTree = await this._buildConfigTreeFromFiles(
             this.programConfigDir, RimeConfigurationTree.PROGRAM_CONFIG_LABEL);
@@ -742,6 +736,46 @@ export class RimeConfigurationTree {
                 return valueNode.valueObject;
             default:
                 return valueNode.rawValue;
+        }
+    }
+
+    private _getDefaultProgramConfigDir(): string {
+        switch(process.platform) {
+            case "win32":
+                // TODO Use dynamics version number
+                // Weasel: C:/Program Files (x86)/Rime/weasel-0.14.3/data
+                return path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
+            case "darwin":
+                // Squirrel: /Library/Input\ Methods/Squirrel.app/Contents/SharedSupport/
+                return path.join('Library', 'Input Methods', 'Squirrel.app', 'Contents', 'SharedSupport');
+            case "linux":
+                // ibus-rime, fcitx-rime: /usr/share/rime-data
+                return path.join('usr', 'share', 'rime-data');
+            default:
+                throw new Error(`Unsupported platform: ${process.platform}`);
+        }
+    }
+
+    private _getUserConfigDir(): string {
+        switch(process.platform) {
+            case "win32":
+                // 'C:\\Users\\mengq\\AppData\\Roaming\\Rime'
+                // this.userConfigDir = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime');
+                return path.join(process.env.APPDATA!, 'Rime');
+            case "darwin":
+                // Squirrel: /Users//Library/Rime
+                return path.join(process.env.HOME!, 'Library', 'Rime');
+            case "linux":
+                // ibus-rime: ~/.config/ibus/rime
+                // fcitx-rime: ~/.config/fcitx/rime
+                const ibusPath: string = path.join(process.env.HOME!, '.config', 'ibus', 'rime');
+                if (fs.existsSync(ibusPath)) {
+                    return ibusPath;
+                } else {
+                    return path.join(process.env.HOME!, '.config', 'fcitx', 'rime')
+                }
+            default:
+                throw new Error(`Unsupported platform: ${process.platform}`);
         }
     }
 }
