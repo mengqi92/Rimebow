@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { RimeConfigurationTree, ConfigTreeItem } from './RimeConfigurationTree';
+import { RimeConfigurationTree, RimeConfigNode } from './RimeConfigurationTree';
 
-export class RimeNodeExplorerProvider implements vscode.TreeDataProvider<ConfigTreeItem> {
-    private _onDidChangeTreeData: vscode.EventEmitter<ConfigTreeItem | undefined> = new vscode.EventEmitter<ConfigTreeItem | undefined>();
-    readonly onDidChangeTreeData: vscode.Event<ConfigTreeItem | undefined> = this._onDidChangeTreeData.event;
+export class RimeNodeExplorerProvider implements vscode.TreeDataProvider<RimeConfigNode> {
+    private _onDidChangeTreeData: vscode.EventEmitter<RimeConfigNode | undefined> = new vscode.EventEmitter<RimeConfigNode | undefined>();
+    readonly onDidChangeTreeData: vscode.Event<RimeConfigNode | undefined> = this._onDidChangeTreeData.event;
     private readonly configurationTree: RimeConfigurationTree;
 
     constructor(configurationTree: RimeConfigurationTree) {
@@ -14,11 +14,11 @@ export class RimeNodeExplorerProvider implements vscode.TreeDataProvider<ConfigT
         this._onDidChangeTreeData.fire(undefined);
     }
 
-    getTreeItem(element: ConfigTreeItem): ConfigTreeItem {
+    getTreeItem(element: RimeConfigNode): RimeConfigNode {
         return element;
     }
 
-    getChildren(element?: ConfigTreeItem | undefined): vscode.ProviderResult<ConfigTreeItem[]> {
+    getChildren(element?: RimeConfigNode | undefined): vscode.ProviderResult<RimeConfigNode[]> {
         // Root node.
         if (!element) {
             return Array.from(this.configurationTree.configTree.children.values());

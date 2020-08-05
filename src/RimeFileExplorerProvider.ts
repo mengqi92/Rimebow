@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { TreeItem } from 'vscode';
-import { RimeConfigurationTree, ConfigTreeItem } from './RimeConfigurationTree';
+import { RimeConfigurationTree, RimeConfigNode } from './RimeConfigurationTree';
 
 export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<TreeItem | undefined> = new vscode.EventEmitter<TreeItem | undefined>();
@@ -28,13 +28,13 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
         } else {
             if (element.id === this.configurationTree.sharedConfigTree.id) {
                 return Array.from(this.configurationTree.sharedConfigTree.children.values())
-                    .map((item: ConfigTreeItem) => { 
+                    .map((item: RimeConfigNode) => { 
                         item.collapsibleState = undefined; 
                         return item;
                     });
             } else if (element.id === this.configurationTree.userConfigTree.id) {
                 return Array.from(this.configurationTree.userConfigTree.children.values())
-                    .map((item: ConfigTreeItem) => { 
+                    .map((item: RimeConfigNode) => { 
                         item.collapsibleState = undefined; 
                         return item;
                     });

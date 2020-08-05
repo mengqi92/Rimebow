@@ -5,7 +5,7 @@
 import * as vscode from 'vscode';
 import { RimeFileExplorerProvider } from './RimeFileExplorerProvider';
 import { RimeNodeExplorerProvider } from './RimeNodeExplorerProvider';
-import { RimeConfigurationTree, ConfigTreeItem } from './RimeConfigurationTree';
+import { RimeConfigurationTree, RimeConfigNode } from './RimeConfigurationTree';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -20,7 +20,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand(
 		'rimeAssistant.openConfigFile', 
-		(node: ConfigTreeItem) => { 
+		(node: RimeConfigNode) => { 
 			vscode.window.showTextDocument(vscode.Uri.file(node.configFilePath))
 				.then((editor: vscode.TextEditor) => {
 					const range: vscode.Range = new vscode.Range(
@@ -29,7 +29,7 @@ export async function activate(context: vscode.ExtensionContext) {
 					editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
 				});
 		});
-	vscode.commands.registerCommand('rimeAssistant.openFolder', (node: ConfigTreeItem) => { vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(node.configFilePath)); });
+	vscode.commands.registerCommand('rimeAssistant.openFolder', (node: RimeConfigNode) => { vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(node.configFilePath)); });
 	const rimeFileExplorerProvider: RimeFileExplorerProvider = new RimeFileExplorerProvider(rimeConfigurationTree);
 	vscode.commands.registerCommand('rimeFileExplorer.refreshEntry', () => { rimeFileExplorerProvider.refresh(); });
 	vscode.window.createTreeView('rimeFileExplorer', { treeDataProvider: rimeFileExplorerProvider });

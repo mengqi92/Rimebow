@@ -36,7 +36,7 @@ export interface ConfigTreeItemOptions {
     /**
      * Child nodes indexed by node key.
      */
-    readonly children: Map<string, ConfigTreeItem>;
+    readonly children: Map<string, RimeConfigNode>;
     /**
      * The kind of the config file containing this item.
      */
@@ -74,7 +74,7 @@ export interface ConfigTreeItemOptions {
     readonly value?: any;
 }
 
-export class ConfigTreeItem extends TreeItem {
+export class RimeConfigNode extends TreeItem {
     /**
      * Node identifier.
      */
@@ -82,7 +82,7 @@ export class ConfigTreeItem extends TreeItem {
     /**
      * Children nodes indexed by node identifiers.
      */
-    public children: Map<string, ConfigTreeItem>;
+    public children: Map<string, RimeConfigNode>;
     /**
      * Value of the node, if any.
      */
@@ -158,7 +158,7 @@ export class ConfigTreeItem extends TreeItem {
         return this.fileKind === FileKind.Custom || this.fileKind === FileKind.DefaultCustom;
     }
 
-    public update(newItem: ConfigTreeItem) {
+    public update(newItem: RimeConfigNode) {
         this.defaultValue = this.value;
         this.value = newItem.value;
 
@@ -181,10 +181,10 @@ export class ConfigTreeItem extends TreeItem {
 
     /**
      * Add a child node to current node.
-     * @param childNode {ConfigTreeItem} The child node to add.
-     * @returns {ConfigTreeItem} The child node added. Could be the existing node if there is a same child.
+     * @param childNode {RimeConfigNode} The child node to add.
+     * @returns {RimeConfigNode} The child node added. Could be the existing node if there is a same child.
      */
-    public addChildNode(childNode: ConfigTreeItem): ConfigTreeItem {
+    public addChildNode(childNode: RimeConfigNode): RimeConfigNode {
         if (childNode.key === undefined) {
             throw new Error('No key found for given child node.');
         } else if (this.children.has(childNode.key)) {
@@ -266,7 +266,7 @@ export class ConfigTreeItem extends TreeItem {
 }
 
 export class RimeConfigurationTree {
-    public configTree: ConfigTreeItem = new ConfigTreeItem({ 
+    public configTree: RimeConfigNode = new RimeConfigNode({ 
         key: 'ROOT', 
         children: new Map(), 
         kind: ItemKind.Root, 
@@ -275,7 +275,7 @@ export class RimeConfigurationTree {
     /**
      * Configuration tree, including config files, in the program config folder.
      */
-    public sharedConfigTree: ConfigTreeItem = new ConfigTreeItem({
+    public sharedConfigTree: RimeConfigNode = new RimeConfigNode({
         key: 'PROGRAM',
         children: new Map(),
         configFilePath: '',
@@ -284,7 +284,7 @@ export class RimeConfigurationTree {
     /**
      * Configuration tree, including config files, in the user config folder.
      */
-    public userConfigTree: ConfigTreeItem = new ConfigTreeItem({
+    public userConfigTree: RimeConfigNode = new RimeConfigNode({
         key: 'USER',
         children: new Map(),
         configFilePath: '',
@@ -326,25 +326,25 @@ export class RimeConfigurationTree {
      * Build config tree for all the files in the given directory.
      * @param {string} configDir  The directory path containing config files.
      * @param {string} label The label of the config directory.
-     * @returns {Promise<Map<string, ConfigTreeItem>>} A promise result containing a map of config trees indexed by file name.
+     * @returns {Promise<Map<string, RimeConfigNode>>} A promise result containing a map of config trees indexed by file name.
      */
-    private async _buildConfigTreeFromFiles(configDir: string, label: string): Promise<ConfigTreeItem> {
+    private async _buildConfigTreeFromFiles(configDir: string, label: string): Promise<RimeConfigNode> {
         const filesResult: Promise<string[]> = readDirAsync(configDir);
         const fileNames = await filesResult;
-        const promises: Promise<ConfigTreeItem>[] = fileNames
+        const promises: Promise<RimeConfigNode>[] = fileNames
             .filter((fileName: string) => fileName.endsWith('.yaml') && !fileName.endsWith('.dict.yaml'))
-            .map(async (fileName: string): Promise<ConfigTreeItem> => {
+            .map(async (fileName: string): Promise<RimeConfigNode> => {
                 return await this._buildConfigTreeFromFile(configDir, fileName);
             });
-        const fileItems: ConfigTreeItem[] = await Promise.all(promises).catch(() => []);
+        const fileItems: RimeConfigNode[] = await Promise.all(promises).catch(() => []);
         // Files are collected now.
         // Apply custom pactches if needed.
         // For schema config, will also need to override default config.
         // Config priority:
         // - schema config: schema.custom.yaml > schema.yaml > default.custom.yaml > default.yaml
         // - other config: foo.custom > foo
-        let fileMap: Map<string, ConfigTreeItem> = this._mergeFilesInSameFolder(fileItems);
-        return new ConfigTreeItem({
+        let fileMap: Map<string, RimeConfigNode> = this._mergeFilesInSameFolder(fileItems);
+        return new RimeConfigNode({
             key: label,
             children: fileMap,
             configFilePath: configDir,
@@ -352,9 +352,9 @@ export class RimeConfigurationTree {
         });
     }
 
-    private _mergeFilesInSameFolder(fileItems: ConfigTreeItem[]) {
-        let fileMap: Map<string, ConfigTreeItem> = new Map();
-        fileItems.forEach((fileItem: ConfigTreeItem) => {
+    private _mergeFilesInSameFolder(fileItems: RimeConfigNode[]) {
+        let fileMap: Map<string, RimeConfigNode> = new Map();
+        fileItems.forEach((fileItem: RimeConfigNode) => {
             if (!fileMap.has(fileItem.key)) {
                 fileMap.set(fileItem.key, fileItem);
             }
@@ -366,18 +366,18 @@ export class RimeConfigurationTree {
                     return;
                 }
 
-                const patchNode: ConfigTreeItem = patchFile.children.get('patch')!;
+                const patchNode: RimeConfigNode = patchFile.children.get('patch')!;
                 fileMap.set(fileToPatch.key, this._mergeTree(fileToPatch, patchNode));
             }
         });
         return fileMap;
     }
 
-    protected _cloneTree(tree: ConfigTreeItem): ConfigTreeItem {
+    protected _cloneTree(tree: RimeConfigNode): RimeConfigNode {
         return _.cloneDeep(tree);
     }
 
-    protected async _buildConfigTreeFromFile(filePath: string, fileName: string): Promise<ConfigTreeItem> {
+    protected async _buildConfigTreeFromFile(filePath: string, fileName: string): Promise<RimeConfigNode> {
         const fullName: string = path.join(filePath, fileName);
         const data = await readFileAsync(fullName);
 
@@ -388,7 +388,7 @@ export class RimeConfigurationTree {
         const fileKind: FileKind = this._categoriseConfigFile(fileName);
         const fileLabel: string = fileName.replace('.yaml', '').replace('.custom', '').replace('.schema', '');
         // The root node is representing the configuration file.
-        let rootNode: ConfigTreeItem = new ConfigTreeItem({ 
+        let rootNode: RimeConfigNode = new RimeConfigNode({ 
             key: fileLabel, 
             children: new Map(), 
             configFilePath: fullName, 
@@ -403,7 +403,7 @@ export class RimeConfigurationTree {
         if (fileKind === FileKind.Schema
             && rootNode.hasChildren
             && rootNode.children.has('schema')) {
-            const schemaMetadata: ConfigTreeItem = rootNode.children.get('schema')!;
+            const schemaMetadata: RimeConfigNode = rootNode.children.get('schema')!;
             this._setSchemaNameAsLabel(schemaMetadata, rootNode);
             this._setMetadataAsTooltip(schemaMetadata, rootNode);
         }
@@ -413,11 +413,11 @@ export class RimeConfigurationTree {
     /**
      * Build up a configuration tree based on the object tree parsed.
      * @param {YAMLNode} node The root node of the object tree parsed from yaml file.
-     * @param {ConfigTreeItem} rootNode The current traversed node in the configuration tree we are building.
+     * @param {RimeConfigNode} rootNode The current traversed node in the configuration tree we are building.
      * @param {string} fullPath The full path of the configuration file.
      * @param {FileKind} fileKind Kind of the configuration file.
      */
-    protected _buildConfigTree(node: YAMLNode, rootNode: ConfigTreeItem, fullPath: string, fileKind: FileKind) {
+    protected _buildConfigTree(node: YAMLNode, rootNode: RimeConfigNode, fullPath: string, fileKind: FileKind) {
         if (node === undefined || node === null) {
             return;
         }
@@ -442,11 +442,11 @@ export class RimeConfigurationTree {
         }
     }
 
-    private _buildASTNode(mapping: YAMLNode, rootNode: ConfigTreeItem, fullPath: string, fileKind: FileKind) {
+    private _buildASTNode(mapping: YAMLNode, rootNode: RimeConfigNode, fullPath: string, fileKind: FileKind) {
         if (mapping.key === undefined || mapping.key === null) {
             return;
         }
-        let current: ConfigTreeItem = rootNode;
+        let current: RimeConfigNode = rootNode;
         let key: string = mapping.key!.value;
         let mappingStartPos: number = mapping.key!.startPosition;
         let mappingLength: number = mapping.key!.endPosition - mapping.key!.startPosition;
@@ -454,7 +454,7 @@ export class RimeConfigurationTree {
         // If the key has slash, create separate nodes for each part.
         // For instance, "foo/bar/baz: 1" should be created as a four-layer tree.
         if (key.indexOf("/") !== -1) {
-            let leafNode: ConfigTreeItem | undefined = this._buildSlashSeparatedNodes(key, current, mapping.key.startPosition, fileKind, fullPath);
+            let leafNode: RimeConfigNode | undefined = this._buildSlashSeparatedNodes(key, current, mapping.key.startPosition, fileKind, fullPath);
             if (leafNode) {
                 current = leafNode;
                 const lastSlashInKeyIdx: number = key.lastIndexOf("/");
@@ -467,7 +467,7 @@ export class RimeConfigurationTree {
         switch (value.kind) {
             case Yaml.Kind.SCALAR:
                 // Current node is a leaf node in the object tree.
-                current.addChildNode(new ConfigTreeItem({ 
+                current.addChildNode(new RimeConfigNode({ 
                     key: key, 
                     children: new Map(), 
                     configFilePath: fullPath, 
@@ -480,7 +480,7 @@ export class RimeConfigurationTree {
                 break;
             case Yaml.Kind.MAP:
                 // Current node in the object tree has children.
-                let childMapNode: ConfigTreeItem = new ConfigTreeItem({ 
+                let childMapNode: RimeConfigNode = new RimeConfigNode({ 
                     key: key, 
                     children: new Map(), 
                     configFilePath: fullPath, 
@@ -494,7 +494,7 @@ export class RimeConfigurationTree {
                 break;
             case Yaml.Kind.SEQ:
                 // Current node in the object tree has children and it's an array.
-                let childSeqNode: ConfigTreeItem = new ConfigTreeItem({ 
+                let childSeqNode: RimeConfigNode = new RimeConfigNode({ 
                     key: key, 
                     children: new Map(), 
                     configFilePath: fullPath, 
@@ -508,7 +508,7 @@ export class RimeConfigurationTree {
                 let valueSeq: Yaml.YAMLSequence = <Yaml.YAMLSequence>value;
                 valueSeq.items?.forEach((valueItem: YAMLNode, itemIndex: number) => {
                     if (valueItem.kind === Yaml.Kind.SCALAR) {
-                        let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ 
+                        let grandChildNode: RimeConfigNode = new RimeConfigNode({ 
                             key: itemIndex.toString(), 
                             children: new Map(), 
                             configFilePath: fullPath, 
@@ -521,7 +521,7 @@ export class RimeConfigurationTree {
                         });
                         childSeqNode.addChildNode(grandChildNode);
                     } else {
-                        let grandChildNode: ConfigTreeItem = new ConfigTreeItem({ 
+                        let grandChildNode: RimeConfigNode = new RimeConfigNode({ 
                             key: itemIndex.toString(), 
                             children: new Map(), 
                             configFilePath: fullPath, 
@@ -545,18 +545,18 @@ export class RimeConfigurationTree {
      * Recursively build multi-layer nodes according to the keys separated by slash.
      * For instance, given the key "foo/bar/baz", there would be 3 layers of nodes: foo -> bar -> baz.
      * @param {string} key The original key composing multi-layer keys by slashes, such as foo/bar/baz.
-     * @param {ConfigTreeItem} rootNode The root node to build from.
+     * @param {RimeConfigNode} rootNode The root node to build from.
      * @param {number} keyStartPos The start position of the key in the original config file.
      * @param {FileKind} fileKind The kind of the config file.
      * @param {string} filePath Path to the config file.
-     * @returns {ConfigTreeItem} The leaf node built.
+     * @returns {RimeConfigNode} The leaf node built.
      */
     protected _buildSlashSeparatedNodes(
         key: string, 
-        rootNode: ConfigTreeItem, 
+        rootNode: RimeConfigNode, 
         keyStartPos: number, 
         fileKind: FileKind, 
-        filePath: string): ConfigTreeItem | undefined {
+        filePath: string): RimeConfigNode | undefined {
         if (key === undefined || key === null) {
             return;
         }
@@ -566,7 +566,7 @@ export class RimeConfigurationTree {
         }
 
         const firstSlashInKeyIdx: number = key.indexOf("/");
-        const childNode: ConfigTreeItem = new ConfigTreeItem({
+        const childNode: RimeConfigNode = new RimeConfigNode({
             key: key.substring(0, key.indexOf("/")),
             children: new Map(),
             configFilePath: filePath,
@@ -582,14 +582,14 @@ export class RimeConfigurationTree {
 
     /**
      * Apply patches to the file to patch.
-     * @param {ConfigTreeItem} sharedConfigTree The program config tree.
-     * @param {ConfigTreeItem} userConfigTree The user config tree.
-     * @returns {Map<string, ConfigTreeItem>} The merged children map after applied patches.
+     * @param {RimeConfigNode} sharedConfigTree The program config tree.
+     * @param {RimeConfigNode} userConfigTree The user config tree.
+     * @returns {Map<string, RimeConfigNode>} The merged children map after applied patches.
      */
-    protected _applyPatch(sharedConfigTree: ConfigTreeItem, userConfigTree: ConfigTreeItem): Map<string, ConfigTreeItem> {
-        let mergedMap: Map<string, ConfigTreeItem> = new Map();
+    protected _applyPatch(sharedConfigTree: RimeConfigNode, userConfigTree: RimeConfigNode): Map<string, RimeConfigNode> {
+        let mergedMap: Map<string, RimeConfigNode> = new Map();
         mergedMap = sharedConfigTree.children;
-        userConfigTree.children.forEach((userFileItem: ConfigTreeItem, fileKey: string) => {
+        userConfigTree.children.forEach((userFileItem: RimeConfigNode, fileKey: string) => {
             if (!mergedMap.has(fileKey)) {
                 mergedMap.set(fileKey, userFileItem);
             } else {
@@ -600,17 +600,17 @@ export class RimeConfigurationTree {
                     return;
                 }
 
-                const patchNode: ConfigTreeItem = patchFile.children.get('patch')!;
+                const patchNode: RimeConfigNode = patchFile.children.get('patch')!;
                 mergedMap.set(fileKey, this._mergeTree(fileToPatch, patchNode));
             }
         });
         // The default config node should now be patched.
         if (mergedMap.has('default')) {
-            let defaultTree: ConfigTreeItem = mergedMap.get('default')!;
+            let defaultTree: RimeConfigNode = mergedMap.get('default')!;
             // Override default config for schema config.
-            mergedMap.forEach((fileItem: ConfigTreeItem, fileKey: string) => {
+            mergedMap.forEach((fileItem: RimeConfigNode, fileKey: string) => {
                 if (fileItem.fileKind === FileKind.Schema) {
-                    let mergedTree: ConfigTreeItem = this._cloneTree(fileItem);
+                    let mergedTree: RimeConfigNode = this._cloneTree(fileItem);
                     mergedTree.children = this._mergeTree(defaultTree, fileItem).children;
                     mergedMap.set(fileKey, mergedTree);
                 }
@@ -622,29 +622,29 @@ export class RimeConfigurationTree {
 
     /**
      * Merge two trees. The merged result is updated based on a clone of tree A.
-     * @param {ConfigTreeItem} treeA The root node of the first tree to be merged.
-     * @param {ConfigTreeItem} treeB The root node of the second tree to be merged.
-     * @returns {ConfigTreeItem} The root node of the merged tree.
+     * @param {RimeConfigNode} treeA The root node of the first tree to be merged.
+     * @param {RimeConfigNode} treeB The root node of the second tree to be merged.
+     * @returns {RimeConfigNode} The root node of the merged tree.
      */
-    protected _mergeTree(treeA: ConfigTreeItem, treeB: ConfigTreeItem): ConfigTreeItem {
+    protected _mergeTree(treeA: RimeConfigNode, treeB: RimeConfigNode): RimeConfigNode {
         if (treeB.key !== 'patch' && treeA.key !== 'default' && treeA.key !== treeB.key) {
             throw new Error('The trees to be merged have no common ancestor.');
         }
-        let mergedTree: ConfigTreeItem = this._cloneTree(treeA);
+        let mergedTree: RimeConfigNode = this._cloneTree(treeA);
         if (treeA.value && treeB.value && treeA.value !== treeB.value) {
             // TODO: distinguish the override-default one with the custom-patch one.
             mergedTree.update(treeB);
             return mergedTree;
         }
-        treeB.children.forEach((childB: ConfigTreeItem, childBKey: string) => {
+        treeB.children.forEach((childB: RimeConfigNode, childBKey: string) => {
             if (treeA.children.has(childBKey)) {
                 // The childB is also in tree A.
-                const childA: ConfigTreeItem = treeA.children.get(childBKey)!;
+                const childA: RimeConfigNode = treeA.children.get(childBKey)!;
                 if (childA.isSequence && childB.isSequence) {
                     // Override child A when both are arrays.
                     mergedTree.children.set(childBKey, childB);
                 } else {
-                    const mergedChild: ConfigTreeItem = this._mergeTree(childA, childB);
+                    const mergedChild: RimeConfigNode = this._mergeTree(childA, childB);
                     mergedTree.children.set(childBKey, mergedChild);
                 }
             } else {
@@ -672,7 +672,7 @@ export class RimeConfigurationTree {
         }
     }
 
-    private _setMetadataAsTooltip(schemaMetadata: ConfigTreeItem, rootNode: ConfigTreeItem) {
+    private _setMetadataAsTooltip(schemaMetadata: RimeConfigNode, rootNode: RimeConfigNode) {
         if (!schemaMetadata.hasChildren) {
             return;
         }
@@ -682,7 +682,7 @@ export class RimeConfigurationTree {
                 tooltipLines.push(`作者：${schemaMetadata.children.get('author')!.value}`);
             } else if (schemaMetadata.children.get('author')!.hasChildren) {
                 tooltipLines.push('作者：');
-                schemaMetadata.children.get('author')!.children.forEach((authorItem: ConfigTreeItem) => {
+                schemaMetadata.children.get('author')!.children.forEach((authorItem: RimeConfigNode) => {
                     if (authorItem.isSequenceElement) {
                         tooltipLines.push(`${authorItem.label}`);
                     }
@@ -700,7 +700,7 @@ export class RimeConfigurationTree {
         rootNode.tooltip = tooltipLines.join('\n');
     }
 
-    private _setSchemaNameAsLabel(schemaMetadata: ConfigTreeItem, fileNode: ConfigTreeItem) {
+    private _setSchemaNameAsLabel(schemaMetadata: RimeConfigNode, fileNode: RimeConfigNode) {
         if (schemaMetadata.hasChildren
             && schemaMetadata.children.has('name')
             && schemaMetadata.children.get('name')!.value) {
@@ -708,7 +708,7 @@ export class RimeConfigurationTree {
         }
     }
 
-    private _distinguishFileToPatchWithPatchFile(oneFile: ConfigTreeItem, anotherFile: ConfigTreeItem): [ConfigTreeItem | null, ConfigTreeItem | null] {
+    private _distinguishFileToPatchWithPatchFile(oneFile: RimeConfigNode, anotherFile: RimeConfigNode): [RimeConfigNode | null, RimeConfigNode | null] {
         if (!oneFile.isCustomFile && anotherFile.isCustomFile) {
             return [oneFile, anotherFile];
         } else if (oneFile.isCustomFile && !anotherFile.isCustomFile) {
