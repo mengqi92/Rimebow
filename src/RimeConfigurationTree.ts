@@ -10,6 +10,7 @@ import { YAMLNode, YAMLScalar } from 'yaml-ast-parser';
 
 const readDirAsync = util.promisify(fs.readdir);
 const readFileAsync = util.promisify(fs.readFile);
+const statAsync = util.promisify(fs.stat);
 const existsAsync = util.promisify(fs.exists);
 
 export enum ItemKind {
@@ -307,13 +308,13 @@ export class RimeConfigurationTree {
             && await existsAsync(rimeAssistantConfiguration.get(sharedConfigDirConfigKey) as string)) {
             this.sharedConfigDir = rimeAssistantConfiguration.get(sharedConfigDirConfigKey) as string;
         } else {
-            this.sharedConfigDir = this._getDefaultSharedConfigDir();
+            this.sharedConfigDir = await this._getDefaultSharedConfigDir();
         }
         if (rimeAssistantConfiguration.has(userConfigDirConfigKey)
             && await existsAsync(rimeAssistantConfiguration.get(userConfigDirConfigKey) as string)) {
             this.userConfigDir = rimeAssistantConfiguration.get(userConfigDirConfigKey) as string;
         } else {
-            this.userConfigDir = this._getUserConfigDir();
+            this.userConfigDir = await this._getUserConfigDir();
         }
         this.sharedConfigTree = await this._buildConfigTreeFromFiles(
             this.sharedConfigDir, RimeConfigurationTree.SHARED_CONFIG_LABEL);
@@ -738,12 +739,24 @@ export class RimeConfigurationTree {
         }
     }
 
-    private _getDefaultSharedConfigDir(): string {
+    private async _getDefaultSharedConfigDir(): Promise<string> {
         switch(process.platform) {
             case "win32":
-                // TODO Use dynamics version number
-                // Weasel: C:/Program Files (x86)/Rime/weasel-0.14.3/data
-                return path.join('C:', 'Program Files (x86)', 'Rime', 'weasel-0.14.3', 'data');
+                const programDir: string = path.join('C:', 'Program Files (x86)', 'Rime');
+                const entries: string[] = await readDirAsync(programDir);
+                const weaselDirs: string[] = entries
+                    .filter((fileName: string) => fileName.startsWith('weasel'))
+                    .filter(async (entryName: string) => {
+                        const entryStat = await statAsync(path.join(programDir, entryName));
+                        return entryStat.isDirectory();
+                    });
+                if (weaselDirs.length === 1) {
+                    // Weasel: C:/Program Files (x86)/Rime/weasel-0.14.3/data
+                    return path.join('C:', 'Program Files (x86)', 'Rime', weaselDirs[0], 'data');
+                } else {
+                    // Return the one modified most recently.
+                    return await this._mostRecentModifiedDir(weaselDirs, programDir);
+                }
             case "darwin":
                 // Squirrel: /Library/Input\ Methods/Squirrel.app/Contents/SharedSupport/
                 return path.join('Library', 'Input Methods', 'Squirrel.app', 'Contents', 'SharedSupport');
@@ -755,7 +768,20 @@ export class RimeConfigurationTree {
         }
     }
 
-    private _getUserConfigDir(): string {
+    private async _mostRecentModifiedDir(weaselDirs: string[], programDir: string) {
+        const stats: fs.Stats[] = await Promise.all(weaselDirs.map(async (dir: string): Promise<fs.Stats> => {
+            return await statAsync(path.join(programDir, dir));
+        }));
+        let maxMtime: Number = 0;
+        let mostRecentDir = "";
+        stats.forEach((stat: fs.Stats, index: number) => {
+            maxMtime = maxMtime > stat.mtimeMs ? maxMtime : stat.mtimeMs;
+            mostRecentDir = weaselDirs[index];
+        });
+        return path.join(programDir, mostRecentDir);
+    }
+
+    private async _getUserConfigDir(): Promise<string> {
         switch(process.platform) {
             case "win32":
                 // 'C:\\Users\\mengq\\AppData\\Roaming\\Rime'
@@ -768,7 +794,7 @@ export class RimeConfigurationTree {
                 // ibus-rime: ~/.config/ibus/rime
                 // fcitx-rime: ~/.config/fcitx/rime
                 const ibusPath: string = path.join(process.env.HOME!, '.config', 'ibus', 'rime');
-                if (fs.existsSync(ibusPath)) {
+                if (await existsAsync(ibusPath)) {
                     return ibusPath;
                 } else {
                     return path.join(process.env.HOME!, '.config', 'fcitx', 'rime')
