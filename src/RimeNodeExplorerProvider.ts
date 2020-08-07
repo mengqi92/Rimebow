@@ -10,7 +10,8 @@ export class RimeNodeExplorerProvider implements vscode.TreeDataProvider<RimeCon
         this.configurationTree = configurationTree;
     }
 
-    refresh(): void {
+    async refresh(): Promise<void> {
+        await this.configurationTree.build();
         this._onDidChangeTreeData.fire(undefined);
     }
 
