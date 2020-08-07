@@ -316,20 +316,25 @@ export class RimeConfigurationTree {
         } else {
             this.userConfigDir = await this._getUserConfigDir();
         }
-        this.sharedConfigTree = await this._buildConfigTreeFromFiles(
+        // this.sharedConfigTree = await this._buildConfigTreeFromFiles(
+        //     this.sharedConfigDir, RimeConfigurationTree.SHARED_CONFIG_LABEL);
+        // this.userConfigTree = await this._buildConfigTreeFromFiles(
+        //     this.userConfigDir, RimeConfigurationTree.USER_CONFIG_LABEL);
+        const sharedConfigFiles = await this._buildConfigTreeFromFiles(
             this.sharedConfigDir, RimeConfigurationTree.SHARED_CONFIG_LABEL);
-        this.userConfigTree = await this._buildConfigTreeFromFiles(
+        const userConfigFiles = await this._buildConfigTreeFromFiles(
             this.userConfigDir, RimeConfigurationTree.USER_CONFIG_LABEL);
-        this.configTree.children = this._applyPatch(this.sharedConfigTree, this.userConfigTree);
+        // set value to this.sharedConfigTree and this.userConfigTree
+        this.configTree.children = this._applyPatchesToSharedConfig(sharedConfigFiles, userConfigFiles);
     }
 
     /**
      * Build config tree for all the files in the given directory.
-     * @param {string} configDir  The directory path containing config files.
+     * @param {string} configDir The directory path containing config files.
      * @param {string} label The label of the config directory.
-     * @returns {Promise<Map<string, RimeConfigNode>>} A promise result containing a map of config trees indexed by file name.
+     * @returns {Promise<RimeConfigNode[]>} A promise result containing a list of config nodes parsed.
      */
-    private async _buildConfigTreeFromFiles(configDir: string, label: string): Promise<RimeConfigNode> {
+    private async _buildConfigTreeFromFiles(configDir: string, label: string): Promise<RimeConfigNode[]> {
         const filesResult: Promise<string[]> = readDirAsync(configDir);
         const fileNames = await filesResult;
         const promises: Promise<RimeConfigNode>[] = fileNames
@@ -338,22 +343,25 @@ export class RimeConfigurationTree {
                 return await this._buildConfigTreeFromFile(configDir, fileName);
             });
         const fileItems: RimeConfigNode[] = await Promise.all(promises).catch(() => []);
+        return fileItems;
         // Files are collected now.
         // Apply custom pactches if needed.
+        // Note that all the files in user config will override the one in shared config.
         // For schema config, will also need to override default config.
         // Config priority:
         // - schema config: schema.custom.yaml > schema.yaml > default.custom.yaml > default.yaml
         // - other config: foo.custom > foo
-        let fileMap: Map<string, RimeConfigNode> = this._mergeFilesInSameFolder(fileItems);
-        return new RimeConfigNode({
-            key: label,
-            children: fileMap,
-            configFilePath: configDir,
-            kind: ItemKind.Folder
-        });
+
+        // let fileMap: Map<string, RimeConfigNode> = this._applyPatchesToFilesInSameFolder(fileItems);
+        // return new RimeConfigNode({
+        //     key: label,
+        //     children: fileMap,
+        //     configFilePath: configDir,
+        //     kind: ItemKind.Folder
+        // });
     }
 
-    private _mergeFilesInSameFolder(fileItems: RimeConfigNode[]) {
+    private _applyPatchesToFilesInSameFolder(fileItems: RimeConfigNode[]) {
         let fileMap: Map<string, RimeConfigNode> = new Map();
         fileItems.forEach((fileItem: RimeConfigNode) => {
             if (!fileMap.has(fileItem.key)) {
@@ -396,7 +404,6 @@ export class RimeConfigurationTree {
             kind: ItemKind.File, 
             fileKind: fileKind });
         if (doc === null) {
-        // if (doc === null || doc.documents.length === 0 || !doc.documents[0].root) {
             return rootNode;
         }
         // Build ConfigNode tree by traversing the nodeTree object.
@@ -582,42 +589,65 @@ export class RimeConfigurationTree {
     }
 
     /**
-     * Apply patches to the file to patch.
-     * @param {RimeConfigNode} sharedConfigTree The program config tree.
-     * @param {RimeConfigNode} userConfigTree The user config tree.
+     * Apply patches from user config files to shared config files.
+     * - When a default config file (the non-custom file) exists in both user config folder and shared config folder, use the user config one.
+     * - When applying patches, patch nodes in user config will override the one in its default config.
+     * For instance, patches in foo.custom.yaml overrides nodes in foo.yaml (the one in user config folder or the one in shared config folder).
+     * - When applying schema patches, patch nodes in user config will first override the one in the default schema config (*.schema.yaml),
+     * and then override the one in the default config (default.custom.yaml + default.yaml).
+     * 
+     * Config priority:
+     * - schema config: schema.custom.yaml > schema.yaml > default.custom.yaml > default.yaml
+     * - other config: foo.custom > foo
+     * @param {RimeConfigNode[]} sharedConfigFiles A list of shared config file nodes.
+     * @param {RimeConfigNode[]} userConfigFiles A list of user config file nodes.
      * @returns {Map<string, RimeConfigNode>} The merged children map after applied patches.
      */
-    protected _applyPatch(sharedConfigTree: RimeConfigNode, userConfigTree: RimeConfigNode): Map<string, RimeConfigNode> {
-        let mergedMap: Map<string, RimeConfigNode> = new Map();
-        mergedMap = sharedConfigTree.children;
-        userConfigTree.children.forEach((userFileItem: RimeConfigNode, fileKey: string) => {
-            if (!mergedMap.has(fileKey)) {
-                mergedMap.set(fileKey, userFileItem);
-            } else {
+    protected _applyPatchesToSharedConfig(sharedConfigFiles: RimeConfigNode[], userConfigFiles: RimeConfigNode[]): Map<string, RimeConfigNode> {
+        // Collect and override non-custom files.
+        let mergedResult: Map<string, RimeConfigNode> = new Map();
+        let nonCustomFiles: Map<string, RimeConfigNode> = new Map();
+        sharedConfigFiles.forEach((sharedConfigFile: RimeConfigNode) => {
+            if (!nonCustomFiles.has(sharedConfigFile.key)) {
+                nonCustomFiles.set(sharedConfigFile.key, sharedConfigFile);
+                mergedResult.set(sharedConfigFile.key, sharedConfigFile);
+            }
+        });
+        userConfigFiles.filter((userConfigFile: RimeConfigNode) => !userConfigFile.isCustomFile)
+            .forEach((userConfigFile: RimeConfigNode) => {
+                nonCustomFiles.set(userConfigFile.key, userConfigFile);
+                mergedResult.set(userConfigFile.key, userConfigFile);
+            });
+
+        userConfigFiles.filter((userConfigFile: RimeConfigNode) => userConfigFile.isCustomFile)
+            .forEach((userCustomFile: RimeConfigNode) => {
+                if (!nonCustomFiles.has(userCustomFile.key)) {
+                    return;
+                } 
+                const fileToPatch = nonCustomFiles.get(userCustomFile.key)!;
                 // The file already exists in merged tree. Check if merge is needed.
-                let [fileToPatch, patchFile] 
-                    = this._distinguishFileToPatchWithPatchFile(mergedMap.get(fileKey)!, userFileItem);
-                if (fileToPatch === null || patchFile === null || !patchFile.children.has('patch')) {
+                if (!userCustomFile.children.has('patch')) {
                     return;
                 }
 
-                const patchNode: RimeConfigNode = patchFile.children.get('patch')!;
-                mergedMap.set(fileKey, this._mergeTree(fileToPatch, patchNode));
-            }
-        });
-        // The default config node should now be patched.
-        if (mergedMap.has('default')) {
-            let defaultTree: RimeConfigNode = mergedMap.get('default')!;
-            // Override default config for schema config.
-            mergedMap.forEach((fileItem: RimeConfigNode, fileKey: string) => {
-                if (fileItem.fileKind === FileKind.Schema) {
-                    let mergedTree: RimeConfigNode = this._cloneTree(fileItem);
-                    mergedTree.children = this._mergeTree(defaultTree, fileItem).children;
-                    mergedMap.set(fileKey, mergedTree);
+                const patchNode: RimeConfigNode = userCustomFile.children.get('patch')!;
+                mergedResult.set(userCustomFile.key, this._mergeTree(fileToPatch, patchNode));
+            });
+
+        // The default config file (default.yaml) now has been merged with the custom default config (default.custom.yaml).
+        if (mergedResult.has('default')) {
+            let defaultConfig: RimeConfigNode = mergedResult.get('default')!;
+            // For each schema config, override default config.
+            mergedResult.forEach((configFile: RimeConfigNode, fileKey: string) => {
+                if (configFile.fileKind !== FileKind.Schema) {
+                    return;
                 }
+                let mergedTree: RimeConfigNode = this._cloneTree(configFile);
+                mergedTree.children = this._mergeTree(defaultConfig, configFile).children;
+                mergedResult.set(fileKey, mergedTree);
             });
         }
-        return mergedMap;
+        return mergedResult;
     }
 
     /**

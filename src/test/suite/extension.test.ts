@@ -13,8 +13,8 @@ class RimeConfigurationTreeForTest extends RimeConfigurationTree {
         return super._buildConfigTree(doc, rootNode, fullPath, fileKind);
     }
 
-    public _applyPatch(sharedConfigTree: RimeConfigNode, userConfigTree: RimeConfigNode) {
-        return super._applyPatch(sharedConfigTree, userConfigTree);
+    public _applyPatchesToSharedConfig(sharedConfigTree: RimeConfigNode[], userConfigTree: RimeConfigNode[]) {
+        return super._applyPatchesToSharedConfig(sharedConfigTree, userConfigTree);
     }
 
     public _mergeTree(treeA: RimeConfigNode, treeB: RimeConfigNode) {
@@ -951,11 +951,11 @@ suite('Extension Test Suite', () => {
         // expectedMergedTree: { FileA: { 1: 'b' } }
         const nodeProgram1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'ProgramPath/FileA.yaml', value: 'a'});
         const nodeFileA: RimeConfigNode = new RimeConfigNode({key: 'FileA', children: new Map([['1', nodeProgram1]]), configFilePath: 'ProgramPath/FileA.yaml', kind: ItemKind.File, fileKind: FileKind.Schema});
-        const sharedConfigTree: RimeConfigNode = new RimeConfigNode({key: 'PROGRAM', children: new Map([['FileA', nodeFileA]]), configFilePath: 'ProgramPath', kind: ItemKind.Folder, fileKind: FileKind.Schema});
+        const sharedConfigFiles: RimeConfigNode[] = [nodeFileA];
         const nodeUser1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Custom, configFilePath: 'UserPath/FileA.custom.yaml', value: 'b'});
         const nodeUserPatch: RimeConfigNode = new RimeConfigNode({key: 'patch', children: new Map([['1', nodeUser1]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.Node, fileKind: FileKind.Custom});
         const nodeFileACustom: RimeConfigNode = new RimeConfigNode({key: 'FileA', children: new Map([['patch', nodeUserPatch]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.File, fileKind: FileKind.Custom});
-        const userConfigTree: RimeConfigNode = new RimeConfigNode({key: 'USER', children: new Map([['FileA', nodeFileACustom]]), configFilePath: 'UserPath', kind: ItemKind.Folder, fileKind: FileKind.Custom});
+        const userConfigFiles: RimeConfigNode[] = [nodeFileACustom];
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
         let expectedFileA1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'ProgramPath/FileA.yaml', value: 'a'});
@@ -964,7 +964,79 @@ suite('Extension Test Suite', () => {
         const expectedMergedTree: RimeConfigNode = new RimeConfigNode({key: 'PROGRAM', children: new Map([['FileA', expectedFileA]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
 
         // Act.
-        let actualMergedChildren: Map<string, RimeConfigNode> = rimeConfigurationTree._applyPatch(sharedConfigTree, userConfigTree);
+        let actualMergedChildren: Map<string, RimeConfigNode> = rimeConfigurationTree._applyPatchesToSharedConfig(sharedConfigFiles, userConfigFiles);
+
+        // Assert.
+        assert.deepStrictEqual(actualMergedChildren, expectedMergedTree.children);
+    });
+
+    test('applyPatch_whenUserTreeHasBothNonCustomConfigAndCustomConfig_expectNodeUpdatedInMergedTree', () => {
+        // Arrange.
+        // sharedConfigTree: { FileA: { 1: 'a' } }
+        // userConfigTree: { FileA: { 1: 'b', 2: '2a' }, FileA.custom: { 'patch': { 1: 'c' } } }
+        // expectedMergedTree: { FileA: { 1: 'c', 2: '2a' } }
+        const nodeShared1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'ProgramPath/FileA.yaml', value: 'a'});
+        const nodeSharedFileA: RimeConfigNode = new RimeConfigNode({key: 'FileA', children: new Map([['1', nodeShared1]]), configFilePath: 'ProgramPath/FileA.yaml', kind: ItemKind.File, fileKind: FileKind.Schema});
+        const sharedConfigFiles: RimeConfigNode[] = [nodeSharedFileA];
+        const nodeUser1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'UserPath/FileA.yaml', value: 'b'});
+        const nodeUser2: RimeConfigNode = new RimeConfigNode({key: '2', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'UserPath/FileA.yaml', value: '2a'});
+        const nodeUserFileA: RimeConfigNode = new RimeConfigNode({key: 'FileA', children: new Map([['1', nodeUser1], ['2', nodeUser2]]), configFilePath: 'UserPath/FileA.yaml', kind: ItemKind.File, fileKind: FileKind.Schema});
+        const nodeUserCustom1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Custom, configFilePath: 'UserPath/FileA.custom.yaml', value: 'c'});
+        const nodeUserCustomPatch: RimeConfigNode = new RimeConfigNode({key: 'patch', children: new Map([['1', nodeUserCustom1]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.Node, fileKind: FileKind.Custom});
+        const nodeUserFileACustom: RimeConfigNode = new RimeConfigNode({key: 'FileA', children: new Map([['patch', nodeUserCustomPatch]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.File, fileKind: FileKind.Custom});
+        const userConfigFiles: RimeConfigNode[] = [nodeUserFileA, nodeUserFileACustom];
+        const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+
+        let expectedFileA1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'ProgramPath/FileA.yaml', value: 'b'});
+        expectedFileA1.update(nodeUserCustom1);
+		const expectedFileA: RimeConfigNode = new RimeConfigNode({key: 'FileA', children: new Map([['1', expectedFileA1], ['2', nodeUser2]]), configFilePath: 'UserPath/FileA.yaml', kind: ItemKind.File, fileKind: FileKind.Schema});
+        const expectedMergedTree: RimeConfigNode = new RimeConfigNode({key: 'PROGRAM', children: new Map([['FileA', expectedFileA]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
+
+        // Act.
+        let actualMergedChildren: Map<string, RimeConfigNode> = rimeConfigurationTree._applyPatchesToSharedConfig(sharedConfigFiles, userConfigFiles);
+
+        // Assert.
+        assert.deepStrictEqual(actualMergedChildren, expectedMergedTree.children);
+    });
+
+    test('applyPatch_whenUserTreeHasDefaultConfig_expectSchemaConfigOverrideDefaultConfig', () => {
+        // Arrange.
+        // sharedConfigTree: { FileA: { 1: 'a' }, default: { 1: 'a' } }
+        // userConfigTree: { FileA: { 1: 'b', 2: '2a' }, FileA.custom: { 'patch': { 1: 'c' }, default: { 1: 'd' }, default.custom: { 'patch': { 1: 'e' } } } }
+        // expectedMergedTree: { FileA: { 1: 'c', 2: '2a' }, default: { 1: 'e' } }
+        const nodeShared1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'ProgramPath/FileA.yaml', value: 'a'});
+        const nodeSharedFileA: RimeConfigNode = new RimeConfigNode({key: 'FileA', children: new Map([['1', nodeShared1]]), configFilePath: 'ProgramPath/FileA.yaml', kind: ItemKind.File, fileKind: FileKind.Schema});
+        const sharedConfigFiles: RimeConfigNode[] = [nodeSharedFileA];
+
+        const nodeUserDefault1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Default, configFilePath: 'UserPath/default.yaml', value: 'd'});
+        const nodeUserDefaultFile: RimeConfigNode = new RimeConfigNode({key: 'default', children: new Map([['1', nodeUserDefault1]]), configFilePath: 'UserPath/default.yaml', kind: ItemKind.File, fileKind: FileKind.Default});
+
+        const nodeUserDefaultCustom1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.DefaultCustom, configFilePath: 'UserPath/default.custom.yaml', value: 'e'});
+        const nodeUserDefaultCustomPatch: RimeConfigNode = new RimeConfigNode({key: 'patch', children: new Map([['1', nodeUserDefaultCustom1]]), configFilePath: 'UserPath/default.custom.yaml', kind: ItemKind.Node, fileKind: FileKind.DefaultCustom});
+        const nodeUserDefaultCustomFile: RimeConfigNode = new RimeConfigNode({key: 'default', children: new Map([['patch', nodeUserDefaultCustomPatch]]), configFilePath: 'UserPath/default.custom.yaml', kind: ItemKind.File, fileKind: FileKind.DefaultCustom});
+
+        const nodeUser1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'UserPath/FileA.yaml', value: 'b'});
+        const nodeUser2: RimeConfigNode = new RimeConfigNode({key: '2', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'UserPath/FileA.yaml', value: '2a'});
+        const nodeUserFileA: RimeConfigNode = new RimeConfigNode({key: 'FileA', children: new Map([['1', nodeUser1], ['2', nodeUser2]]), configFilePath: 'UserPath/FileA.yaml', kind: ItemKind.File, fileKind: FileKind.Schema});
+
+        const nodeUserCustom1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Custom, configFilePath: 'UserPath/FileA.custom.yaml', value: 'c'});
+        const nodeUserCustomPatch: RimeConfigNode = new RimeConfigNode({key: 'patch', children: new Map([['1', nodeUserCustom1]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.Node, fileKind: FileKind.Custom});
+        const nodeUserFileACustom: RimeConfigNode = new RimeConfigNode({key: 'FileA', children: new Map([['patch', nodeUserCustomPatch]]), configFilePath: 'UserPath/FileA.custom.yaml', kind: ItemKind.File, fileKind: FileKind.Custom});
+
+        const userConfigFiles: RimeConfigNode[] = [nodeUserFileA, nodeUserFileACustom, nodeUserDefaultFile, nodeUserDefaultCustomFile];
+
+        const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
+
+        let expectedFileA1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'ProgramPath/FileA.yaml', value: 'b'});
+        expectedFileA1.update(nodeUserCustom1);
+        const expectedDefault1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Default, configFilePath: 'UserPath/default.yaml', value: 'd'});
+        expectedDefault1.update(nodeUserDefaultCustom1);
+		const expectedDefaultFile: RimeConfigNode = new RimeConfigNode({key: 'default', children: new Map([['1', expectedDefault1]]), configFilePath: 'UserPath/default.yaml', kind: ItemKind.File, fileKind: FileKind.Default});
+		const expectedFileA: RimeConfigNode = new RimeConfigNode({key: 'FileA', children: new Map([['1', expectedFileA1], ['2', nodeUser2]]), configFilePath: 'UserPath/FileA.yaml', kind: ItemKind.File, fileKind: FileKind.Schema});
+        const expectedMergedTree: RimeConfigNode = new RimeConfigNode({key: 'PROGRAM', children: new Map([['FileA', expectedFileA], ['default', expectedDefaultFile]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
+
+        // Act.
+        let actualMergedChildren: Map<string, RimeConfigNode> = rimeConfigurationTree._applyPatchesToSharedConfig(sharedConfigFiles, userConfigFiles);
 
         // Assert.
         assert.deepStrictEqual(actualMergedChildren, expectedMergedTree.children);
@@ -977,20 +1049,20 @@ suite('Extension Test Suite', () => {
         // expectedMergedTree: { FileA: { 1: 'a' }, FileB: { 1: 'b' } }
         const nodeProgram1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'ProgramPath/FileA.yaml', value: 'a'});
         const nodeFileA: RimeConfigNode = new RimeConfigNode({key: 'FileA', children: new Map([['1', nodeProgram1]]), configFilePath: 'ProgramPath/FileA.yaml', kind: ItemKind.File, fileKind: FileKind.Schema});
-        const sharedConfigTree: RimeConfigNode = new RimeConfigNode({key: 'PROGRAM', children: new Map([['FileA', nodeFileA]]), configFilePath: 'ProgramPath', kind: ItemKind.Folder});
-        const nodeUser1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Custom, configFilePath: 'UserPath/FileB.yaml', value: 'b'});
-        const nodeFileBCustom: RimeConfigNode = new RimeConfigNode({key: 'FileB', children: new Map([['1', nodeUser1]]), configFilePath: 'UserPath/FileB.yaml', kind: ItemKind.File, fileKind: FileKind.Custom});
-        const userConfigTree: RimeConfigNode = new RimeConfigNode({key: 'USER', children: new Map([['FileB', nodeFileBCustom]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
+        const sharedConfigFiles: RimeConfigNode[] = [nodeFileA];
+        const nodeUser1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'UserPath/FileB.yaml', value: 'b'});
+        const nodeFileB: RimeConfigNode = new RimeConfigNode({key: 'FileB', children: new Map([['1', nodeUser1]]), configFilePath: 'UserPath/FileB.yaml', kind: ItemKind.File, fileKind: FileKind.Schema});
+        const userConfigFiles: RimeConfigNode[] = [nodeFileB];
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
         const expectedFileA1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'ProgramPath/FileA.yaml', value: 'a'});
         const expectedFileA: RimeConfigNode = new RimeConfigNode({key: 'FileA', children: new Map([['1', expectedFileA1]]), configFilePath: 'ProgramPath/FileA.yaml', kind: ItemKind.File, fileKind: FileKind.Schema});
-        const expectedFileB1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Custom, configFilePath: 'UserPath/FileB.yaml', value: 'b'});
-        const expectedFileB: RimeConfigNode = new RimeConfigNode({key: 'FileB', children: new Map([['1', expectedFileB1]]), configFilePath: 'UserPath/FileB.yaml', kind: ItemKind.File, fileKind: FileKind.Custom});
+        const expectedFileB1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'UserPath/FileB.yaml', value: 'b'});
+        const expectedFileB: RimeConfigNode = new RimeConfigNode({key: 'FileB', children: new Map([['1', expectedFileB1]]), configFilePath: 'UserPath/FileB.yaml', kind: ItemKind.File, fileKind: FileKind.Schema});
         const expectedMergedTree: RimeConfigNode = new RimeConfigNode({key: 'PROGRAM', children: new Map([['FileA', expectedFileA], ['FileB', expectedFileB]]), configFilePath: 'UserPath', kind: ItemKind.Folder});
 
         // Act.
-        let actualMergedChildren: Map<string, RimeConfigNode> = rimeConfigurationTree._applyPatch(sharedConfigTree, userConfigTree);
+        let actualMergedChildren: Map<string, RimeConfigNode> = rimeConfigurationTree._applyPatchesToSharedConfig(sharedConfigFiles, userConfigFiles);
 
         // Assert.
         assert.deepStrictEqual(actualMergedChildren, expectedMergedTree.children);
