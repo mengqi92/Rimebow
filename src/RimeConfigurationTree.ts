@@ -617,7 +617,6 @@ export class RimeConfigurationTree {
                 }
             });
         }
-        mergedMap.delete('default');
         return mergedMap;
     }
 
@@ -633,7 +632,6 @@ export class RimeConfigurationTree {
         }
         let mergedTree: RimeConfigNode = this._cloneTree(treeA);
         if (treeA.value && treeB.value && treeA.value !== treeB.value) {
-            // TODO: distinguish the override-default one with the custom-patch one.
             mergedTree.update(treeB);
             return mergedTree;
         }
@@ -758,7 +756,7 @@ export class RimeConfigurationTree {
                     return await this._mostRecentModifiedDir(weaselDirs, programDir);
                 }
             case "darwin":
-                // Squirrel: /Library/Input\ Methods/Squirrel.app/Contents/SharedSupport/
+                // Squirrel: /Library/Input Methods/Squirrel.app/Contents/SharedSupport/
                 return path.join('Library', 'Input Methods', 'Squirrel.app', 'Contents', 'SharedSupport');
             case "linux":
                 // ibus-rime, fcitx-rime: /usr/share/rime-data
@@ -797,7 +795,7 @@ export class RimeConfigurationTree {
                 if (await existsAsync(ibusPath)) {
                     return ibusPath;
                 } else {
-                    return path.join(process.env.HOME!, '.config', 'fcitx', 'rime')
+                    return path.join(process.env.HOME!, '.config', 'fcitx', 'rime');
                 }
             default:
                 throw new Error(`Unsupported platform: ${process.platform}`);
