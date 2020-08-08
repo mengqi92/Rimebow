@@ -12,6 +12,8 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
     }
 
     refresh(): void {
+        // TODO: only rebuild file nodes.
+        this.configurationTree.build();
         this._onDidChangeTreeData.fire(undefined);
     }
 
