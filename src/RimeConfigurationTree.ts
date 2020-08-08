@@ -159,17 +159,22 @@ export class RimeConfigNode extends TreeItem {
         return this.fileKind === FileKind.Custom || this.fileKind === FileKind.DefaultCustom;
     }
 
-    public update(newItem: RimeConfigNode) {
+    /**
+     * Update current node.
+     * @param {RimeConfigNode} newNode The new node to update to.
+     */
+    public update(newNode: RimeConfigNode) {
         this.defaultValue = this.value;
-        this.value = newItem.value;
+        this.value = newNode.value;
 
-        this.fileKind = newItem.fileKind;
-        this.configFilePath = newItem.configFilePath;
-        this.isSequence = newItem.isSequence || false;
-        this.isSequenceElement = newItem.isSequenceElement || false;
-        this.contextValue = newItem.kind.toString();
+        this.fileKind = newNode.fileKind;
+        this.configFilePath = newNode.configFilePath;
+        this.iconPath = newNode.iconPath;
+        this.isSequence = newNode.isSequence || false;
+        this.isSequenceElement = newNode.isSequenceElement || false;
+        this.contextValue = newNode.kind.toString();
 
-        if (newItem.isCustomFile) {
+        if (newNode.isCustomFile) {
             this.isPatched = true;
         }
         if (this.value) {
@@ -324,7 +329,7 @@ export class RimeConfigurationTree {
             this.sharedConfigDir, RimeConfigurationTree.SHARED_CONFIG_LABEL);
         const userConfigFiles = await this._buildConfigTreeFromFiles(
             this.userConfigDir, RimeConfigurationTree.USER_CONFIG_LABEL);
-        // set value to this.sharedConfigTree and this.userConfigTree
+        // TODO: set value to this.sharedConfigTree and this.userConfigTree
         this.configTree.children = this._applyPatchesToSharedConfig(sharedConfigFiles, userConfigFiles);
     }
 
