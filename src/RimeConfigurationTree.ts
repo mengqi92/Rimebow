@@ -169,7 +169,7 @@ export class RimeConfigNode extends TreeItem {
         this.isSequenceElement = newItem.isSequenceElement || false;
         this.contextValue = newItem.kind.toString();
 
-        if (newItem.fileKind === FileKind.Custom || newItem.fileKind === FileKind.DefaultCustom) {
+        if (newItem.isCustomFile) {
             this.isPatched = true;
         }
         if (this.value) {
@@ -344,46 +344,6 @@ export class RimeConfigurationTree {
             });
         const fileItems: RimeConfigNode[] = await Promise.all(promises).catch(() => []);
         return fileItems;
-        // Files are collected now.
-        // Apply custom pactches if needed.
-        // Note that all the files in user config will override the one in shared config.
-        // For schema config, will also need to override default config.
-        // Config priority:
-        // - schema config: schema.custom.yaml > schema.yaml > default.custom.yaml > default.yaml
-        // - other config: foo.custom > foo
-
-        // let fileMap: Map<string, RimeConfigNode> = this._applyPatchesToFilesInSameFolder(fileItems);
-        // return new RimeConfigNode({
-        //     key: label,
-        //     children: fileMap,
-        //     configFilePath: configDir,
-        //     kind: ItemKind.Folder
-        // });
-    }
-
-    private _applyPatchesToFilesInSameFolder(fileItems: RimeConfigNode[]) {
-        let fileMap: Map<string, RimeConfigNode> = new Map();
-        fileItems.forEach((fileItem: RimeConfigNode) => {
-            if (!fileMap.has(fileItem.key)) {
-                fileMap.set(fileItem.key, fileItem);
-            }
-            else {
-                // TODO: merge the similar logic with the one in _applyPatch
-                // The file already exists in merged tree. Check if merge is needed.
-                let [fileToPatch, patchFile] = this._distinguishFileToPatchWithPatchFile(fileMap.get(fileItem.key)!, fileItem);
-                if (fileToPatch === null || patchFile === null || !patchFile.children.has('patch')) {
-                    return;
-                }
-
-                const patchNode: RimeConfigNode = patchFile.children.get('patch')!;
-                fileMap.set(fileToPatch.key, this._mergeTree(fileToPatch, patchNode));
-            }
-        });
-        return fileMap;
-    }
-
-    protected _cloneTree(tree: RimeConfigNode): RimeConfigNode {
-        return _.cloneDeep(tree);
     }
 
     protected async _buildConfigTreeFromFile(filePath: string, fileName: string): Promise<RimeConfigNode> {
@@ -706,6 +666,9 @@ export class RimeConfigurationTree {
             return;
         }
         let tooltipLines: string[] = [];
+        if (schemaMetadata.children.has('schema_id')) {
+            tooltipLines.push(`${schemaMetadata.children.get('schema_id')!.value}`);
+        }
         if (schemaMetadata.children.has('author')) {
             if (schemaMetadata.children.get('author')!.value) {
                 tooltipLines.push(`作者：${schemaMetadata.children.get('author')!.value}`);
@@ -734,16 +697,6 @@ export class RimeConfigurationTree {
             && schemaMetadata.children.has('name')
             && schemaMetadata.children.get('name')!.value) {
             fileNode.label = schemaMetadata.children.get('name')!.value;
-        }
-    }
-
-    private _distinguishFileToPatchWithPatchFile(oneFile: RimeConfigNode, anotherFile: RimeConfigNode): [RimeConfigNode | null, RimeConfigNode | null] {
-        if (!oneFile.isCustomFile && anotherFile.isCustomFile) {
-            return [oneFile, anotherFile];
-        } else if (oneFile.isCustomFile && !anotherFile.isCustomFile) {
-            return [anotherFile, oneFile];
-        } else {
-            return [null, null];
         }
     }
 
@@ -830,5 +783,9 @@ export class RimeConfigurationTree {
             default:
                 throw new Error(`Unsupported platform: ${process.platform}`);
         }
+    }
+
+    protected _cloneTree(tree: RimeConfigNode): RimeConfigNode {
+        return _.cloneDeep(tree);
     }
 }
