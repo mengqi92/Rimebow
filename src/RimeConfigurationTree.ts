@@ -673,8 +673,12 @@ export class RimeConfigurationTree {
             return;
         }
         let tooltipLines: string[] = [];
+        if (schemaMetadata.children.has('name')
+            && schemaMetadata.children.get('name')!.value) {
+            tooltipLines.push(`方案：${schemaMetadata.children.get('name')!.value}`);
+        }
         if (schemaMetadata.children.has('schema_id')) {
-            tooltipLines.push(`${schemaMetadata.children.get('schema_id')!.value}`);
+            tooltipLines.push(`ID：${schemaMetadata.children.get('schema_id')!.value}`);
         }
         if (schemaMetadata.children.has('author')) {
             if (schemaMetadata.children.get('author')!.value) {
