@@ -281,7 +281,7 @@ export class RimeConfigurationTree {
     /**
      * Configuration tree, including config files, in the program config folder.
      */
-    public sharedConfigTree: RimeConfigNode = new RimeConfigNode({
+    public sharedConfigFolderNode: RimeConfigNode = new RimeConfigNode({
         key: 'PROGRAM',
         children: new Map(),
         configFilePath: '',
@@ -290,7 +290,7 @@ export class RimeConfigurationTree {
     /**
      * Configuration tree, including config files, in the user config folder.
      */
-    public userConfigTree: RimeConfigNode = new RimeConfigNode({
+    public userConfigFolderNode: RimeConfigNode = new RimeConfigNode({
         key: 'USER',
         children: new Map(),
         configFilePath: '',
@@ -321,15 +321,15 @@ export class RimeConfigurationTree {
         } else {
             this.userConfigDir = await this._getUserConfigDir();
         }
-        // this.sharedConfigTree = await this._buildConfigTreeFromFiles(
-        //     this.sharedConfigDir, RimeConfigurationTree.SHARED_CONFIG_LABEL);
-        // this.userConfigTree = await this._buildConfigTreeFromFiles(
-        //     this.userConfigDir, RimeConfigurationTree.USER_CONFIG_LABEL);
+
         const sharedConfigFiles = await this._buildConfigTreeFromFiles(
             this.sharedConfigDir, RimeConfigurationTree.SHARED_CONFIG_LABEL);
         const userConfigFiles = await this._buildConfigTreeFromFiles(
             this.userConfigDir, RimeConfigurationTree.USER_CONFIG_LABEL);
-        // TODO: set value to this.sharedConfigTree and this.userConfigTree
+
+        this._setupNodesForFileExplorer(sharedConfigFiles, this.sharedConfigFolderNode);
+        this._setupNodesForFileExplorer(userConfigFiles, this.userConfigFolderNode);
+
         this.configTree.children = this._applyPatchesToSharedConfig(sharedConfigFiles, userConfigFiles);
     }
 
@@ -356,8 +356,6 @@ export class RimeConfigurationTree {
         const data = await readFileAsync(fullName);
 
         const doc: Yaml.YAMLNode = Yaml.load(data.toString());
-        // const doc: YAMLDocument = parseYAML(data.toString());
-        // const doc: YAML.Document.Parsed = YAML.parseDocument(data.toString());
 
         const fileKind: FileKind = this._categoriseConfigFile(fileName);
         const fileLabel: string = fileName.replace('.yaml', '').replace('.custom', '').replace('.schema', '');
@@ -615,6 +613,10 @@ export class RimeConfigurationTree {
         return mergedResult;
     }
 
+    protected _cloneTree(tree: RimeConfigNode): RimeConfigNode {
+        return _.cloneDeep(tree);
+    }
+
     /**
      * Merge two trees. The merged result is updated based on a clone of tree A.
      * @param {RimeConfigNode} treeA The root node of the first tree to be merged.
@@ -790,7 +792,22 @@ export class RimeConfigurationTree {
         }
     }
 
-    protected _cloneTree(tree: RimeConfigNode): RimeConfigNode {
-        return _.cloneDeep(tree);
+    private _setupNodesForFileExplorer(configFiles: RimeConfigNode[], folderNode: RimeConfigNode) {
+        configFiles.filter((fileNode: RimeConfigNode) => !fileNode.isCustomFile)
+            .forEach((fileNode: RimeConfigNode) => {
+                const fileKey = `${fileNode.key}.yaml`;
+                let clonedNode = this._cloneTree(fileNode);
+                clonedNode.collapsibleState = undefined;
+                folderNode.children.set(fileKey, clonedNode);
+                folderNode.collapsibleState = TreeItemCollapsibleState.Collapsed;
+            });
+        configFiles.filter((fileNode: RimeConfigNode) => fileNode.isCustomFile)
+            .forEach((fileNode: RimeConfigNode) => {
+                const customFileKey = `${fileNode.key}.custom.yaml`;
+                let clonedNode = this._cloneTree(fileNode);
+                clonedNode.collapsibleState = undefined;
+                folderNode.children.set(customFileKey, clonedNode);
+                folderNode.collapsibleState = TreeItemCollapsibleState.Collapsed;
+            });
     }
 }

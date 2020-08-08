@@ -22,22 +22,16 @@ export class RimeFileExplorerProvider implements vscode.TreeDataProvider<TreeIte
     getChildren(element?: TreeItem): vscode.ProviderResult<TreeItem[]> {
         // Root node.
         if (!element) {
-            const sharedConfigFolder: TreeItem = this.configurationTree.sharedConfigTree;
-            const userConfigFolder: TreeItem = this.configurationTree.userConfigTree;
+            let sharedConfigFolder: TreeItem = this.configurationTree.sharedConfigFolderNode;
+            sharedConfigFolder.id = this.configurationTree.sharedConfigFolderNode.key;
+            let userConfigFolder: TreeItem = this.configurationTree.userConfigFolderNode;
+            userConfigFolder.id = this.configurationTree.userConfigFolderNode.key;
             return [sharedConfigFolder, userConfigFolder];
         } else {
-            if (element.id === this.configurationTree.sharedConfigTree.id) {
-                return Array.from(this.configurationTree.sharedConfigTree.children.values())
-                    .map((item: RimeConfigNode) => { 
-                        item.collapsibleState = undefined; 
-                        return item;
-                    });
-            } else if (element.id === this.configurationTree.userConfigTree.id) {
-                return Array.from(this.configurationTree.userConfigTree.children.values())
-                    .map((item: RimeConfigNode) => { 
-                        item.collapsibleState = undefined; 
-                        return item;
-                    });
+            if (element.id === this.configurationTree.sharedConfigFolderNode.id) {
+                return Array.from(this.configurationTree.sharedConfigFolderNode.children.values());
+            } else if (element.id === this.configurationTree.userConfigFolderNode.id) {
+                return Array.from(this.configurationTree.userConfigFolderNode.children.values());
             }
         }
     }
