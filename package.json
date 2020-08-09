@@ -26,6 +26,16 @@
                     "command": "rimeNodeExplorer.refreshEntry",
                     "group": "navigation",
                     "when": "view == rimeNodeExplorer"
+                },
+                {
+                    "command": "rimeNodeExplorer.showOnlySchemaNodes",
+                    "group": "navigation",
+                    "when": "view == rimeNodeExplorer"
+                },
+                {
+                    "command": "rimeNodeExplorer.showAll",
+                    "group": "navigation",
+                    "when": "view == rimeNodeExplorer"
                 }
             ],
             "view/item/context": [
@@ -56,6 +66,22 @@
                 "icon": {
                     "light": "resources/light/refresh.png",
                     "dark": "resources/dark/refresh.png"
+                }
+            },
+            {
+                "command": "rimeNodeExplorer.showOnlySchemaNodes",
+                "title": "Schema Only",
+                "icon": {
+                    "light": "resources/light/configKind/schema.png",
+                    "dark": "resources/dark/configKind/schema.png"
+                }
+            },
+            {
+                "command": "rimeNodeExplorer.showAll",
+                "title": "Show All",
+                "icon": {
+                    "light": "resources/light/actions/showAll.png",
+                    "dark": "resources/dark/actions/showAll.png"
                 }
             },
             {

@@ -5,7 +5,7 @@
 import * as vscode from 'vscode';
 import { RimeFileExplorerProvider } from './RimeFileExplorerProvider';
 import { RimeNodeExplorerProvider } from './RimeNodeExplorerProvider';
-import { RimeConfigurationTree, RimeConfigNode } from './RimeConfigurationTree';
+import { RimeConfigurationTree, RimeConfigNode, FileKind } from './RimeConfigurationTree';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -37,6 +37,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	const rimeNodeExplorerProvider: RimeNodeExplorerProvider = new RimeNodeExplorerProvider(rimeConfigurationTree);
 	vscode.window.createTreeView('rimeNodeExplorer', { treeDataProvider: rimeNodeExplorerProvider });
 	vscode.commands.registerCommand('rimeNodeExplorer.refreshEntry', () => { rimeNodeExplorerProvider.refresh(); });
+	vscode.commands.registerCommand('rimeNodeExplorer.showOnlySchemaNodes', () => { rimeNodeExplorerProvider.showOnly(FileKind.Schema); });
+	vscode.commands.registerCommand('rimeNodeExplorer.showAll', () => { rimeNodeExplorerProvider.showOnly(undefined); });
 }
 
 // this method is called when your extension is deactivated
