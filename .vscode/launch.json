@@ -17,7 +17,10 @@
 			"outFiles": [
 				"${workspaceFolder}/out/**/*.js"
 			],
-			// "preLaunchTask": "${defaultBuildTask}"
+			// "preLaunchTask": {
+			// 	"type": "npm",
+			// 	"script": "watch"
+			// }
 		},
 		{
 			"name": "Extension Tests",
@@ -36,6 +39,20 @@
 				"${workspaceFolder}/out/test/**/*.js"
 			],
 			// "preLaunchTask": "${defaultBuildTask}"
+		},
+		{
+			"type": "node",
+			"request": "attach",
+			"name": "Attach to Server",
+			"port": 6009,
+			"restart": true,
+			"outFiles": ["${workspaceRoot}/server/out/**/*.js"]
+		},
+	],
+	"compounds": [
+		{
+			"name": "Client + Server",
+			"configurations": ["Run Extension", "Attach to Server"]
 		}
 	]
 }

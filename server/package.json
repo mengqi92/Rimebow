@@ -1,0 +1,20 @@
+{
+	"name": "rime-language-server",
+	"description": "Rime configuration language server.",
+	"version": "1.0.0",
+	"author": "Mengqi Pei",
+	"license": "MIT",
+	"engines": {
+		"node": "*"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mengqi92/rime-assistant-vscode"
+	},
+	"dependencies": {
+		"vscode-languageserver": "^6.1.1",
+		"vscode-languageserver-textdocument": "^1.0.1",
+		"yaml-language-server": "^0.9.0"
+	},
+	"scripts": {}
+}
