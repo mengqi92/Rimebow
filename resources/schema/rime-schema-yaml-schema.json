@@ -1,0 +1,197 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "file:C:/Users/mengq/AppData/Roaming/Rime/rime-schema-yaml-schema.json",
+  "title": "Rime Schema Configuration",
+  "description": "A JSON Schema for RIME schema configurations.",
+  "type": "object",
+  "definitions": {
+    "regexString": {
+      "type": "string",
+      "format": "regex"
+    },
+    "keyCombination": {
+      "type": "string"
+    },
+    "switchKeyActions": {
+      "type": "string",
+      "enum": [
+        "inline_ascii",
+        "commit_code",
+        "commit_text",
+        "noop",
+        "clear"
+      ]
+    }, "compilingCommands": {
+      "__include": {
+        "type": "object"
+      }, "__patch": {
+        "type": "object"
+      }, "__append": {
+        "type": "object"
+      }, "__merge": {
+        "type": "object"
+      }
+    }
+  },
+  "required": ["schema", "engine"],
+  "properties": {
+    "schema": {
+      "description": "输入方案的元信息。",
+      "type": "object",
+      "required": ["schema_id"],
+      "additionalProperties" : false,
+      "properties": {
+        "schema_id": {
+          "type": "string",
+          "description": "方案的内部名称。"
+        }, 
+        "name": {
+          "type": "string",
+          "description": "方案的显示名称。"
+        },
+        "version": {
+          "type": "string",
+          "description": "方案的版本号。"
+        },
+        "author": {
+          "type": ["string", "array"],
+          "description": "方案的发明人、撰写者。"
+        },
+        "description": {
+          "type": "string",
+          "description": "方案历史、码表来源、方案规则等的简要描述。"
+        },
+        "dependencies": {
+          "type": ["string", "array"],
+          "description": "所依赖的其它方案。"
+        }
+      }
+    },
+    "switches": {
+      "type": "array",
+      "description": "输入方案定义的一系列开关。",
+      "items": {
+          "oneOf": [{
+            "type": "object",
+            "required": ["name", "states"],
+            "additionalProperties" : false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": ["ascii_mode", "full_shape", "extended_charset", "ascii_punct", "simplification", "gbk"],
+                "description": "定义一个二值开关，其内部名称。"
+              },
+              "states": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "开关的各个状态描述。最终会显示在方案选单界面上。"
+              },
+              "reset": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "开关的默认状态。"
+              }
+            }
+          }, {
+            "type": "object",
+            "required": ["options", "states"],
+            "additionalProperties" : false,
+            "properties": {
+              "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "定义一个多值开关，其各个选项的内部名称，如 [zh_trad, zh_cn, zh_mars] 将得到三值开关"
+                },
+                "states": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "开关的各个状态描述。最终会显示在方案选单界面上。"
+                },
+                "reset": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "开关的默认状态。"
+                }
+              }
+            }]
+      }
+    },
+    "engine": {
+      "description": "输入引擎设定。即挂接组件的「处方」。",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "processors": {
+          "type": "array",
+          "description": "负责处理各类按键消息的组件。",
+          "items": {
+            "type": "string",
+            "enum": ["ascii_composer", "recognizer", "key_binder", "speller", "punctuator", "selector", "navigator", "express_editor", "fluid_editor", "chord_composer", "lua_processor"]
+          }
+        },
+        "segmentors": {
+          "type": "array",
+          "description": "负责识别输入内容，分段并打标记的组件。",
+          "items": {
+            "type": "string",
+            "enum": ["ascii_segmentor", "matcher", "abc_segmentor", "punct_segmentor", "fallback_segmentor", "affix_segmentor", "lua_segmentor"]
+          }
+        }, "translators": {
+          "type": "array",
+          "description": "翻译特定输入码为一组候选文字的组件。",
+          "items": {
+            "type": "string",
+            "enum": ["echo_translator", "punct_translator", "table_translator", "reverse_lookup_translator", "script_translator", "lua_translator"]
+          }
+        }, "filters": {
+          "type": "array",
+          "description": "负责对翻译结果进行过滤的组件。",
+          "items": {
+            "oneOf": [{
+              "uniquifier": {
+                "type": "string",
+                "enum": ["uniquifier"],
+                "description": "过滤重复的候选字。有可能来自 simplifier。"
+              }, "cjk_minifier": {
+                "type": "string",
+                "enum": ["cjk_minifier"],
+                "description": "字符集过滤。仅用于 script_translator，使其支持 extended_charset 开关。"
+              }, "single_char_filter": {
+                "type": "string",
+                "enum": ["single_char_filter"],
+                "description": "单字过滤器。如加载该组件，则屏蔽词典中的词组（仅 table_translator 有效）。"
+              }, "simplifier": {
+                "type": "string",
+                "enum": ["simplifier"],
+                "description": "用字转换。"
+              }, "reverse_lookup_filter": {
+                "type": "string",
+                "pattern": "^reverse_lookup_filter@\\w+",
+                "description": "反查过滤器。Rime 1.0 后替代 reverse_lookup_translator，以提供更灵活的反查方式。\n可定义多个。需添加@{过滤器名称}后缀，如 reverse_lookup_filter@pinyin_lookup。",
+                "example": "reverse_lookup_filter@pinyin_lookup"
+              }, "charset_filter": {
+                "type": "string",
+                "pattern": "^charset_filter@\\w+",
+                "description": "字符集过滤器。可定义多个。需添加@{字符集名称}后缀，如 charset_filter@utf-8。",
+                "example": "charset_filter@utf-8"
+              }, "lua_filter": {
+                "type": "string",
+                "pattern": "^lua_filter@\\w+",
+                "description": "使用 Lua 函数的自定义过滤器。可定义多个。需添加@{字符集名称}后缀，如 lua_filter@single_char_first。Lua 函数名定义于用户文件夹下的 rime.lua。",
+                "example": "lua_filter@single_char_first"
+              }
+            }]
+          }
+        }
+      }
+    }
+  }
+}

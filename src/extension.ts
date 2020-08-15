@@ -40,7 +40,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	documentSelector: [{ scheme: 'file', language: 'yaml' }],
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
-			fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
+			fileEvents: vscode.workspace.createFileSystemWatcher('**/*.?(e)y?(a)ml')
 		}
 	};
 
