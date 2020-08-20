@@ -71,6 +71,7 @@
       "type": "array",
       "description": "输入方案定义的一系列开关。",
       "items": {
+          "additionalItems": false,
           "oneOf": [{
             "type": "object",
             "required": ["name", "states"],
@@ -133,167 +134,163 @@
           "type": "array",
           "description": "负责处理各类按键消息的组件。",
           "items": {
+            "additionalItems": false,
             "oneOf": [{
-              "ascii_composer": {
                 "type": "string",
                 "enum": ["ascii_composer"],
                 "description": "处理西文模式及中西文切换。"
-              }, "recognizer": {
+              }, {
                 "type": "string",
                 "enum": ["recognizer"],
                 "description": "与 segmentors 中的 matcher 搭配，处理符合特定规则的输入码，如网址反查等 tag。"
-              }, "key_binder": {
+              }, {
                 "type": "string",
                 "enum": ["key_binder"],
                 "description": "按键绑定。"
-              }, "speller": {
+              }, {
                 "type": "string",
                 "enum": ["speller"],
                 "description": "拼写处理器。"
-              }, "punctuator": {
+              }, {
                 "type": "string",
                 "enum": ["punctuator"],
                 "description": "标点处理器。将单个字符按键直接映射为标点符号或文字。"
-              }, "selector": {
+              }, {
                 "type": "string",
                 "enum": ["selector"],
                 "description": "选字处理器。处理数字选字键、上下候选定位、换页等。"
-              }, "navigator": {
+              }, {
                 "type": "string",
                 "enum": ["navigator"],
                 "description": "处理输入栏内的光标移动。"
-              }, "express_editor": {
+              }, {
                 "type": "string",
                 "enum": ["express_editor"],
                 "description": "编辑器。处理空格、退格、回车上屏等。"
-              }, "fluid_editor": {
+              }, {
                 "type": "string",
-                "enum": ["fluid_editor"],
+                "enum": ["fluency_editor"],
                 "description": "句式编辑器。用于以空格断词，回车上屏的输入方案，如「注音」、「语句流」。"
-              }, "chord_composer": {
+              }, {
                 "type": "string",
                 "enum": ["chord_composer"],
                 "description": "并击处理器（和弦作曲家）。用于多键并击的输入方案，如「宫保拼音」。"
-              }, "lua_processor": {
+              }, {
                 "type": "string",
                 "pattern": "^lua_processor@\\w+",
                 "description": "Lua 自定义脚本处理器。使用 lua 脚本定义的自定义按键。可定义多个。需添加@{函数名}后缀，如 lua_processor@foo。函数名定义于用户文件夹下的 rime.lua。",
                 "example": "lua_processor@foo"
-              }
-            }]
+              }]
           }
         },
         "segmentors": {
           "type": "array",
           "description": "负责识别输入内容，分段并打标记的组件。",
           "items": {
+            "additionalItems": false,
             "oneOf": [{
-              "ascii_segmentor": {
                 "type": "string",
                 "enum": ["ascii_segmentor"],
                 "description": "标识西文段落字母直接上屏。"
-              }, "matcher": {
+              }, {
                 "type": "string",
                 "enum": ["matcher"],
                 "description": "与 processor 中的 recognizer 搭配，标识符合特定规则的段落，如网址、反查等。"
-              }, "abc_segmentor": {
+              }, {
                 "type": "string",
                 "enum": ["abc_segmentor"],
                 "description": "将常规的文字段落标识为 `abc` tag。"
-              }, "punct_segmentor": {
+              }, {
                 "type": "string",
                 "enum": ["punct_segmentor"],
                 "description": "将标点段落标识为 `punct` tag。"
-              }, "fallback_segmentor": {
+              }, {
                 "type": "string",
                 "enum": ["fallback_segmentor"],
                 "description": "标识其余未识别的段落。"
-              }, "affix_segmentor": {
+              }, {
                 "type": "string",
                 "pattern": "^affix_segmentor@\\w+",
                 "description": "用户自定义标识器。可定义多个。需添加 @{tag} 后缀，如 affix_segmentor@foo。",
                 "example": "affix_segmentor@foo"
-              }, "lua_segmentor": {
+              }, {
                 "type": "string",
                 "pattern": "^lua_segmentor@\\w+",
                 "description": "自定义 Lua 函数标识器。可定义多个。需添加 @{函数名} 后缀，如 lua_segmentor@foo。",
                 "example": "lua_segmentor@foo"
-              }
-            }]
+              }]
           }
         }, "translators": {
           "type": "array",
           "description": "翻译特定输入码为一组候选文字的组件。",
           "items": {
+            "additionalItems": false,
             "oneOf": [{
-              "echo_translator": {
                 "type": "string",
                 "enum": ["echo_translator"],
                 "description": "回显输入码。输入码可以直接通过 Shift+Enter 上屏。"
-              }, "punct_translator": {
+              }, {
                 "type": "string",
                 "enum": ["punct_translator"],
                 "description": "标点符号翻译器。配合 punct_segmentor 使用。"
-              }, "reverse_lookup_translator": {
+              }, {
                 "type": "string",
                 "enum": ["reverse_lookup_translator"],
                 "description": "反查翻译器。借助另一种编码方案查询编码。"
-              }, "table_translator": {
+              }, {
                 "type": "string",
                 "pattern": "^table_translator@\\w+",
                 "description": "码表翻译器。可定义多个。需添加 @{码表名} 后缀，如 table_translator@cangjie。",
                 "example": "table_translator@cangjie"
-              }, "script_translator": {
+              }, {
                 "type": "string",
-                "pattern": "^script_translator@\\w+",
+                "pattern": "^script_translator(@\\w+)?",
                 "description": "脚本翻译器。可定义多个。需添加 @{脚本名} 后缀，如 script_translator@pinyin。",
                 "example": "script_translator@pinyin"
-              }, "lua_translator": {
+              }, {
                 "type": "string",
                 "pattern": "^lua_translator@\\w+",
                 "description": "Lua 函数翻译器。可定义多个。需添加 @{lua 函数名} 后缀，如 lua_translator@date_translator。Lua 函数定义于用户文件夹下的 rime.lua，参数为 (input, seg, env)。",
                 "example": "lua_translator@date_translator"
-              }
-            }]
+              }]
           }
         }, "filters": {
           "type": "array",
           "description": "负责对翻译结果进行过滤的组件。",
           "items": {
+            "additionalItems": false,
             "oneOf": [{
-              "uniquifier": {
                 "type": "string",
                 "enum": ["uniquifier"],
                 "description": "过滤重复的候选字。有可能来自 simplifier。"
-              }, "cjk_minifier": {
+              }, {
                 "type": "string",
                 "enum": ["cjk_minifier"],
                 "description": "字符集过滤。仅用于 script_translator，使其支持 extended_charset 开关。"
-              }, "single_char_filter": {
+              }, {
                 "type": "string",
                 "enum": ["single_char_filter"],
                 "description": "单字过滤器。如加载该组件，则屏蔽词典中的词组（仅 table_translator 有效）。"
-              }, "simplifier": {
+              }, {
                 "type": "string",
                 "enum": ["simplifier"],
                 "description": "用字转换。"
-              }, "reverse_lookup_filter": {
+              }, {
                 "type": "string",
                 "pattern": "^reverse_lookup_filter@\\w+",
                 "description": "反查过滤器。Rime 1.0 后替代 reverse_lookup_translator，以提供更灵活的反查方式。\n可定义多个。需添加@{过滤器名称}后缀，如 reverse_lookup_filter@pinyin_lookup。",
                 "example": "reverse_lookup_filter@pinyin_lookup"
-              }, "charset_filter": {
+              }, {
                 "type": "string",
                 "pattern": "^charset_filter@\\w+",
                 "description": "字符集过滤器。可定义多个。需添加@{字符集名称}后缀，如 charset_filter@utf-8。",
                 "example": "charset_filter@utf-8"
-              }, "lua_filter": {
+              }, {
                 "type": "string",
                 "pattern": "^lua_filter@\\w+",
                 "description": "使用 Lua 函数的自定义过滤器。可定义多个。需添加@{字符集名称}后缀，如 lua_filter@single_char_first。Lua 函数名定义于用户文件夹下的 rime.lua，参数为 (input, env)。",
                 "example": "lua_filter@single_char_first"
-              }
-            }]
+              }]
           }
         }
       }
