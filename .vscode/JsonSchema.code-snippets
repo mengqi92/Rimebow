@@ -1,0 +1,57 @@
+{
+  // Place your rime-assistant-vscode workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+  // description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+  // is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+  // used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+  // $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+  // Placeholders with the same ids are connected.
+  // Example:
+  // "Print to console": {
+  // 	"scope": "javascript,typescript",
+  // 	"prefix": "log",
+  // 	"body": [
+  // 		"console.log('$1');",
+  // 		"$2"
+  // 	],
+  // 	"description": "Log output to console"
+  // }
+  "Insert schema for a string": {
+    "scope": "json",
+    "prefix": "ss",
+    "description": "Insert schema definition for a string.",
+    "body": [
+      "\"${1:name}\": {",
+      "  \"type\": \"string\",",
+      "  \"description\": \"${2:description}\"",
+      "}"
+    ]
+  }, "Insert schema for an object": {
+    "scope": "json",
+    "prefix": "so",
+    "description": "Insert schema definition for an object.",
+    "body": [
+      "\"${1|name}\": {",
+      "  \"description\": \"${2:description}\",",
+      "  \"type\": \"object\",",
+      "  \"additionalProperties\": ${3:(true|false)},",
+      "  \"properties\": {",
+      "  }",
+      "}"
+    ]
+  }, "Insert schema for an array": {
+    "scope": "json",
+    "prefix": "sa",
+    "description": "Insert schema definition for an array.",
+    "body": [
+      "\"${1|name}\": {",
+      "  \"description\": \"${2:description}\",",
+      "  \"type\": \"array\",",
+      "  \"additionalItems\": ${3:(true|false)},",
+      "  \"items\": {",
+      "    \"type\": \"${4:itemType}\"",
+      "    \"description\": \"${5:itemDescription}\"",
+      "  }",
+      "}"
+    ]
+  }
+}
