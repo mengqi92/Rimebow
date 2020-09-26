@@ -295,7 +295,7 @@
         }
       }
     }, "speller": {
-      "description": "拼写处理器，接受字符按键，编辑输入码。",
+      "description": "拼写处理组件。接受字符按键，编辑输入码。",
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -344,6 +344,35 @@
           "type": "boolean",
           "pattern": "(true|false)",
           "description": "开关：以空格键作为输入码。"
+        }
+      }
+    }, "segmentor": {
+      "description": "输入码分段组件。识别不同内容类型，将输入码分段。",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "type": "string",
+          "description": "分段后打上的类型标记。"
+        }, "prefix": {
+          "type": "string",
+          "description": "前缀标识。可留空。"
+        }, "suffix": {
+          "type": "string",
+          "description": "后缀标识。可留空。"
+        }, "tips": {
+          "type": "string",
+          "description": "输入前提示符。可留空。"
+        }, "closing_tips": {
+          "type": "string",
+          "description": "结束输入提示符。可留空。"
+        }, "extra_tags": {
+          "type": "array",
+          "description": "可定义的一组额外类型标记。",
+          "items": {
+            "type": "string",
+            "description": "额外类型标记。"
+          }
         }
       }
     }
