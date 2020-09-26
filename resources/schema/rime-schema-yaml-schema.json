@@ -294,6 +294,58 @@
           }
         }
       }
+    }, "speller": {
+      "description": "拼写处理器，接受字符按键，编辑输入码。",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "alphabet": {
+          "type": "string",
+          "description": "定义本方案输入键。"
+        }, "initials": {
+          "type": "string",
+          "description": "定义仅作为始码的键。"
+        }, "finals": {
+          "type": "string",
+          "description": "定义仅作为末码的键。"
+        }, "delimiter": {
+          "type": "string",
+          "description": "上屏时的音节间分音符。",
+          "examples": [
+            " ",
+            "'",
+            " '"
+          ]
+        }, "algebra": {
+          "type": "array",
+          "description": "拼写运算规则。由之算出的拼写汇入 prism 中。",
+          "items": {
+            "type": "string",
+            "pattern": "((|derive|xform|fuzz|xlit|abbrev)/[^/]+/[^/]+/)|(erase/[^/]+/)",
+            "examples": [
+              "erase/^xx$/",
+              "derive/^([jqxy])u$/$1v/",
+              "xform/^([aoe])(ng)?$/$1$1$2/",
+              "xlit/QWRTYUIOPSDFGHJKLZXCVBNM/qwrtyuiopsdfghjklzxcvbnm/",
+              "abbrev/^(.).+$/$1/"
+            ]
+          }
+        }, "max_code_length": {
+          "type": "integer",
+          "description": "形码最大码长，如超出最大码长则顶字上屏。"
+        }, "auto_select": {
+          "type": "boolean",
+          "pattern": "(true|false)",
+          "description": "开关：自动上屏。"
+        }, "auto_select_pattern": {
+          "type": "string",
+          "description": "自动上屏规则。以正则表达式描述，当输入串匹配时自动顶字上屏。"
+        }, "use_space": {
+          "type": "boolean",
+          "pattern": "(true|false)",
+          "description": "开关：以空格键作为输入码。"
+        }
+      }
     }
   }
 }
