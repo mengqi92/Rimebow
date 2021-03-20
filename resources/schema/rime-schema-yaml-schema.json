@@ -374,6 +374,93 @@
             "description": "额外类型标记。"
           }
         }
+      }, "translator": {
+        "description": "输入码翻译组件。将输入码翻译为一组候选文字。",
+        "type": "object", 
+        "additionalProperties": false,
+        "properties": {
+          "enable_charset_filter": {
+            "type": "boolean",
+            "pattern": "(true|false)",
+            "description": "开关：字符集过滤。仅对 table_translator 生效。"
+          }, "enable_encoder": {
+            "type": "boolean",
+            "pattern": "(true|false)",
+            "description": "开关：自动造词。仅对 table_translator 生效。"
+          }, "encode_commit_history": {
+            "type": "boolean",
+            "pattern": "(true|false)",
+            "description": "开关：对上屏词自动成词。仅对 table_translator 生效。"
+          }, "max_phrase_length": {
+            "type": "integer",
+            "description": "最大自动成词词长。仅对 table_translator 生效。"
+          }, "enable_completion": {
+            "type": "boolean",
+            "pattern": "(true|false)",
+            "description": "开关：自动补全输入码。仅对 table_translator 生效。"
+          }, "sentence_over_completion": {
+            "type": "boolean",
+            "pattern": "(true|false)",
+            "description": "开关：开启智能组句，即使无全码对应字而仅有逐键提示时。仅对 table_translator 生效。"
+          }, "strict_spelling": {
+            "type": "boolean",
+            "pattern": "(true|false)",
+            "description": "开关：屏蔽符合 fuzz 拼写规则的单字候选，仅以其输入词组。仅对 table_translator 生效。"
+          }, "disable_user_dict_for_patterns": {
+              "description": "一组指定的匹配模式字符串，若输入串匹配任一指定模式，则在当前查询中禁用用户词典。",
+              "type": "array",
+              "additionalItems": false,
+              "items": {
+                "type": "string",
+                "description": "编码的匹配模式字符串（pattern）。"
+              }
+          }, "enable_sentence": {
+            "type": "boolean",
+            "pattern": "(true|false)",
+            "description": "开关：开启自动造句。"
+          }, "enable_user_dict": {
+            "type": "boolean",
+            "pattern": "(true|false)",
+            "description": "开关：开启用户词典（用于记录动态字词频、用户词）。"
+          }, "dictionary": {
+            "type": "string",
+            "description": "提供给翻译器的字典文件。"
+          }, "prism": {
+            "type": "string",
+            "description": "主翻译器生成的棱镜文件名，或副翻译器调用的棱镜文件名。"
+          }, "user_dict": {
+            "type": "string",
+            "description": "指定的用户词典名。"
+          }, "db_class": {
+            "type": "string",
+            "pattern": "(tabledb|userdb)",
+            "description": "指定的用户词典类型。文本（tabledb）或二进制（userdb）。"
+          }, "preedit_format": {
+            "type": "array",
+            "description": "自定义的一组上屏码规则。",
+            "additionalItems": "false",
+            "items": {
+              "type": "string",
+              "description": "自定义上屏码规则"
+            }
+          }, "comment_format": {
+            "type": "array",
+            "description": "自定义的一组提示码规则。",
+            "additionalItems": "false",
+            "items": {
+              "type": "string",
+              "description": "自定义提示码规则"
+          }, "spelling_hints": {
+            "type": "integer",
+            "description": "启用带调拼音标注的候选字数。仅对 script_translator 生效。"
+          }, "initial_quality": {
+            "type": "integer",
+            "description": "当前翻译器翻译的优先级。"
+          }, "tag": {
+            "type": "",
+            "description": ""
+          }
+        }
       }
     }
   }
