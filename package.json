@@ -125,14 +125,14 @@
         },
         "configuration": {
             "type": "object",
-            "title": "Rime assistant configuration",
+            "title": "Rimebow configuration",
             "properties": {
-                "rimeAssistant.userConfigDir": {
+                "rimebow.userConfigDir": {
                     "type": "string",
                     "default": false,
                     "description": "The directory containing user defined config files."
                 },
-                "rimeAssistant.defaultConfigDir": {
+                "rimebow.defaultConfigDir": {
                     "type": "string",
                     "default": false,
                     "description": "The directory containing default RIME config files."
