@@ -1,6 +1,6 @@
 {
-    "name": "rime-assistant",
-    "displayName": "Rime Assistant",
+    "name": "rimebow",
+    "displayName": "Rimebow",
     "description": "An assistant along with your Rime configuration journey.",
     "version": "0.0.1",
     "engines": {
@@ -117,8 +117,8 @@
         "viewsContainers": {
             "activitybar": [
                 {
-                    "id": "rime-assistant",
-                    "title": "Rime Assistant",
+                    "id": "rimebow",
+                    "title": "Rimebow",
                     "icon": "media/rime.png"
                 }
             ]

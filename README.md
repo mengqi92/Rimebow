@@ -1,6 +1,6 @@
-# rime-assistant README
+# Rimebow README
 
-This is the README for your extension "rime-assistant". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "Rimebow". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
