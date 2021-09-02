@@ -9,7 +9,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/mengqi92/rime-assistant-vscode"
+		"url": "https://github.com/mengqi92/Rimebow"
 	},
 	"dependencies": {
 		"vscode-languageserver": "^6.1.1",

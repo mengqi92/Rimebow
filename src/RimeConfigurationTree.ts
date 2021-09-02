@@ -308,7 +308,7 @@ export class RimeConfigurationTree {
     public async build() {
         const sharedConfigDirConfigKey: string = "sharedConfigDir";
         const userConfigDirConfigKey: string = "userConfigDir";
-        const rimeAssistantConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('rimeAssistant');
+        const rimeAssistantConfiguration: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('rimebow');
         if (rimeAssistantConfiguration.has(sharedConfigDirConfigKey)
             && await existsAsync(rimeAssistantConfiguration.get(sharedConfigDirConfigKey) as string)) {
             this.sharedConfigDir = rimeAssistantConfiguration.get(sharedConfigDirConfigKey) as string;

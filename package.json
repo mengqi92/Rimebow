@@ -41,12 +41,12 @@
             ],
             "view/item/context": [
                 {
-                    "command": "rimeAssistant.openConfigFile",
+                    "command": "rimebow.openConfigFile",
                     "group": "inline",
                     "when": "viewItem == file || viewItem == node"
                 },
                 {
-                    "command": "rimeAssistant.openFolder",
+                    "command": "rimebow.openFolder",
                     "group": "inline",
                     "when": "viewItem == folder"
                 }
@@ -86,7 +86,7 @@
                 }
             },
             {
-                "command": "rimeAssistant.openConfigFile",
+                "command": "rimebow.openConfigFile",
                 "title": "Open in Editor",
                 "icon": {
                     "light": "resources/light/actions/open.png",
@@ -94,7 +94,7 @@
                 }
             },
             {
-                "command": "rimeAssistant.openFolder",
+                "command": "rimebow.openFolder",
                 "title": "Open Folder in VS Code",
                 "icon": {
                     "light": "resources/light/actions/openFolder.png",
@@ -103,7 +103,7 @@
             }
         ],
         "views": {
-            "rime-assistant": [
+            "rimebow": [
                 {
                     "id": "rimeFileExplorer",
                     "name": "File Explorer"
