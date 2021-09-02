@@ -136,6 +136,106 @@
         "signature": "89bf2b7a601b73ea4311eda9c41f86a58994fec1bee3b87c4a14d68d9adcdcbd",
         "affectsGlobalScope": true
       },
+      "./node_modules/yaml-language-server/out/server/src/languageservice/jsonschema.d.ts": {
+        "version": "c9a1bf9919838394bccd29c920d6811c64643080ef3035652c8750b0b037c1a8",
+        "signature": "c9a1bf9919838394bccd29c920d6811c64643080ef3035652c8750b0b037c1a8",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlschemaservice.d.ts": {
+        "version": "5e919fe4ef3a827d9388fa33ad9f6ef76cdfa893201ea432aa1fb80069ced641",
+        "signature": "5e919fe4ef3a827d9388fa33ad9f6ef76cdfa893201ea432aa1fb80069ced641",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/vscode-languageserver-types/lib/umd/main.d.ts": {
+        "version": "124b6297f44f1bb9618f1d02a8467f5a545426a369ddca22670321caa36472e8",
+        "signature": "124b6297f44f1bb9618f1d02a8467f5a545426a369ddca22670321caa36472e8",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/vscode-json-languageservice/lib/umd/jsoncontributions.d.ts": {
+        "version": "5217ca5c5e094fa32f60e1e7ab53d48fe80f51419da2e86473e90d29c6834427",
+        "signature": "5217ca5c5e094fa32f60e1e7ab53d48fe80f51419da2e86473e90d29c6834427",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/vscode-json-languageservice/lib/umd/jsonschema.d.ts": {
+        "version": "e02ae29730ed9bcae2d8c2fbd8878aa0b6e6cf86e172c1aa7e152efd30db6db3",
+        "signature": "e02ae29730ed9bcae2d8c2fbd8878aa0b6e6cf86e172c1aa7e152efd30db6db3",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/vscode-languageserver-textdocument/lib/umd/main.d.ts": {
+        "version": "21f9731fc2e8e009fdaef137a04546c27877314c748c6702fe9329518fb16538",
+        "signature": "21f9731fc2e8e009fdaef137a04546c27877314c748c6702fe9329518fb16538",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguagetypes.d.ts": {
+        "version": "f4bf1e75130569593d7bf72185987e75d2a2639f8297d2aae35887c5d14912db",
+        "signature": "f4bf1e75130569593d7bf72185987e75d2a2639f8297d2aae35887c5d14912db",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguageservice.d.ts": {
+        "version": "7ab42fbf06a512f3076af7e47493891e2c3cc9246b33f01f012c3dd1bedc469d",
+        "signature": "7ab42fbf06a512f3076af7e47493891e2c3cc9246b33f01f012c3dd1bedc469d",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/yaml-language-server/out/server/src/languageservice/yamllanguageservice.d.ts": {
+        "version": "2307ed39f2d30db3f7130e6a66510f3e6fcbd02aae9e66dd0745cc608b1ef959",
+        "signature": "2307ed39f2d30db3f7130e6a66510f3e6fcbd02aae9e66dd0745cc608b1ef959",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/mark.d.ts": {
+        "version": "8d1539367a9f5a03698f4c37111251eb76433ea8fcb5f1e546571b8513cac822",
+        "signature": "8d1539367a9f5a03698f4c37111251eb76433ea8fcb5f1e546571b8513cac822",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/exception.d.ts": {
+        "version": "9ad71085f8ab35282a341995f85c6e06a19e6d5ab73b39f634b444ce8742a664",
+        "signature": "9ad71085f8ab35282a341995f85c6e06a19e6d5ab73b39f634b444ce8742a664",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/yamlast.d.ts": {
+        "version": "00b4996f1e00171f86c2e0fc1eed6f0a728d17bc6667411c9975d9b084201c15",
+        "signature": "00b4996f1e00171f86c2e0fc1eed6f0a728d17bc6667411c9975d9b084201c15",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/loader.d.ts": {
+        "version": "606de01a4212a48518a219585f673504d3c0c26b361706006038a71bf8b9f42c",
+        "signature": "606de01a4212a48518a219585f673504d3c0c26b361706006038a71bf8b9f42c",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/dumper.d.ts": {
+        "version": "76de776e227ad01b703ce076b32177da31a765d5b5a681d5bb4c4e0f4876840f",
+        "signature": "76de776e227ad01b703ce076b32177da31a765d5b5a681d5bb4c4e0f4876840f",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/scalarinference.d.ts": {
+        "version": "3e6ab0aed23d4b895f5cf2877e99d8b2be5fb1e27b812c74da6c2b3bd34e1289",
+        "signature": "3e6ab0aed23d4b895f5cf2877e99d8b2be5fb1e27b812c74da6c2b3bd34e1289",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/index.d.ts": {
+        "version": "46b9cdcd62e90f604876c143481ac7ff2c89cdfb902179bda0d8ee44c0695beb",
+        "signature": "46b9cdcd62e90f604876c143481ac7ff2c89cdfb902179bda0d8ee44c0695beb",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/yaml-language-server/out/server/src/languageservice/utils/parseutils.d.ts": {
+        "version": "5a563ffb3680f0c63d0115186738ecb9a98cad471c8a3cd019f868bddfcb2a3c",
+        "signature": "5a563ffb3680f0c63d0115186738ecb9a98cad471c8a3cd019f868bddfcb2a3c",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlvalidation.d.ts": {
+        "version": "aa195f9c32a25852fd4676fbda78fc759cc4639c88daa762f3faeb43b4854dae",
+        "signature": "aa195f9c32a25852fd4676fbda78fc759cc4639c88daa762f3faeb43b4854dae",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlhover.d.ts": {
+        "version": "df757b30f5d1832cfda78e32b2594e47028318351eae2d281e1e586f1450c489",
+        "signature": "df757b30f5d1832cfda78e32b2594e47028318351eae2d281e1e586f1450c489",
+        "affectsGlobalScope": false
+      },
+      "./node_modules/request-light/lib/main.d.ts": {
+        "version": "e6e4e284a2acd2559a1baedcd80030818dab5a7a0ec790862e58621a2a84095f",
+        "signature": "e6e4e284a2acd2559a1baedcd80030818dab5a7a0ec790862e58621a2a84095f",
+        "affectsGlobalScope": false
+      },
       "./node_modules/vscode-languageserver/typings/thenable.d.ts": {
         "version": "bfc76a4e61cdb6910c65287d4ca958d4a2e95b2e39aa3f0189a581eda3d30871",
         "signature": "bfc76a4e61cdb6910c65287d4ca958d4a2e95b2e39aa3f0189a581eda3d30871",
@@ -441,11 +541,6 @@
         "signature": "7c9c716328561d3e2eb1b8c53ce315434d2523506d0c0befbcfc4d7d9e6effb2",
         "affectsGlobalScope": false
       },
-      "./node_modules/vscode-languageserver-types/lib/umd/main.d.ts": {
-        "version": "124b6297f44f1bb9618f1d02a8467f5a545426a369ddca22670321caa36472e8",
-        "signature": "124b6297f44f1bb9618f1d02a8467f5a545426a369ddca22670321caa36472e8",
-        "affectsGlobalScope": false
-      },
       "./node_modules/vscode-languageserver-protocol/lib/messages.d.ts": {
         "version": "357233e71f14a1fefceb99c56590ff8840092b099bc6cfe0c4c4187897651f4f",
         "signature": "357233e71f14a1fefceb99c56590ff8840092b099bc6cfe0c4c4187897651f4f",
@@ -551,13 +646,18 @@
         "signature": "762722b5a0312ad3601a00808daad1ccd4ec73b2b78c119af894ca0c6cd44270",
         "affectsGlobalScope": false
       },
-      "./node_modules/vscode-languageserver-textdocument/lib/umd/main.d.ts": {
-        "version": "21f9731fc2e8e009fdaef137a04546c27877314c748c6702fe9329518fb16538",
-        "signature": "21f9731fc2e8e009fdaef137a04546c27877314c748c6702fe9329518fb16538",
+      "./node_modules/vscode-uri/lib/umd/index.d.ts": {
+        "version": "edb366acce813394afe83684207550df532fade466298ddec2ba32cd0732910d",
+        "signature": "edb366acce813394afe83684207550df532fade466298ddec2ba32cd0732910d",
+        "affectsGlobalScope": false
+      },
+      "./src/rimelanguageservice.ts": {
+        "version": "3de369218a662e178dfb4342835866fbadff716899958b2128f3ecc555eb2332",
+        "signature": "aca54cdd600729cbc15dacb32122c8b293b7a384cca1aa8bceda8bc281fe97b8",
         "affectsGlobalScope": false
       },
       "./src/server.ts": {
-        "version": "0d115534b82d6e9ba46f6a0b7fef1750b17042b9424c05e4f4292b4e3ce0ee5d",
+        "version": "65dec113c306cd2c23792e483ce584b44d19971bcafc845220d7fd6110dbf093",
         "signature": "f761c91419d0a89422a0004ef1a92929dd4d2d5e5c16758654d8b0467d1998c6",
         "affectsGlobalScope": false
       },
@@ -1513,6 +1613,42 @@
         "../node_modules/@types/node/ts3.2/util.d.ts",
         "../node_modules/@types/node/util.d.ts"
       ],
+      "./node_modules/request-light/lib/main.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/vscode-json-languageservice/lib/umd/jsoncontributions.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguageservice.d.ts"
+      ],
+      "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguageservice.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguagetypes.d.ts"
+      ],
+      "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguagetypes.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/vscode-json-languageservice/lib/umd/jsoncontributions.d.ts",
+        "./node_modules/vscode-json-languageservice/lib/umd/jsonschema.d.ts",
+        "./node_modules/vscode-languageserver-textdocument/lib/umd/main.d.ts",
+        "./node_modules/vscode-languageserver-types/lib/umd/main.d.ts"
+      ],
+      "./node_modules/vscode-json-languageservice/lib/umd/jsonschema.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts"
+      ],
       "./node_modules/vscode-jsonrpc/lib/cancellation.d.ts": [
         "../node_modules/@types/node/fs.d.ts",
         "../node_modules/@types/node/ts3.2/fs.d.ts",
@@ -1820,13 +1956,137 @@
         "../node_modules/@types/node/ts3.2/util.d.ts",
         "../node_modules/@types/node/util.d.ts"
       ],
+      "./node_modules/vscode-uri/lib/umd/index.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/dumper.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/exception.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/mark.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/index.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/dumper.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/exception.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/loader.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/scalarinference.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/yamlast.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/loader.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/yamlast.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/mark.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/scalarinference.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/yamlast.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/yamlast.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/exception.d.ts"
+      ],
+      "./node_modules/yaml-language-server/out/server/src/languageservice/jsonschema.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlhover.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguageservice.d.ts",
+        "./node_modules/vscode-languageserver-types/lib/umd/main.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlschemaservice.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/yamllanguageservice.d.ts"
+      ],
+      "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlschemaservice.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/jsonschema.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/yamllanguageservice.d.ts"
+      ],
+      "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlvalidation.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/vscode-languageserver-types/lib/umd/main.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlschemaservice.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/utils/parseutils.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/yamllanguageservice.d.ts"
+      ],
+      "./node_modules/yaml-language-server/out/server/src/languageservice/utils/parseutils.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/index.d.ts"
+      ],
+      "./node_modules/yaml-language-server/out/server/src/languageservice/yamllanguageservice.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguageservice.d.ts",
+        "./node_modules/vscode-languageserver-types/lib/umd/main.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/jsonschema.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlschemaservice.d.ts"
+      ],
+      "./src/rimelanguageservice.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/path.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/request-light/lib/main.d.ts",
+        "./node_modules/vscode-languageserver-textdocument/lib/umd/main.d.ts",
+        "./node_modules/vscode-languageserver/lib/main.d.ts",
+        "./node_modules/vscode-uri/lib/umd/index.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlhover.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlschemaservice.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlvalidation.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/yamllanguageservice.d.ts"
+      ],
       "./src/server.ts": [
         "../node_modules/@types/node/fs.d.ts",
         "../node_modules/@types/node/ts3.2/fs.d.ts",
         "../node_modules/@types/node/ts3.2/util.d.ts",
         "../node_modules/@types/node/util.d.ts",
         "./node_modules/vscode-languageserver-textdocument/lib/umd/main.d.ts",
-        "./node_modules/vscode-languageserver/lib/main.d.ts"
+        "./node_modules/vscode-languageserver/lib/main.d.ts",
+        "./src/rimelanguageservice.ts"
       ]
     },
     "exportedModulesMap": {
@@ -2667,6 +2927,42 @@
         "../node_modules/@types/node/ts3.2/util.d.ts",
         "../node_modules/@types/node/util.d.ts"
       ],
+      "./node_modules/request-light/lib/main.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/vscode-json-languageservice/lib/umd/jsoncontributions.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguageservice.d.ts"
+      ],
+      "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguageservice.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguagetypes.d.ts"
+      ],
+      "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguagetypes.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/vscode-json-languageservice/lib/umd/jsoncontributions.d.ts",
+        "./node_modules/vscode-json-languageservice/lib/umd/jsonschema.d.ts",
+        "./node_modules/vscode-languageserver-textdocument/lib/umd/main.d.ts",
+        "./node_modules/vscode-languageserver-types/lib/umd/main.d.ts"
+      ],
+      "./node_modules/vscode-json-languageservice/lib/umd/jsonschema.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts"
+      ],
       "./node_modules/vscode-jsonrpc/lib/cancellation.d.ts": [
         "../node_modules/@types/node/fs.d.ts",
         "../node_modules/@types/node/ts3.2/fs.d.ts",
@@ -2973,6 +3269,118 @@
         "../node_modules/@types/node/ts3.2/fs.d.ts",
         "../node_modules/@types/node/ts3.2/util.d.ts",
         "../node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/vscode-uri/lib/umd/index.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/dumper.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/exception.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/mark.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/index.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/dumper.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/exception.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/loader.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/scalarinference.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/yamlast.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/loader.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/yamlast.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/mark.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/scalarinference.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/yamlast.d.ts"
+      ],
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/yamlast.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/exception.d.ts"
+      ],
+      "./node_modules/yaml-language-server/out/server/src/languageservice/jsonschema.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts"
+      ],
+      "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlhover.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguageservice.d.ts",
+        "./node_modules/vscode-languageserver-types/lib/umd/main.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlschemaservice.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/yamllanguageservice.d.ts"
+      ],
+      "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlschemaservice.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/jsonschema.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/yamllanguageservice.d.ts"
+      ],
+      "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlvalidation.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/vscode-languageserver-types/lib/umd/main.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlschemaservice.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/utils/parseutils.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/yamllanguageservice.d.ts"
+      ],
+      "./node_modules/yaml-language-server/out/server/src/languageservice/utils/parseutils.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/yaml-ast-parser-custom-tags/dist/src/index.d.ts"
+      ],
+      "./node_modules/yaml-language-server/out/server/src/languageservice/yamllanguageservice.d.ts": [
+        "../node_modules/@types/node/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/fs.d.ts",
+        "../node_modules/@types/node/ts3.2/util.d.ts",
+        "../node_modules/@types/node/util.d.ts",
+        "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguageservice.d.ts",
+        "./node_modules/vscode-languageserver-types/lib/umd/main.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/jsonschema.d.ts",
+        "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlschemaservice.d.ts"
+      ],
+      "./src/rimelanguageservice.ts": [
+        "./node_modules/vscode-languageserver-textdocument/lib/umd/main.d.ts",
+        "./node_modules/vscode-languageserver/lib/main.d.ts"
       ]
     },
     "semanticDiagnosticsPerFile": [
@@ -3073,6 +3481,11 @@
       "../node_modules/typescript/lib/lib.es2020.bigint.d.ts",
       "../node_modules/typescript/lib/lib.es5.d.ts",
       "../node_modules/typescript/lib/lib.esnext.intl.d.ts",
+      "./node_modules/request-light/lib/main.d.ts",
+      "./node_modules/vscode-json-languageservice/lib/umd/jsoncontributions.d.ts",
+      "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguageservice.d.ts",
+      "./node_modules/vscode-json-languageservice/lib/umd/jsonlanguagetypes.d.ts",
+      "./node_modules/vscode-json-languageservice/lib/umd/jsonschema.d.ts",
       "./node_modules/vscode-jsonrpc/lib/cancellation.d.ts",
       "./node_modules/vscode-jsonrpc/lib/events.d.ts",
       "./node_modules/vscode-jsonrpc/lib/linkedmap.d.ts",
@@ -3107,6 +3520,21 @@
       "./node_modules/vscode-languageserver/lib/sematictokens.proposed.d.ts",
       "./node_modules/vscode-languageserver/lib/workspacefolders.d.ts",
       "./node_modules/vscode-languageserver/typings/thenable.d.ts",
+      "./node_modules/vscode-uri/lib/umd/index.d.ts",
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/dumper.d.ts",
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/exception.d.ts",
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/index.d.ts",
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/loader.d.ts",
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/mark.d.ts",
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/scalarinference.d.ts",
+      "./node_modules/yaml-ast-parser-custom-tags/dist/src/yamlast.d.ts",
+      "./node_modules/yaml-language-server/out/server/src/languageservice/jsonschema.d.ts",
+      "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlhover.d.ts",
+      "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlschemaservice.d.ts",
+      "./node_modules/yaml-language-server/out/server/src/languageservice/services/yamlvalidation.d.ts",
+      "./node_modules/yaml-language-server/out/server/src/languageservice/utils/parseutils.d.ts",
+      "./node_modules/yaml-language-server/out/server/src/languageservice/yamllanguageservice.d.ts",
+      "./src/rimelanguageservice.ts",
       "./src/server.ts"
     ]
   },

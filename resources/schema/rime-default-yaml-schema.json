@@ -1,0 +1,204 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "file:C:/Users/mengq/AppData/Roaming/Rime/rime-default-yaml-schema.json",
+  "title": "Rime Default Configuration",
+  "description": "A JSON Schema for RIME default.yaml configurations.",
+  "type": "object",
+  "definitions": {
+    "regexString": {
+      "type": "string",
+      "format": "regex"
+    },
+    "keyCombination": {
+      "type": "string"
+    },
+    "switchKeyActions": {
+      "type": "string",
+      "enum": [
+        "inline_ascii",
+        "commit_code",
+        "commit_text",
+        "noop",
+        "clear"
+      ]
+    }, "compilingCommands": {
+      "__include": {
+        "type": "object"
+      }, "__patch": {
+        "type": "object"
+      }, "__append": {
+        "type": "object"
+      }, "__merge": {
+        "type": "object"
+      }
+    }
+  },
+  "properties": {
+    "patch": {
+      "type": "object",
+      "properties": {
+        "schema_list": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "switcher": {
+          "type": "object",
+          "properties": {
+            "caption": {
+              "type": "string"
+            },
+            "hotkeys": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/keyCombination"
+              }
+            },
+            "save_options": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "fold_options": {
+              "type": "boolean"
+            },
+            "abbreviate_options": {
+              "type": "boolean"
+            },
+            "option_list_separator": {
+              "type": "string"
+            }
+          }
+        },
+        "menu": {
+          "type": "object",
+          "properties": {
+            "page_size": {
+              "type": "number"
+            }
+          }
+        },
+        "punctuator": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "full_shape": {
+              "type": "object"
+            },
+            "half_shape": {
+              "type": "object"
+            },
+            "use_space": {
+              "type": "boolean"
+            },
+            "ascii_style": {
+              "type": "object"
+            }
+          }
+        },
+        "key_bindings": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "emacs_editing",
+                  "move_by_word_with_tab",
+                  "paging_with_minus_equal",
+                  "paging_with_comma_period",
+                  "numbered_mode_switch"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "when": {
+                    "type": "string",
+                    "enum": [
+                      "paging",
+                      "has_menu",
+                      "composing",
+                      "always"
+                    ]
+                  },
+                  "accept": {
+                    "$ref": "#/definitions/keyCombination"
+                  },
+                  "send": {
+                    "$ref": "#/definitions/keyCombination"
+                  },
+                  "toggle": {
+                    "type": "string",
+                    "enum": [
+                      ".next",
+                      "ascii_mode",
+                      "ascii_punt",
+                      "full_shape",
+                      "simplification",
+                      "extended_charset"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "recognizer": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "patterns": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "$ref": "#/definitions/regexString"
+                },
+                "uppercase": {
+                  "$ref": "#/definitions/regexString"
+                },
+                "url": {
+                  "$ref": "#/definitions/regexString"
+                }
+              }
+            }
+          }
+        },
+        "ascii_composer": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "good_old_caps_lock": {
+              "type": "boolean"
+            },
+            "switch_key": {
+              "type": "object",
+              "properties": {
+                "Shift_L": {
+                  "$ref": "#/definitions/switchKeyActions"
+                },
+                "Shift_R": {
+                  "$ref": "#/definitions/switchKeyActions"
+                },
+                "Control_L": {
+                  "$ref": "#/definitions/switchKeyActions"
+                },
+                "Control_R": {
+                  "$ref": "#/definitions/switchKeyActions"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
