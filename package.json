@@ -1,6 +1,6 @@
 {
-    "name": "rime-assistant",
-    "displayName": "Rime Assistant",
+    "name": "rimebow",
+    "displayName": "Rimebow",
     "description": "An assistant along with your Rime configuration journey.",
     "version": "0.0.1",
     "engines": {
@@ -117,22 +117,22 @@
         "viewsContainers": {
             "activitybar": [
                 {
-                    "id": "rime-assistant",
-                    "title": "Rime Assistant",
+                    "id": "rimebow",
+                    "title": "Rimebow",
                     "icon": "media/rime.png"
                 }
             ]
         },
         "configuration": {
             "type": "object",
-            "title": "Rime assistant configuration",
+            "title": "Rimebow configuration",
             "properties": {
-                "rimeAssistant.userConfigDir": {
+                "rimebow.userConfigDir": {
                     "type": "string",
                     "default": false,
                     "description": "The directory containing user defined config files."
                 },
-                "rimeAssistant.defaultConfigDir": {
+                "rimebow.defaultConfigDir": {
                     "type": "string",
                     "default": false,
                     "description": "The directory containing default RIME config files."

@@ -1,10 +1,14 @@
-# rime-assistant README
+# Rimebow README
 
-This is the README for your extension "rime-assistant". After writing up a brief description, we recommend including the following sections.
+Rimebow (元宝) is the go-to package for RIME.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- Configuration file explorer
+- Configuration node explorer
+- Verify configuration
+- RIME configuration language server
+- Configuration autocomplete
 
 For example if there is an image subfolder under your extension project workspace:
 
@@ -14,7 +18,7 @@ For example if there is an image subfolder under your extension project workspac
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+You computer should already have installed RIME.
 
 ## Extension Settings
 
@@ -24,8 +28,9 @@ For example:
 
 This extension contributes the following settings:
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+* `rimebow.userConfigDir`: The directory containing RIME user configuration.
+* `rimebow.defaultConfigDir`: The directory containing RIME default configuration.
+* `rimeLanguageServer.maxNumberOfProblems`: The maximum number of problems produced by the language server. Set this number lower if you met too many errors raised by the language server.
 
 ## Known Issues
 
@@ -33,33 +38,23 @@ Calling out known issues can help limit users opening duplicate issues against y
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.1.0
 
-### 1.0.0
+## Contribute
 
-Initial release of ...
+Any contribute is welcomed!
 
-### 1.0.1
+### Install dependencies
 
-Fixed issue #.
+Before building the code, make sure you have installed all dependencies using this command:
+```sh
+npm install
+```
 
-### 1.1.0
+### Build and watch
 
-Added features X, Y, and Z.
+Start with `npm watch` to launch a node process build Rimebow and watching any new code changes. You only need to run this once and then use "Start Debugging" or "Run without debugging" to start a VSCode with extension host, where you can find the Rimebow extension listed on the left panel.
 
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+```sh
+npm watch
+```
