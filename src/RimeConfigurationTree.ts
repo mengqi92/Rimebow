@@ -753,10 +753,10 @@ export class RimeConfigurationTree {
                 }
             case "darwin":
                 // Squirrel: /Library/Input Methods/Squirrel.app/Contents/SharedSupport/
-                return path.join('Library', 'Input Methods', 'Squirrel.app', 'Contents', 'SharedSupport');
+                return path.join('/Library', 'Input Methods', 'Squirrel.app', 'Contents', 'SharedSupport');
             case "linux":
                 // ibus-rime, fcitx-rime: /usr/share/rime-data
-                return path.join('usr', 'share', 'rime-data');
+                return path.join('/usr', 'share', 'rime-data');
             default:
                 throw new Error(`Unsupported platform: ${process.platform}`);
         }
