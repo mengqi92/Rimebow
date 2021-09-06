@@ -21,21 +21,6 @@ This extension contributes the following settings:
 * `rimebow.defaultConfigDir`: The directory containing RIME default configuration.
 * `rimeLanguageServer.maxNumberOfProblems`: The maximum number of problems produced by the language server. Set this number lower if you met too many errors raised by the language server.
 
-## 开发调试
-如果你需要对本插件进行调试开发，或者有兴趣了解本插件的实现细节，可以
-1. 在源代码根目录执行：
-```shell
-npm install
-npm watch
-```
-（你也可以直接在 VS Code 中 Ctrl/Command-Shift-P 调出 Command Pallete -> Tasks: Run Task 来执行这两个 npm 命令）
-2. 通过 VS Code 打开源代码根目录
-3. 修改代码或者添加断点
-4. 调用 VS Code 的 Run -> Start Debugging 或 Run without Debugging 命令启动 Extension Development Host（另一个 VS Code 窗口）
-5. 在新打开的 Extension Development Host 窗口中，你可以在左边的侧边栏中找到 Rimebow 插件
-
-请阅读[官方文档](https://code.visualstudio.com/api)获取更多 VS Code 插件开发相关知识。
-
 ## 发布日志 (Release Notes)
 
 ### 0.1.0
