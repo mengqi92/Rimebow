@@ -22,8 +22,12 @@ This extension contributes the following settings:
 * `rimeLanguageServer.maxNumberOfProblems`: The maximum number of problems produced by the language server. Set this number lower if you met too many errors raised by the language server.
 
 ## 发布日志 (Release Notes)
-
 ### 0.1.0
+* 配置文件浏览器
+* 配置结点浏览器
+
+### 0.2.0
+* RIME language server
 
 ## 开发规划
 - [ ] 配置语法校验

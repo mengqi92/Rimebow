@@ -2,7 +2,7 @@
     "name": "rimebow",
     "displayName": "Rimebow",
     "description": "An assistant along with your Rime configuration journey.",
-    "version": "0.0.1",
+    "version": "0.2.0",
     "engines": {
         "vscode": "^1.45.0"
     },
