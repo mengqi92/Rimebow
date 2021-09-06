@@ -73,7 +73,12 @@ export async function activate(context: vscode.ExtensionContext) {
 					editor.revealRange(range, vscode.TextEditorRevealType.AtTop);
 				});
 		});
-	vscode.commands.registerCommand('rimebow.openFolder', (node: RimeConfigNode) => { vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(node.configFilePath)); });
+	vscode.commands.registerCommand('rimebow.openFolder', (node: RimeConfigNode) => { 
+		vscode.commands.executeCommand(
+			'vscode.openFolder', 
+			vscode.Uri.file(node.configFilePath),
+			/* forceNewWindow */ true); 
+	});
 	const rimeFileExplorerProvider: RimeFileExplorerProvider = new RimeFileExplorerProvider(rimeConfigurationTree);
 	vscode.commands.registerCommand('rimeFileExplorer.refreshEntry', () => { rimeFileExplorerProvider.refresh(); });
 	vscode.window.createTreeView('rimeFileExplorer', { treeDataProvider: rimeFileExplorerProvider });
