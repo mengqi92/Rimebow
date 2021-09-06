@@ -326,6 +326,8 @@ export class RimeConfigurationTree {
             this.sharedConfigDir, RimeConfigurationTree.SHARED_CONFIG_LABEL);
         const userConfigFiles = await this._buildConfigTreeFromFiles(
             this.userConfigDir, RimeConfigurationTree.USER_CONFIG_LABEL);
+        this.sharedConfigFolderNode.configFilePath = this.sharedConfigDir;
+        this.userConfigFolderNode.configFilePath = this.userConfigDir;
 
         this._setupNodesForFileExplorer(sharedConfigFiles, this.sharedConfigFolderNode);
         this._setupNodesForFileExplorer(userConfigFiles, this.userConfigFolderNode);
