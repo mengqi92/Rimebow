@@ -70,7 +70,7 @@ export async function activate(context: vscode.ExtensionContext) {
 					const range: vscode.Range = new vscode.Range(
 						editor.document.positionAt(node.configOffset), 
 						editor.document.positionAt(node.configOffset + node.configLength));
-					editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
+					editor.revealRange(range, vscode.TextEditorRevealType.AtTop);
 				});
 		});
 	vscode.commands.registerCommand('rimebow.openFolder', (node: RimeConfigNode) => { vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(node.configFilePath)); });
