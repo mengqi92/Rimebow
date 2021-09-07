@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "file:C:/Users/mengq/AppData/Roaming/Rime/rime-default-yaml-schema.json",
+  "$id": "https://rimebow.azureedge.net/schema/rime-default-yaml-schema.json",
   "title": "Rime Default Configuration",
   "description": "A JSON Schema for RIME default.yaml configurations.",
   "type": "object",

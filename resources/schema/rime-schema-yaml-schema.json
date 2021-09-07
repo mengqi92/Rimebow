@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://rimebow.blob.core.windows.net/schema/rime-schema-yaml-schema.json",
+  "$id": "https://rimebow.azureedge.net/schema/rime-schema-yaml-schema.json",
   "title": "Rime Schema Configuration",
   "description": "A JSON Schema for RIME schema configurations.",
   "type": "object",

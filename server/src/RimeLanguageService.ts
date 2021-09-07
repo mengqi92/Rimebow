@@ -30,7 +30,7 @@ export class RimeLanguageService {
     constructor(clientSettings: ClientSettings) {
         this._connection = createConnection();
 
-        const schemaUri = "https://rimebow.blob.core.windows.net/schema/rime-schema-yaml-schema.json";
+        const schemaUri = "https://rimebow.azureedge.net/schema/rime-schema-yaml-schema.json";
         let yamlSchemaService = new YAMLSchemaService(this._schemaRequestService, this._workspaceContext);
         yamlSchemaService.registerExternalSchema(schemaUri, ["/*.schema.yaml"]);
         // if (settings.schemas) {
