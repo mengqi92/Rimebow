@@ -30,15 +30,14 @@ export class RimeLanguageService {
     constructor(clientSettings: ClientSettings) {
         this._connection = createConnection();
 
-        // const schemaUri = path.normalize(path.join('..', 'resources', 'schema', 'rime-default-yaml-schema.json'));
-        const schemaUri = "file:///C:/Users/mengq/Developer/personal/rime-assistant-vscode/resources/schema/rime-schema-yaml-schema.json";
+        const schemaUri = "https://rimebow.blob.core.windows.net/schema/rime-schema-yaml-schema.json";
         let yamlSchemaService = new YAMLSchemaService(this._schemaRequestService, this._workspaceContext);
         yamlSchemaService.registerExternalSchema(schemaUri, ["/*.schema.yaml"]);
         // if (settings.schemas) {
         //         settings.schemas.forEach(settings => {
         //             schemaService.registerExternalSchema(settings.uri, settings.fileMatch, settings.schema);
         //         });
-            // }
+        //     }
         // yamlSchemaService.setSchemaContributions(schemaContributions);
         // yamlSchemaService.loadSchema();
 
