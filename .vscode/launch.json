@@ -31,14 +31,13 @@
 			"args": [
 				"--disable-extensions",
 				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
+				"--extensionTestsPath=${workspaceFolder}/out/test/"
 			],
 			"internalConsoleOptions": "openOnFirstSessionStart",
 			"outFiles": [
-				"${workspaceFolder}/out/**/*.js",
 				"${workspaceFolder}/out/test/**/*.js"
 			],
-			// "preLaunchTask": "${defaultBuildTask}"
+			"preLaunchTask": "npm: pretest"
 		},
 		{
 			"type": "node",
