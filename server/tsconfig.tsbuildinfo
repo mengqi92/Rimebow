@@ -652,7 +652,7 @@
         "affectsGlobalScope": false
       },
       "./src/rimelanguageservice.ts": {
-        "version": "3de369218a662e178dfb4342835866fbadff716899958b2128f3ecc555eb2332",
+        "version": "9af1014a5a8a16ac77a9d7a0ad00c4aa2a87cf2eaf7a1bb162ea0a7f331d02fb",
         "signature": "aca54cdd600729cbc15dacb32122c8b293b7a384cca1aa8bceda8bc281fe97b8",
         "affectsGlobalScope": false
       },
@@ -772,7 +772,6 @@
       "sourceMap": true,
       "composite": true,
       "rootDir": "./src",
-      "watch": true,
       "configFilePath": "./tsconfig.json"
     },
     "referencedMap": {
