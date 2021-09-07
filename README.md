@@ -26,7 +26,7 @@
 * macOS 下（鼠须管）默认采用 "/Library/Input Methods/Squirrel.app/Contents/SharedSupport/"
 * Linux 下（ibus-rime/fcitx-rime）默认采用 "/usr/share/rime-data"
 ### `rimeLanguageServer.maxNumberOfProblems`: RIME language server 最大报错数量
-默认为 250。如果你觉得 RIME language server 报的错误实在太多，可以选择进一步调低该数值。
+默认为 1000。如果你觉得 RIME language server 报的错误实在太多，可以选择进一步调低该数值。
 
 ## 发布日志 (Release Notes)
 ### 0.1.0
