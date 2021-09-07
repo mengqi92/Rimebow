@@ -782,7 +782,7 @@ export class RimeConfigurationTree {
                 // this.userConfigDir = path.join('C:', 'Users', 'mengq', 'AppData', 'Roaming', 'Rime');
                 return path.join(process.env.APPDATA!, 'Rime');
             case "darwin":
-                // Squirrel: /Users//Library/Rime
+                // Squirrel: /Users/Library/Rime
                 return path.join(process.env.HOME!, 'Library', 'Rime');
             case "linux":
                 // ibus-rime: ~/.config/ibus/rime
