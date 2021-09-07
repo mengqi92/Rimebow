@@ -19,6 +19,8 @@
 ### RIME Language server
 在 VS Code 中编辑配置方案时，借助 language server，编辑器可以对配置方案进行一些基本的语法检查，并且会对不同配置项的含义进行提示。
 
+![配置方案元信息](https://github.com/mengqi92/Rimebow/blob/master/resources/documentation/screencast/languageServer-syntaxValidation.gif)
+
 **注：该特性目前还在开发中，尚未完善，目前只支持了一部分基础配置项。**
 
 ## 插件的配置
