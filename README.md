@@ -26,13 +26,13 @@
 ## 插件的配置
 本插件提供以下 VS Code 配置项，你可以在 VS Code Settings 中搜索以下配置项进行调整：
 ### `rimebow.userConfigDir`: RIME 用户配置文件所在目录
-* Windows 下（小狼毫）默认采用 "C:/Users/Foo/AppData/Roaming/Rime"
-* macOS 下（鼠须管）默认采用 "/Users/Library/Rime"
-* Linux 下 ibus-rime 默认采用 "~/.config/ibus/rime"，fcitx-rime 默认采用 "~/.config/fcitx/rime"
+* Windows 下（小狼毫）默认采用 `C:/Users/Foo/AppData/Roaming/Rime`
+* macOS 下（鼠须管）默认采用 `/Users/Library/Rime`
+* Linux 下 ibus-rime 默认采用 `~/.config/ibus/rime`，fcitx-rime 默认采用 `~/.config/fcitx/rime`
 ### `rimebow.defaultConfigDir`: RIME 程序配置文件所在目录
-* Windows 下（小狼毫）默认采用 "C:/Program Files (x86)/Rime/weasel-x.xx.x/data"，（当存在多个 weasel-x.xx.x 目录时，取最近修改过的目录作为当前程序目录）
-* macOS 下（鼠须管）默认采用 "/Library/Input Methods/Squirrel.app/Contents/SharedSupport/"
-* Linux 下（ibus-rime/fcitx-rime）默认采用 "/usr/share/rime-data"
+* Windows 下（小狼毫）默认采用 `C:/Program Files (x86)/Rime/weasel-x.xx.x/data`，（当存在多个 weasel-x.xx.x 目录时，取最近修改过的目录作为当前程序目录）
+* macOS 下（鼠须管）默认采用 `/Library/Input Methods/Squirrel.app/Contents/SharedSupport/`
+* Linux 下（ibus-rime/fcitx-rime）默认采用 `/usr/share/rime-data`
 ### `rimeLanguageServer.maxNumberOfProblems`: RIME language server 最大报错数量
 默认为 1000。如果你觉得 RIME language server 报的错误实在太多，可以选择进一步调低该数值。
 
