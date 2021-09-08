@@ -21,7 +21,7 @@
 		},
 		{
 			"type": "npm",
-			"script": "build",
+			"script": "compile",
 			"problemMatcher": [
 				"$eslint-compact"
 			],
