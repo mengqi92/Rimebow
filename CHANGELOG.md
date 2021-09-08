@@ -1,9 +1,7 @@
-# Change Log
+## 更新日志 (Release Notes)
+### 0.1.0
+* 配置文件浏览器
+* 配置结点浏览器
 
-All notable changes to the "Rimebow" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+### 0.2.0
+* RIME language server

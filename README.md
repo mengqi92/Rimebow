@@ -34,14 +34,6 @@
 * macOS 下（鼠须管）默认采用 `/Library/Input Methods/Squirrel.app/Contents/SharedSupport/`
 * Linux 下（ibus-rime/fcitx-rime）默认采用 `/usr/share/rime-data`
 
-## 发布日志 (Release Notes)
-### 0.1.0
-* 配置文件浏览器
-* 配置结点浏览器
-
-### 0.2.0
-* RIME language server
-
 ## 开发规划
 - [ ] 配置语法校验
 - [ ] Rime 配置语法 Language server 以及 schema
