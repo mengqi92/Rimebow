@@ -108,11 +108,11 @@
             "rimebow": [
                 {
                     "id": "rimeFileExplorer",
-                    "name": "File Explorer"
+                    "name": "RIME 配置文件"
                 },
                 {
                     "id": "rimeNodeExplorer",
-                    "name": "Node Explorer"
+                    "name": "RIME 配置结点"
                 }
             ]
         },
