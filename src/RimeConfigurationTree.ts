@@ -282,7 +282,7 @@ export class RimeConfigurationTree {
      * Configuration tree, including config files, in the program config folder.
      */
     public sharedConfigFolderNode: RimeConfigNode = new RimeConfigNode({
-        key: 'PROGRAM',
+        key: '程序配置',
         children: new Map(),
         configFilePath: '',
         kind: ItemKind.Folder,
@@ -291,7 +291,7 @@ export class RimeConfigurationTree {
      * Configuration tree, including config files, in the user config folder.
      */
     public userConfigFolderNode: RimeConfigNode = new RimeConfigNode({
-        key: 'USER',
+        key: '用户配置',
         children: new Map(),
         configFilePath: '',
         kind: ItemKind.Folder
