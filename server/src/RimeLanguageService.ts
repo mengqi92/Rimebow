@@ -33,6 +33,8 @@ export class RimeLanguageService {
         const schemaUri = "https://rimebow.azureedge.net/schema/rime-schema-yaml-schema.json";
         let yamlSchemaService = new YAMLSchemaService(this._schemaRequestService, this._workspaceContext);
         yamlSchemaService.registerExternalSchema(schemaUri, ["/*.schema.yaml"]);
+        const defaultSchemaUri = "https://rimebow.azureedge.net/schema/rime-default-yaml-schema.json";
+        yamlSchemaService.registerExternalSchema(defaultSchemaUri, ["default.yaml"]);
         // if (settings.schemas) {
         //         settings.schemas.forEach(settings => {
         //             schemaService.registerExternalSchema(settings.uri, settings.fileMatch, settings.schema);
