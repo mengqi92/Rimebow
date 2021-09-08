@@ -239,7 +239,7 @@
                 "description": "反查翻译器。借助另一种编码方案查询编码。"
               }, {
                 "type": "string",
-                "pattern": "^table_translator@\\w+",
+                "pattern": "^table_translator(@\\w+)?",
                 "description": "码表翻译器。可定义多个。需添加 @{码表名} 后缀，如 table_translator@cangjie。",
                 "example": "table_translator@cangjie"
               }, {
