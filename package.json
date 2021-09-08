@@ -4,7 +4,7 @@
     "publisher": "MengqiPei",
     "description": "An assistant along with your Rime configuration journey.",
     "repository": "https://github.com/mengqi92/Rimebow",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "engines": {
         "vscode": "^1.45.0"
     },
