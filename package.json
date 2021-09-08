@@ -138,12 +138,6 @@
                     "type": "string",
                     "default": false,
                     "description": "The directory containing default RIME config files."
-                },
-                "rimeLanguageServer.maxNumberOfProblems": {
-                    "scope": "resource",
-                    "type": "number",
-                    "default": 100,
-                    "description": "Controls the maximum number of problems produced by the server."
                 }
             }
         }

@@ -85,13 +85,12 @@ const languageService: RimeLanguageService = new RimeLanguageService({
 
 // The example settings
 interface ExampleSettings {
-	maxNumberOfProblems: number;
 }
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
 // Please note that this is not the case when using this server with the client provided in this example
 // but could happen with other clients.
-const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000 };
+const defaultSettings: ExampleSettings = {};
 let globalSettings: ExampleSettings = defaultSettings;
 
 // Cache the settings of all open documents
