@@ -8,7 +8,8 @@ Rimebow 还不是一个完善的产品，如果你有兴趣，无论是提 issue
 1. Fork 并 clone 本仓库
 2. 在源代码根目录执行：
 ```shell
-npm install
+npm install 
+cd server/ && npm install && cd -
 npm watch
 ```
 （你也可以直接在 VS Code 中 Ctrl/Command-Shift-P 调出 Command Pallete -> Tasks: Run Task 来执行这两个 npm 命令）
