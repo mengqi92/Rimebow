@@ -1,5 +1,5 @@
 # 元宝 Rimebow
-元宝（Rimebow），你的一站式 RIME 配置管理中心。
+元宝（Rimebow），你的一站式 RIME 配置管理助手。
 
 ## 核心功能
 
@@ -36,6 +36,7 @@
 ## 开发规划
 - [ ] 支持 RIME 自定义编译命令
 - [ ] 支持 import_present
+- [ ] 繁体中文支持
 - [ ] 配置语法校验
 - [ ] Rime 配置语法 Language server 以及 schema
 - [ ] 在编辑器中显示配色方案颜色
