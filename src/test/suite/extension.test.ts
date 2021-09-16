@@ -1027,7 +1027,9 @@ suite('Extension Test Suite', () => {
 
         const rimeConfigurationTree: RimeConfigurationTreeForTest = new RimeConfigurationTreeForTest();
 
-        let expectedFileA1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Schema, configFilePath: 'ProgramPath/FileA.yaml', value: 'b'});
+        // In expected result, the node FileA is updated from default.custom (the merge result of default.yaml and default.custom.yaml).
+        let expectedFileA1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Default, configFilePath: 'UserPath/default.yaml', value: 'd'});
+        expectedFileA1.update(nodeUserDefaultCustom1);
         expectedFileA1.update(nodeUserCustom1);
         const expectedDefault1: RimeConfigNode = new RimeConfigNode({key: '1', children: new Map(), kind: ItemKind.Node, fileKind: FileKind.Default, configFilePath: 'UserPath/default.yaml', value: 'd'});
         expectedDefault1.update(nodeUserDefaultCustom1);
