@@ -30,8 +30,7 @@ jobs:
       - name: Build
         run: npm run esbuild
 
-      # FIXME: headless testing not working
-      # - run: xvfb-run -a npm test
-      #   if: runner.os == 'Linux'
-      # - run: npm test
-      #   if: runner.os != 'Linux'
+      - run: xvfb-run -a npm test
+        if: runner.os == 'Linux'
+      - run: npm test
+        if: runner.os != 'Linux'
