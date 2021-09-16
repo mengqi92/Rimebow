@@ -148,7 +148,8 @@
         "esbuild": "npm run esbuild-base -- --sourcemap",
         "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
         "test-compile": "tsc -p ./",
-        "test": "tsc -p ./ && node ./out/test/runTest.js --disable-extensions"
+        "test": "tsc -p ./ && node ./out/test/runTest.js --disable-extensions",
+        "deploy": "vsce publish"
     },
     "devDependencies": {
         "@types/glob": "^7.1.1",
