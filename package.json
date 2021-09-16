@@ -143,12 +143,13 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "npm run esbuild-base --minify",
+        "vscode:prepublish": "npm run server-compile && npm run esbuild-base --minify",
         "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
         "esbuild": "npm run esbuild-base -- --sourcemap",
         "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
         "test-compile": "tsc -p ./",
         "test": "tsc -p ./ && node ./out/test/runTest.js --disable-extensions",
+        "server-compile": "tsc -p server/",
         "deploy": "vsce publish"
     },
     "devDependencies": {

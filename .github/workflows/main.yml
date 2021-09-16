@@ -27,6 +27,9 @@ jobs:
       - name: Install Dependencies
         run: npm install && (cd server && npm install)
 
+      - name: Language Server Build
+        run: npm run server-compile
+
       - name: Build
         run: npm run esbuild
 

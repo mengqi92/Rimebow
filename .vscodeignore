@@ -1,6 +1,7 @@
 .vscode/**
 .vscode-test/**
 !out/main.js
+!server/out/*.js
 out/test/**
 src/**
 .gitignore
