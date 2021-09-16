@@ -16,7 +16,7 @@
         "onView:rimeFileExplorer",
         "onView:rimeNodeExplorer"
     ],
-    "main": "./out/extension.js",
+    "main": "./out/main.js",
     "contributes": {
         "menus": {
             "view/title": [
