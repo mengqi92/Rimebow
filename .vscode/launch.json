@@ -38,7 +38,7 @@
 				"${workspaceFolder}/out/**/*.js",
 				"${workspaceFolder}/out/test/**/*.js"
 			],
-			// "preLaunchTask": "${defaultBuildTask}"
+			"preLaunchTask": "npm: test-compile"
 		},
 		{
 			"type": "node",
