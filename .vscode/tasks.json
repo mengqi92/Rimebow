@@ -5,7 +5,7 @@
 	"tasks": [
 		{
 			"type": "npm",
-			"script": "watch",
+			"script": "esbuild-watch",
 			"isBackground": true,
 			"group": {
 				"kind": "build",
@@ -21,13 +21,12 @@
 		},
 		{
 			"type": "npm",
-			"script": "compile",
+			"script": "esbuild",
 			"problemMatcher": [
 				"$eslint-compact"
 			],
 			"group": "build",
-			"label": "npm: compile",
-			"detail": "tsc -b"
+			"label": "npm: esbuild"
 		}
 	]
 }
