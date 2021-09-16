@@ -1,6 +1,8 @@
 # 元宝 Rimebow
 元宝（Rimebow），你的一站式 RIME 配置管理助手。
 
+[![version](https://badgen.net/vs-marketplace/v/MengqiPei.rimebow?color=green)](https://marketplace.visualstudio.com/items?itemName=MengqiPei.rimebow)
+
 ## 核心功能
 
 ### RIME 文件浏览器；
