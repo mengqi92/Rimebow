@@ -36,6 +36,9 @@
 * macOS 下（鼠须管）默认采用 `/Library/Input Methods/Squirrel.app/Contents/SharedSupport/`
 * Linux 下（ibus-rime/fcitx-rime）默认采用 `/usr/share/rime-data`
 
+## 鸣谢
+本插件 Schema 文件的撰写翻译自 [LEO Yoon-Tsaw](https://github.com/LEOYoon-Tsaw) 关于 RIME 配置文件详尽的说明文档(https://github.com/LEOYoon-Tsaw/Rime_collections/blob/master/Rime_description.md)，在此表示感谢！
+
 ## 开发规划
 - [ ] 支持 RIME 自定义编译命令
 - [ ] 支持 import_present
