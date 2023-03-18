@@ -711,6 +711,29 @@
           "description": "取消特定范围（一般为 reverse_lookup_translator）转换用字。"
         }
       }
+    },
+    "chord_composer": {
+      "description": "并击处理器（和弦作曲家）。用于多键并击的输入方案，如「宫保拼音」。",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "alphabet": {
+          "type": "string",
+          "description": "字母表，包含用于并击的按键。击键虽有先后，形成并击时，一律以字母表顺序排列。"
+        },
+        "algebra": {
+          "type": "string",
+          "description": "拼写运算规则，将一组并击编码转换为拼音音节。"
+        },
+        "output_format": {
+          "type": "string",
+          "description": "并击完成后采用的格式，追加隔音符号。"
+        },
+        "prompt_format": {
+          "type": "string",
+          "description": "并击过程中采用的格式，如方括号。"
+        }
+      }
     }
   }
 }
