@@ -30,10 +30,10 @@ export class RimeLanguageService {
     constructor(clientSettings: ClientSettings) {
         this._connection = createConnection();
 
-        const schemaUri = "https://rimebow.azureedge.net/schema/rime-schema-yaml-schema.json";
+        const schemaUri = "https://d3gyfrtg0yt6hg.cloudfront.net/schema/rime-schema-yaml-schema.json";
         let yamlSchemaService = new YAMLSchemaService(this._schemaRequestService, this._workspaceContext);
         yamlSchemaService.registerExternalSchema(schemaUri, ["/*.schema.yaml"]);
-        const defaultSchemaUri = "https://rimebow.azureedge.net/schema/rime-default-yaml-schema.json";
+        const defaultSchemaUri = "https://d3gyfrtg0yt6hg.cloudfront.net/schema/rime-default-yaml-schema.json";
         yamlSchemaService.registerExternalSchema(defaultSchemaUri, ["default.yaml"]);
         // if (settings.schemas) {
         //         settings.schemas.forEach(settings => {
